@@ -1,0 +1,24 @@
+Rawrbot - An IRC Bot written in Ruby
+By: Craig Meinschein
+
+Rawrbot is a Ruby IRC bot which uses the Cinch IRC Bot 
+framework. (https://github.com/cinchrb/cinch)
+
+Functionality is based on plugins loaded into the bot. Plugins
+can be written using Ruby and the Cinch API.
+
+The main purpose of Rawrbot is to assist in OIT Helpdesk-related
+work. The FEATURES file contains a list of all current and planned
+functionality. 
+
+Requirements: 
+	Currently, the bot must be run on an OIT or CAT UNIX machine in
+	order to work properly. It relies on being in PSU's IP space
+	to use its LDAP search, since OIT's LDAP server is firewalled
+  off from off-campus entities.
+
+	In addition, Rawrbot requires Ruby v1.9.x to be installed, as well
+	as the following Ruby gems:
+	- Cinch
+	- Net-LDAP
+	- GDBM
