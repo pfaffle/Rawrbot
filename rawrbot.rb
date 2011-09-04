@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 # (c) Craig Meinschein 2011
 # Licensed under the GPLv3 or any later version.
-# File:			pfafflebot.rb
+# File:			rawrbot.rb
 # Description:
-# 	pfafflebot. An irc bot implemented
+# 	rawrbot. An irc bot implemented
 #		in Ruby, using the Cinch framework from:
 #	 	http://www.rubyinside.com/cinch-a-ruby-irc-bot-
 #	 	building-framework-3223.html
@@ -12,7 +12,9 @@
 
 require 'cinch'
 
+# =============================================================================
 # Plugin: Karma
+#
 # Description:
 # 	Tracks positive and negative karma for a given item. Increments
 # 	karma when someone adds a ++ after a word (or a series of words 
@@ -37,7 +39,7 @@ class Karma
 	# Description: Increments karma by one point for each object
 	# that has a ++ after it.
 	#
-	# Converts to a Fixnum (int), adds 1, then converts back to
+	# Converts karma value to a Fixnum (int), adds 1, then converts back to
 	# a String, because GDBM doesn't seem to like to store
 	# anything but Strings. If an element reaches neutral (0) karma,
 	# it deletes it from the DB so the DB doesn't grow any larger
@@ -78,7 +80,7 @@ class Karma
 	# Description: Decrements karma by one point for each object
 	# that has a -- after it.
 	#
-  # Converts to a Fixnum (int), subtracts 1, then converts back to
+  # Converts karma value to a Fixnum (int), subtracts 1, then converts back to
 	# a String, because GDBM doesn't seem to like to store
 	# anything but Strings. If an element reaches neutral (0) karma,
 	# it deletes it from the DB so the DB doesn't grow any larger
@@ -149,8 +151,11 @@ class Karma
 		m.reply "See: !help karma"
 	end
 
-end # End of Karma Class
+end
+# End of plugin: Karma
+# =============================================================================
 
+# =============================================================================
 # Plugin: Social
 #
 # Description:
@@ -162,17 +167,48 @@ end # End of Karma Class
 class Social
 	include Cinch::Plugin
 
-	match(/hello|hi|howdy|hey|greetings/, :use_prefix => false, method: :greet)
+	match(/hello|hi|howdy|hey|greetings/i, :use_prefix => false, method: :greet)
+	match(/(good)? ?(morning|afternoon|evening|night)/i, :use_prefix => false, method: :timeofday_greet)
+	match(/(good)?bye|adios|farewell|later|see ?(ya|you|u)|cya/i, :use_prefix => false, method: :farewell)
+
+	# Function: greet
+	#
+	# Description:
+	# 	Say hi!
 	def greet(m)
-		me = m.bot.nick
-		print "#{me}\n"
-		if m.message.match(/hello|hi|howdy|hey|greetings #{me}/)
-			#m.reply "Hello, #{m.user.nick}!"
-			print "respond!\n"
+		if m.message.match(/(hellos?|hi(ya)?|howdy|hey|greetings|yo|sup|hai|hola),? #{m.bot.nick}/i)
+			greetings = ['Hello','Hi','Hola','Ni hao','Hey','Yo','Howdy']
+			greeting = greetings[rand(greetings.size)]
+			m.reply "#{greeting}, #{m.user.nick}!"
+		end
+	end # End of greet function
+	
+	# Function: timeofday_greet
+	#
+	# Description:
+	# 	Gives a time of day-specific response to a greeting. i.e. 'good morning'.
+	def timeofday_greet(m)
+		if m.message.match(/(good)? ?(morning|afternoon|evening|night),? #{m.bot.nick}/i)
+			m.reply "Good #{$2.downcase}, #{m.user.nick}!"
+		end
+	end # End of timeofday_greet function
+
+	# Function: farewell
+	#
+	# Description:
+	# 	Says farewell.
+	def farewell(m)
+		farewells = ['Bye','Adios','Farewell','Later','See ya','See you','Take care']
+		farewell = farewells[rand(farewells.size)]
+		if m.message.match(/((good)?bye|adios|farewell|later|see ?(ya|you|u)|cya),? #{m.bot.nick}/i)
+			m.reply "#{farewell}, #{m.user.nick}!"
 		end
 	end
 end
+# End of plugin: Social
+# =============================================================================
 
+# =============================================================================
 # Plugin: Messenger
 #
 # Description:
@@ -183,13 +219,21 @@ end
 class Messenger
 	include Cinch::Plugin
 	
-	match /tell (.+?) (.+)/
+	match(/tell (.+?) (.+)/)
 	
+	# Function: execute
+	#
+	# Description:
+	# 	Tells someone something.
 	def execute(m, receiver, message)
+		m.reply "Done."
 		User(receiver).send(message)
 	end
 end
+# End of plugin: Messenger
+# =============================================================================
 
+# =============================================================================
 # Plugin: LDAPsearch
 #
 # Description:
@@ -198,7 +242,7 @@ end
 #
 # Requirements:
 #		- The Ruby gem NET-LDAP
-#		- Authentication information for NET-LDAP in a file named 'ldap_auth.rb'.
+#		- Authentication information for NET-LDAP in the file 'ldap_auth.rb'.
 #		- Rawrbot must be running on PSU's IP space (131.252.x.x).
 class LDAPsearch
 	include Cinch::Plugin
@@ -312,6 +356,9 @@ class LDAPsearch
 				elsif e['month'] =~ /December/
 					e['month'] = 'June'
 				end
+				if e['year'] == '2012' # Being lazy. I will have to fix this logic eventually.
+					e['year'] == '2011'
+				end
 				reply << "Password was set: #{e['month']} #{e['day']}, #{e['year']} at #{e['hour']}:#{e['min']}:#{e['sec']}\n"
 			end
 			
@@ -391,15 +438,16 @@ class LDAPsearch
 		m.reply "See: !help ldap"
 	end
 
-end # End of LDAPsearch Class.
+end
+# End of plugin: LDAPsearch
+# =============================================================================
 
-
-# Launch the bot
+# Launch the bot.
 bot = Cinch::Bot.new do
 	configure do |config|
 		config.server	= "irc.cat.pdx.edu"
 		config.port		= 6697
-		config.channels = ["#testchan","#helpdesk helpdesk123","#10forward"]
+		config.channels = ["#testchan"]
 		config.ssl.use	= true
 		config.nick		= "rawrbot2"
 		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
