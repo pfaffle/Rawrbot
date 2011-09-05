@@ -38,6 +38,8 @@ class Learning
 	def execute(m)
 		if m.message.match(/[:,-]? ([^(is)]+) is (also )?(.+)/)
 			learn(m, $1, $3)
+		elsif m.message.match(/[:,-]? (.+) =~ s\/(.+)\/(.+)\//)
+			edit(m, $1, $2, $3)
 		elsif m.message.match(/[:,-]? forget (.+)/)
 			forget(m, $1)
 		elsif m.message.match(/[:,-]? (.+)/)
@@ -65,6 +67,23 @@ class Learning
 		end
 		learning_db.close
 	end # End of learn function
+
+	# Function: edit
+	#
+	# Description:
+	# 	Edits an existing entry in the database by using regex syntax.
+	def edit(m, thing, find, replace)
+		learning_db = GDBM.new("learning.db", mode = 0600)
+		thing.downcase!
+		if learning_db.has_key? thing
+			# edit the entry
+			learning_db[thing] = learning_db[thing].sub(/#{find}/,replace)
+			m.reply "done, #{m.user.nick}."
+		else
+			m.reply "I don't know anything about #{thing}."
+		end
+		learning_db.close
+	end # End of edit function.
 
 	# Function: teach
 	#
