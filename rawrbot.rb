@@ -154,6 +154,7 @@ class Karma
 		matches = m.message.scan(/\([^)]+\)\+\+|\S+\+\+/)
 	
 		matches.each do |element|
+			element.downcase!
 			if element =~ /\((.+)\)\+\+/
 				if karma_db.has_key? $1
 					if karma_db[$1] == "-1"
@@ -195,6 +196,7 @@ class Karma
 		matches = m.message.scan(/\([^)]+\)--|\S+--/)
 		
 		matches.each do |element|
+			element.downcase!
 			if element =~ /\((.+)\)--/
 				if karma_db.has_key? $1
 					if karma_db[$1] == "1"
@@ -227,6 +229,7 @@ class Karma
 	#   If the element does not exist in the DB, it has neutral (0) karma.
 	def display(m,arg)
 		karma_db = GDBM.new("karma.db", mode = 0600)
+		arg.downcase!
 		if karma_db.has_key?("#{arg}")
 			m.reply "#{arg} has karma of #{karma_db[arg]}."
 		else
@@ -558,7 +561,7 @@ bot = Cinch::Bot.new do
 		config.nick		= "rawrbot2"
 		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
 		config.user		= "rawrbot2"
-		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,DirectAddressing]
+		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning]
 	end
 end
 
