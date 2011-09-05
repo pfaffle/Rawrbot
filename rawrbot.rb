@@ -3,14 +3,119 @@
 # Licensed under the GPLv3 or any later version.
 # File:			rawrbot.rb
 # Description:
-# 	rawrbot. An irc bot implemented
-#		in Ruby, using the Cinch framework from:
-#	 	http://www.rubyinside.com/cinch-a-ruby-irc-bot-
-#	 	building-framework-3223.html
+# 	rawrbot. An irc bot implemented in Ruby, using the Cinch framework from:
+#	 	http://www.rubyinside.com/cinch-a-ruby-irc-bot-building-framework-3223.html
 #		A work in progress.
 
 
 require 'cinch'
+
+# =============================================================================
+# Plugin: Learning
+#
+# Description:
+# 	Enables rawrbot to be taught about various topics/things. If someone tells
+# 	rawrbot "x is y", it will store that information in its database. New data
+# 	about something is appended to the old entry.
+#
+# Requirements:
+# 	The Ruby gem 'gdbm' must be installed.
+class Learning
+	include Cinch::Plugin
+	
+	prefix lambda{ |m| m.bot.nick }
+	
+	require 'gdbm'
+	
+	match(/[:,-]?/)
+	
+	# Function: execute
+	#
+	# Description:
+	# 	Determines how to process the command, whether or not the user is trying
+	# 	to teach the bot something, make the bot forget something, or retrieve
+	# 	information from the bot.
+	def execute(m)
+		if m.message.match(/[:,-]? (.+) is (also )?(.+)/)
+			# This doesn't work quite as intended. "a is b is c" gets stored as
+			# a is b =IS= c, rather than a =IS= b is c.						
+			learn(m, $1, $3)
+		elsif m.message.match(/[:,-]? forget (.+)/)
+			forget(m, $1)
+		elsif m.message.match(/[:,-]? (.+)/)
+			teach(m, $1)
+		elsif m.message.match(/[:,-]?/)
+			address(m)
+		end
+	end # End of execute function
+
+	# Function: learn
+	#
+	# Description:
+	# 	Makes the bot learn something about the given thing. Stores it in the
+	# 	learning database.	
+	def learn(m, thing, info)
+		acknowledgements = ['good to know','got it','roger','understood','OK']
+		acknowledgement = acknowledgements[rand(acknowledgements.size)]
+		m.reply "#{acknowledgement}, #{m.user.nick}."
+		learning_db = GDBM.new("learning.db", mode = 0600)
+		thing.downcase!
+		if learning_db.has_key? thing
+			learning_db[thing] = learning_db[thing] + " or #{info}"
+		else
+			learning_db[thing] = info
+		end
+		learning_db.close
+	end # End of learn function
+
+	# Function: teach
+	#
+	# Description:
+	# 	Makes the bot teach the user what it knows about the given thing, as
+	# 	it is stored in the database.
+	def teach(m, thing)
+		learning_db = GDBM.new("learning.db", mode = 0600)
+		thing.downcase!
+		if learning_db.has_key? thing
+			m.reply "#{thing} is #{learning_db[thing]}."
+		else
+			giveups = ["bugger all, I dunno, #{m.user.nick}.","no idea, #{m.user.nick}.","dunno, #{m.user.nick}."]
+			giveups.concat ['huh?','what?']
+			giveup = giveups[rand(giveups.size)]
+			m.reply "#{giveup}"
+		end
+		learning_db.close
+	end # End of teach function
+
+	# Function: forget
+	#
+	# Description:
+	# 	Makes the bot forget whatever it knows about hte given thing. Removes
+	# 	that key from the database.
+	def forget(m, thing)
+		learning_db = GDBM.new("learning.db", mode = 0600)
+		thing.downcase!
+		if learning_db.has_key? thing
+			learning_db.delete thing
+			m.reply "I forgot #{thing}."
+		else
+			m.reply "I don't know anything about #{thing}."
+		end
+		learning_db.close
+	end # End of forget function
+
+	# Function: address
+	#
+	# Description:
+	# 	If the bot is named but given no arguments, it responds with this function.
+	def address(m)
+		replies = ["#{m.user.nick}?",'yes?','you called?','what?']
+		my_reply = replies[rand(replies.size)]
+		m.reply my_reply
+	end # End of address function
+end
+# End of plugin: Learning
+# =============================================================================
 
 # =============================================================================
 # Plugin: Karma
@@ -442,6 +547,7 @@ end
 # End of plugin: LDAPsearch
 # =============================================================================
 
+
 # Launch the bot.
 bot = Cinch::Bot.new do
 	configure do |config|
@@ -452,7 +558,7 @@ bot = Cinch::Bot.new do
 		config.nick		= "rawrbot2"
 		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
 		config.user		= "rawrbot2"
-		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma]
+		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,DirectAddressing]
 	end
 end
 
