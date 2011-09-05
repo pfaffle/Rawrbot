@@ -1,20 +1,14 @@
 Features to add to Rawrbot
-Last updated: 8/10/2011
+Last updated: 9/5/2011
 ====
 
 Currently working on:
 ----
--Karma tracking (++ and --) module.
--LDAP search.
-	-Always show expiration date of accounts.
-	-Check for when no results found.
 -Lunch break tracking.
 
 In the future:
 ----
 -Rate limiter for output, so we don't spam channels.
--Split up lines of output longer than 120(?) chars.
--Infobot-style learning module.
 -RT Ticket search.
 -Phone extension search.
 -Set user modes on Rawrbot.

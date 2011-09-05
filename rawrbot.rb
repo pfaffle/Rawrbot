@@ -573,7 +573,9 @@ bot = Cinch::Bot.new do
 	configure do |config|
 		config.server	= "irc.cat.pdx.edu"
 		config.port		= 6697
-		config.channels = ["#testchan"]
+		# To join multiple channels, add entries to the array.
+		# ["#channel_name channel_key",...]
+		config.channels = ["#testchan","#helpdesk helpdesk123","#10forward"]
 		config.ssl.use	= true
 		config.nick		= "rawrbot2"
 		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
