@@ -9,6 +9,7 @@
 
 
 require 'cinch'
+$pwd = Dir.pwd
 
 # =============================================================================
 # Plugin: Learning
@@ -570,16 +571,16 @@ end
 
 # Launch the bot.
 bot = Cinch::Bot.new do
+	require "#{$pwd}/config.rb"
+	config_hash = ret_config
 	configure do |config|
-		config.server	= "irc.cat.pdx.edu"
-		config.port		= 6697
-		# To join multiple channels, add entries to the array.
-		# ["#channel_name channel_key",...]
-		config.channels = ["#testchan","#helpdesk helpdesk123","#10forward"]
-		config.ssl.use	= true
-		config.nick		= "rawrbot2"
-		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
-		config.user		= "rawrbot2"
+		config.server		= config_hash['server']
+		config.port			= config_hash['port']
+		config.channels	= config_hash['channels']
+		config.ssl.use	= config_hash['ssl']
+		config.nick			= config_hash['nick']
+		config.realname	= config_hash['realname']
+		config.user			= config_hash['user']
 		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning]
 	end
 end
