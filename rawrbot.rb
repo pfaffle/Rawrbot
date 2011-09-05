@@ -36,9 +36,7 @@ class Learning
 	# 	to teach the bot something, make the bot forget something, or retrieve
 	# 	information from the bot.
 	def execute(m)
-		if m.message.match(/[:,-]? (.+) is (also )?(.+)/)
-			# This doesn't work quite as intended. "a is b is c" gets stored as
-			# a is b =IS= c, rather than a =IS= b is c.						
+		if m.message.match(/[:,-]? ([^(is)]+) is (also )?(.+)/)
 			learn(m, $1, $3)
 		elsif m.message.match(/[:,-]? forget (.+)/)
 			forget(m, $1)
@@ -558,7 +556,7 @@ bot = Cinch::Bot.new do
 		config.nick		= "rawrbot2"
 		config.realname	= "rawrbot 2.0! Brought to you by Ruby."
 		config.user		= "rawrbot2"
-		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,DirectAddressing]
+		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning]
 	end
 end
 
