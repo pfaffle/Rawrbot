@@ -373,7 +373,7 @@ end
 class LDAPsearch
 	include Cinch::Plugin
 	
-	require '~/bot/ldap_auth.rb'
+	require 'net/ldap'
 	match(/help ldap/i, method: :ldap_help)
 	match("help", method: :help)
 	match(/ldap (.+)/)
@@ -551,8 +551,35 @@ class LDAPsearch
 		return_date['month'] = 'December' if return_date['month'] == '12'
 		
 		return return_date
-		end # End of parse_date function.
+	end # End of parse_date function.
 	
+	def ldap_search(attr,query)
+		require "#{$pwd}/ldap_auth.rb"
+ 		# ldap_return auth (below) is a function from ldap_auth.rb that returns a
+		# hash with the username and password to bind to LDAP with.
+		ldap_auth = ldap_return_auth
+		ldap = Net::LDAP.new
+		ldap.host = 'ldap.oit.pdx.edu'
+		ldap.port = 636
+		ldap.auth ldap_auth['username'], ldap_auth['pass']
+		ldap.encryption :method => :simple_tls
+		ldap.base = 'dc=pdx,dc=edu'
+		
+		# Perform the search, then return a hash with LDAP attributes corresponding
+		# to hash keys, and LDAP values corresponding to hash values.
+		filter = Net::LDAP::Filter.eq(attr,query)
+		result = Hash.new(Array.new)
+		ldap.search(:filter => filter) do |entry|
+			entry.each do |attribute, values|
+				values.each do |value|
+					result["#{attribute}"] += ["#{value}"]
+					# This currently returns a hash like result[:dn] => 'blahblahblah'
+				end
+			end
+		end
+		return result
+	end # End of ldap_search function
+
 	def ldap_help(m)
 		m.reply "LDAP Search"
 		m.reply "==========="
