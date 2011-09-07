@@ -24,12 +24,14 @@ $pwd = Dir.pwd
 class Learning
 	include Cinch::Plugin
 	
-	prefix lambda{ |m| m.bot.nick }
+	prefix lambda{ |m| /^#{m.bot.nick}/ }
 	
 	require 'gdbm'
 	
 	match(/[:,-]?/)
-	
+	match("!help", :use_prefix => false, method: :help)
+	match(/^!help learning/i, :use_prefix => false, method: :learning_help)
+
 	# Function: execute
 	#
 	# Description:
@@ -43,6 +45,8 @@ class Learning
 			edit(m, $1, $2, $3)
 		elsif m.message.match(/[:,-]? forget (.+)/)
 			forget(m, $1)
+		elsif m.message.match(/[:,-]? literal (.+)/)
+			literal(m, $1)
 		elsif m.message.match(/[:,-]? (.+)/)
 			teach(m, $1)
 		elsif m.message.match(/[:,-]?/)
@@ -78,8 +82,13 @@ class Learning
 		thing.downcase!
 		if learning_db.has_key? thing
 			# edit the entry
-			learning_db[thing] = learning_db[thing].sub(/#{find}/,replace)
-			m.reply "done, #{m.user.nick}."
+			info = learning_db[thing]
+			if info.sub!(/#{find}/,replace).nil?
+				m.reply "#{thing} doesn't contain '#{find}'."
+			else
+				learning_db[thing] = info
+				m.reply "done, #{m.user.nick}."
+			end
 		else
 			m.reply "I don't know anything about #{thing}."
 		end
@@ -95,7 +104,22 @@ class Learning
 		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
 		if learning_db.has_key? thing
-			m.reply "#{thing} is #{learning_db[thing]}."
+			info = learning_db[thing]
+
+			# If the entry contains pipe characters, split it into substrings delimited
+			# by those pipe characters, then choose one randomly to spit back out.
+			if info.match(/\|/)
+				split_entries = info.split '|'
+				info = split_entries[rand(split_entries.size)]
+			end
+			
+			# If the entry contains the prefix <reply>, reply by simply saying
+			# anything following it, rather than saying 'x is y'.
+			if info.match(/^<reply> ?(.+)/)
+				m.reply $1
+			else
+				m.reply "#{thing} is #{info}."
+			end
 		else
 			giveups = ["bugger all, I dunno, #{m.user.nick}.","no idea, #{m.user.nick}.","dunno, #{m.user.nick}."]
 			giveups.concat ['huh?','what?']
@@ -122,6 +146,23 @@ class Learning
 		learning_db.close
 	end # End of forget function
 
+	# Function: literal
+	#
+	# Description:
+	# 	Displays the literal contents of the database entry for the given thing,
+	# 	without parsing special syntax like <reply> and |.
+	def literal(m, thing)
+		learning_db = GDBM.new("learning.db", mode = 0600)
+		thing.downcase!
+		if learning_db.has_key? thing
+			info = learning_db[thing]
+			m.reply "#{thing} =is= #{info}."
+		else
+			m.reply "No entry for #{thing}"
+		end
+		learning_db.close
+	end
+
 	# Function: address
 	#
 	# Description:
@@ -131,6 +172,28 @@ class Learning
 		my_reply = replies[rand(replies.size)]
 		m.reply my_reply
 	end # End of address function
+
+	# Function: help
+	#
+	# Description: Adds onto the generic help function for other plugins. Prompts
+	#   people to use a more specific command to get more details about the
+	#   functionality of the module specifically.
+	def help(m)
+		m.reply "See: !help learning"
+	end # End of help function
+	
+	# Function: learning_help
+	#
+	# Description: Displays help information for how to use the plugin.
+	def learning_help(m)
+		m.reply "Learning module"
+		m.reply "==========="
+		m.reply "Description: Teach the bot about things, and have it repeat that info back later."
+		m.reply "Usage: [botname] [thing] is [information] (to store additional [information]	under the keyword [thing].)"
+		m.reply "[botname] [thing] (to get whatever the bot knows about [thing].)"
+	end
+	
+
 end
 # End of plugin: Learning
 # =============================================================================

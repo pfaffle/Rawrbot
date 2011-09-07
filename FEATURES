@@ -1,18 +1,25 @@
 Features to add to Rawrbot
-Last updated: 9/5/2011
+Last updated: 9/6/2011
 ====
 
 Currently working on:
 ----
--Lunch break tracking.
+	- Learning module:
+x 	-- Add support for special reply syntax like <reply> and |
+x 	-- Add support for literally displaying the entry.
+x 	-- Add a help function.
+	- Lunch break tracking.
+	- Import old karma and learning database from the previous rawrbot.
+	- Rate limiter for output, so we don't spam channels, and so it doesn't
+		lag when returning a lot of data in a short time.
+	- RT Ticket search.
+	- Phone extension search.
+	- Set user modes on Rawrbot.
+	- "Issue of the day" tracking, which rawrbot will pm to people who join
+	  #helpdesk.
+	- "tumblr link aggregator or somesuch=)"
+	  "oooo, give rawrbot a tumblr that records all links? shiny"
 
-In the future:
+Known bugs:
 ----
--Rate limiter for output, so we don't spam channels.
--RT Ticket search.
--Phone extension search.
--Set user modes on Rawrbot.
--"Issue of the day" tracking, which rawrbot will pm to people who join
- #helpdesk.
--tumblr link aggregator or somesuch=)
- oooo, give rawrbot a tumblr that records all links? shiny              
+	- Rawrbot respond to things like 'hello rawrbot' but not to 'rawrbot: hello'
