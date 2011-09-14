@@ -26,7 +26,7 @@ class RTSearch
 	include Cinch::Plugin
 	
 	match("help", method: :help)
-	match(/^help rtsearch/i, method: :rt_help)
+	match(/help rtsearch/i, method: :rt_help)
 	
 	# Function: help
 	#
