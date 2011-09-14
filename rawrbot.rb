@@ -12,6 +12,49 @@ require 'cinch'
 $pwd = Dir.pwd
 
 # =============================================================================
+# Plugin: RTSearch
+#
+# Description:
+# 	Enables rawrbot to search OIT's Request Tracker ticketing system for basic
+# 	ticket data. This plugin simply notices when something appears like a ticket
+# 	number, then returns basic info about that ticket such as the Subject,
+# 	the Requestors, current Status, and Owner.
+#
+# Requirements:
+# 	none
+class RTSearch
+	include Cinch::Plugin
+	
+	match("help", method: :help)
+	match(/^help rtsearch/i, method: :rt_help)
+	
+	# Function: help
+	#
+	# Description: Adds onto the generic help function for other plugins. Prompts
+	#   people to use a more specific command to get more details about the
+	#   functionality of the module specifically.
+	def help(m)
+		m.reply "See: !help rtsearch"
+	end # End of help function
+	
+	# Function: rt_help
+	#
+	# Description: Displays help information for how to use the plugin.
+	def rt_help(m)
+		m.reply "RT Search"
+		m.reply "==========="
+		m.reply "Display RT ticket information."
+		m.reply "Usage: rt#[ticket number]" 
+	end
+
+end
+# End of plugin: RTSearch
+# =============================================================================
+
+
+
+
+# =============================================================================
 # Plugin: Learning
 #
 # Description:
@@ -671,7 +714,7 @@ bot = Cinch::Bot.new do
 		config.nick			= config_hash['nick']
 		config.realname	= config_hash['realname']
 		config.user			= config_hash['user']
-		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning]
+		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,RTSearch]
 	end
 end
 
