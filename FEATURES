@@ -4,14 +4,12 @@ Last updated: 9/6/2011
 
 Currently working on:
 ----
-	- Learning module:
-x 	-- Add support for special reply syntax like <reply> and |
-x 	-- Add support for literally displaying the entry.
-x 	-- Add a help function.
+	- Don't respond to spammed commands.
 	- Lunch break tracking.
 	- Import old karma and learning database from the previous rawrbot.
-	- Rate limiter for output, so we don't spam channels, and so it doesn't
+X	- Rate limiter for output, so we don't spam channels, and so it doesn't
 		lag when returning a lot of data in a short time.
+	  (turns out that cinch already does this.)
 	- RT Ticket search.
 	- Phone extension search.
 	- Set user modes on Rawrbot.
