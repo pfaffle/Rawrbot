@@ -34,7 +34,7 @@ class LDAPsearch
 		# Determine what field to search and proceed to execute it.
 		if query =~ /@pdx.edu/
 			type = 'email alias'
-			attribute = 'mail'
+			attribute = 'mailLocalAddress'
 		elsif query =~ /@/
 			type = 'forwarding address'
 			attribute = 'mailRoutingAddress'
