@@ -7,7 +7,7 @@
 #
 # Requirements:
 #		- The Ruby gem NET-LDAP
-#		- Authentication information for NET-LDAP in the file 'ldap_auth.rb'.
+#		- Authentication information for NET-LDAP in the file 'auth_ldap.rb'.
 #		- Rawrbot must be running on PSU's IP space (131.252.x.x).
 class LDAPsearch
 	include Cinch::Plugin
@@ -193,8 +193,8 @@ class LDAPsearch
 	end # End of parse_date function.
 	
 	def ldap_search(attr,query)
-		require "#{$pwd}/plugins/ldap_auth.rb"
- 		# ldap_return auth (below) is a function from ldap_auth.rb that returns a
+		require "#{$pwd}/plugins/auth_ldap.rb"
+ 		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
 		# hash with the username and password to bind to LDAP with.
 		ldap_auth = ldap_return_auth
 		ldap = Net::LDAP.new
