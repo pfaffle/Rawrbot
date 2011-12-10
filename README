@@ -1,5 +1,6 @@
 Rawrbot - An IRC Bot written in Ruby
 By: Craig Meinschein
+====================================
 
 Rawrbot is a Ruby IRC bot which uses the Cinch IRC Bot 
 framework. (https://github.com/cinchrb/cinch)
