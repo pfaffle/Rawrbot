@@ -11,7 +11,7 @@
 class Learning
 	include Cinch::Plugin
 	
-	prefix lambda{ |m| /^#{m.bot.nick}/ }
+	prefix lambda{ |m| /^#{m.bot.nick}/ } 
 	
 	require 'gdbm'
 	
@@ -26,17 +26,17 @@ class Learning
 	# 	to teach the bot something, make the bot forget something, or retrieve
 	# 	information from the bot.
 	def execute(m)
-		if m.message.match(/[:,-]? ([^(is)]+) is (also )?(.+)/)
+		if m.message.match(/^#{m.bot.nick}[:,-]? (.+?) is (also )?(.+)/i)
 			learn(m, $1, $3)
-		elsif m.message.match(/[:,-]? (.+) =~ s\/(.+)\/(.+)\//)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? (.+) =~ s\/(.+)\/(.+)\//i)
 			edit(m, $1, $2, $3)
-		elsif m.message.match(/[:,-]? forget (.+)/)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? forget (.+)/i)
 			forget(m, $1)
-		elsif m.message.match(/[:,-]? literal (.+)/)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? literal (.+)/i)
 			literal(m, $1)
-		elsif m.message.match(/[:,-]? (.+)/)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? (.+)/i)
 			teach(m, $1)
-		elsif m.message.match(/[:,-]?/)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]?$/i)
 			address(m)
 		end
 	end # End of execute function
@@ -184,4 +184,3 @@ class Learning
 end
 # End of plugin: Learning
 # =============================================================================
-

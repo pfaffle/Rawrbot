@@ -1,5 +1,5 @@
 Features to add to Rawrbot
-Last updated: 11/18/2011
+Last updated: 12/11/2011
 ====
 
 Currently working on:
@@ -20,5 +20,8 @@ Currently working on:
 Known bugs:
 ----
 	- Rawrbot respond to things like 'hello rawrbot' but not to 'rawrbot: hello'
-	- Rawrbot fails to store information about things with 'i' or 's' in the key,
+x	- Rawrbot fails to store information about things with 'i' or 's' in the key,
 		rather than just things aside from the word (is).
+x - Rawrbot responds to anything that has his name at the beginning of a line, even
+    if it is not him. I.e. if nick is 'rawrbot', it will also respond to 'rawrbot_',
+	  'rawrbot2', 'rawrbotxyzskdl'.
