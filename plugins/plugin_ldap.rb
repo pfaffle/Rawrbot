@@ -14,9 +14,11 @@ class LDAPsearch
 	
 	require 'net/ldap'
 	match(/help ldap/i, method: :ldap_help)
+	match(/help phone/i, method: :phone_help)
 	match("help", method: :help)
 	match(/ldap (.+)/)
-	
+	match(/phone (.+)/, method: :phone_search)
+
 	# Function: execute
 	#
 	# Description: Parses the search query and executes a search on LDAP to retrieve
@@ -35,9 +37,10 @@ class LDAPsearch
 		if query =~ /@pdx.edu/
 			type = 'email alias'
 			attribute = 'mailLocalAddress'
-		elsif query =~ /@/
-			type = 'forwarding address'
-			attribute = 'mailRoutingAddress'
+#   This is not useful anymore after the transition to Google Mail.			
+#		elsif query =~ /@/
+#			type = 'forwarding address'
+#			attribute = 'mailRoutingAddress'
 		else
 			type = 'username'
 			attribute = 'uid'
@@ -218,15 +221,67 @@ class LDAPsearch
 		return result
 	end # End of ldap_search function
 
+	def phone_search(m, query)
+
+		# Error-checking to sanitize input. i.e. no illegal symbols.
+		if query =~ /[^\w@._-]/
+			m.reply "Invalid search query '#{query}'"
+			return
+		end	
+		
+		# Determine what field to search and proceed to execute it.
+		if query =~ /@pdx.edu/
+			attribute = 'mailLocalAddress'
+#   This is not useful anymore after the transition to Google Mail.			
+#		elsif query =~ /@/
+#			attribute = 'mailRoutingAddress'
+		else
+			attribute = 'uid'
+		end
+		
+		ldap_entry = ldap_search attribute,query
+
+		#	Piece together the final results and print them out in user-friendly output.
+		reply = String.new
+		if ldap_entry['dn'].empty?
+			reply = "No results for #{query}.\n"
+		elsif ldap_entry['telephonenumber'].empty?
+			reply = "No results for #{query}.\n"
+		elsif ldap_entry['dn'].length > 1
+			# Realistically this case should never happen because we filtered '*'
+			# out of the search string earlier. If this comes up, something in LDAP
+			# is really janky. The logic to account for this is here nonetheless,
+			# just in case.
+			reply = "Error: Too many results.\n"
+		else
+			#	Get name and phone of the user.
+			ldap_entry['gecos'].each { |name| reply << "Name: #{name}\n" }
+			ldap_entry['telephonenumber'].each { |phone| reply << "Phone: #{phone}\n" }
+		end
+		
+		m.reply reply
+		return
+
+	end
+
+
 	def ldap_help(m)
 		m.reply "LDAP Search"
 		m.reply "==========="
 		m.reply "Description: Performs a search on LDAP for the given query, then returns information about the user's account."
-		m.reply "Usage: !ldap [username|email alias|email forwarding address]"
+		m.reply "Usage: !ldap [username|email alias]"
 	end # End of ldap_help function.
 	
+	def phone_help(m)
+		m.reply "Phone Search"
+		m.reply "==========="
+		m.reply "Description: Searches LDAP for the given query, then returns the user's phone number, if it exists in LDAP."
+		m.reply "Usage: !phone [username|email alias]"
+	end # End of phone_help function.
+
 	def help(m)
 		m.reply "See: !help ldap"
+		m.reply "See: !help phone"
 	end
 
 end

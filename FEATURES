@@ -1,14 +1,14 @@
 Features to add to Rawrbot
-Last updated: 12/11/2011
+Last updated: 12/16/2011
 ====
 
 Currently working on:
 ----
+x	- Phone extension search.
 	- Don't respond to spammed commands.
 	- Lunch break tracking.
 	- Import old karma and learning database from the previous rawrbot.
 	- RT Ticket search.
-	- Phone extension search.
 	- Set user modes on Rawrbot.
 	- "Issue of the day" tracking, which rawrbot will pm to people who join
 	  #helpdesk.
