@@ -2,22 +2,28 @@
 # Plugin: LDAPsearch
 #
 # Description:
-# 	Searches LDAP for an account, and returns
-# 	results about that account if found.
+# 	Searches LDAP for an account (!ldap) or a person's phone number (!phone), 
+# 	and returns results about that query, if found.
 #
 # Requirements:
-#		- The Ruby gem NET-LDAP
+#		- The Ruby gem NET-LDAP.
 #		- Authentication information for NET-LDAP in the file 'auth_ldap.rb'.
-#		- Rawrbot must be running on PSU's IP space (131.252.x.x).
+#			The file must define a function named ldap_return_auth which returns a
+#			hash with two key->value pairs 'username' and 'pass', which rawrbot
+#			will use to bind with OIT LDAP.
+#		- Rawrbot must be running on PSU's IP space (131.252.x.x). OIT's
+# 		authenticated LDAP directory (what rawrbot uses in this module) is
+# 		inaccessible otherwise.
 class LDAPsearch
 	include Cinch::Plugin
 	
 	require 'net/ldap'
+
 	match(/help ldap/i, method: :ldap_help)
 	match(/help phone/i, method: :phone_help)
 	match("help", method: :help)
-	match(/ldap (.+)/)
-	match(/phone (.+)/, method: :phone_search)
+	match(/ldap (.+)/i)
+	match(/phone (.+)/i, method: :phone_search)
 
 	# Function: execute
 	#
@@ -32,6 +38,8 @@ class LDAPsearch
 			m.reply "Invalid search query '#{query}'"
 			return
 		end	
+
+		query.downcase!
 		
 		# Determine what field to search and proceed to execute it.
 		if query =~ /@pdx.edu/
@@ -221,6 +229,11 @@ class LDAPsearch
 		return result
 	end # End of ldap_search function
 
+	# Function: phone_search
+	#
+	# Description: Executes a search on LDAP for a person's username or email address to
+	# retrieve a phone number. It then prints the results to the channel where the IRC
+	# user made the request.
 	def phone_search(m, query)
 
 		# Error-checking to sanitize input. i.e. no illegal symbols.
@@ -228,7 +241,8 @@ class LDAPsearch
 			m.reply "Invalid search query '#{query}'"
 			return
 		end	
-		
+		query.downcase!
+
 		# Determine what field to search and proceed to execute it.
 		if query =~ /@pdx.edu/
 			attribute = 'mailLocalAddress'
@@ -282,7 +296,7 @@ class LDAPsearch
 	def help(m)
 		m.reply "See: !help ldap"
 		m.reply "See: !help phone"
-	end
+	end # End of help function.
 
 end
 # End of plugin: LDAPsearch
