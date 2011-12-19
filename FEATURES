@@ -1,14 +1,13 @@
 Features to add to Rawrbot
-Last updated: 12/16/2011
+Last updated: 12/18/2011
 ====
 
 Currently working on:
 ----
-x	- Phone extension search.
 	- Don't respond to spammed commands.
 	- Lunch break tracking.
 	- Import old karma and learning database from the previous rawrbot.
-	- RT Ticket search.
+x	- RT Ticket search.
 	- Set user modes on Rawrbot.
 	- "Issue of the day" tracking, which rawrbot will pm to people who join
 	  #helpdesk.
@@ -20,8 +19,3 @@ x	- Phone extension search.
 Known bugs:
 ----
 	- Rawrbot respond to things like 'hello rawrbot' but not to 'rawrbot: hello'
-x	- Rawrbot fails to store information about things with 'i' or 's' in the key,
-		rather than just things aside from the word (is).
-x - Rawrbot responds to anything that has his name at the beginning of a line, even
-    if it is not him. I.e. if nick is 'rawrbot', it will also respond to 'rawrbot_',
-	  'rawrbot2', 'rawrbotxyzskdl'.
