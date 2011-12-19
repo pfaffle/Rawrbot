@@ -17,17 +17,26 @@ class RTSearch
 
 	match("help", method: :help)
 	match(/help rtsearch|help rt/i, method: :rt_help)
-	match(/(\d{6})/, :use_prefix => false, method: :execute)
-
-	# Function: execute
+	match(/#?(\d{1,6})/, :use_prefix => false)
+	
+	def execute(m,tnumber)
+		if m.message.match(/rt#(\d{1,6})\b/i)
+			rt_search m,$1,verbose = true
+		elsif m.message.match(/rt#\d{7,}\b/i)
+			m.reply "Please enter an existing RT ticket number.\n"
+		elsif m.message.match(/support.oit.pdx.edu\/\/Ticket\/Display.html\?id=(\d+)/)	
+			rt_search m,$1,verbose = true
+		elsif m.message.match(/#(\d{6})\b/)
+			rt_search m,$1,verbose = false
+		end
+	end
+	# Function: rt_search
 	# 
 	# Description: Perform the search on RT. Retrieve ticket number and basic
 	# 	ticket details.
-	def execute(m,tnumber)
-		require "$pwd/plugins/rt_auth.rb"
-
+	def rt_search(m,tnumber,verbose)
+		require "#{$pwd}/plugins/auth_rt.rb"
 		ticket = Hash.new
-		puts "Executing RT search.."
 		# Format the HTTP request.
 		http = Net::HTTP.new('support.oit.pdx.edu', 443)
 		http.use_ssl = true
@@ -39,20 +48,25 @@ class RTSearch
 		# Execute the HTTP request.
 		resp, data = http.post("/REST/1.0/ticket/#{tnumber}/show",login,headers)
 		
-		# Parse the data retrieved about the ticket into a Hash variable.
-		data = data.split(/\n+/)
-		data.each do |element|
-			if element.match(/([^:]+): ?(.+)/)
-				ticket[$1] = [$2]
-				puts "key = #{$1}     value = #{$2}"
-			elsif element.match(/([^:]+):/)
-				ticket[$1] = ''
-				puts "key = #{$1}     value = nil"
+		# If there is a '#' symbol immediately after RT's acknowledgement of the request,
+		# it indicates an error message signifying that the ticket could not be displayed.
+		if data =~ /^RT\/\d(\.\d+)+ 200 Ok\n\n#/
+			if verbose
+				m.reply "Ticket ##{tnumber} could not be displayed.\n"
 			end
+		else
+			# Parse the data retrieved about the ticket into a Hash variable.
+			data = data.split(/\n+/)
+			data.each do |element|
+				if element.match(/([^:]+): ?(.+)/)
+					ticket[$1] = $2
+				elsif element.match(/([^:]+):/)
+					ticket[$1] = ''
+				end
+			end
+			# Reply with ticket information.
+			m.reply "#{tnumber} | #{ticket['Requestors']} | #{ticket['Owner']} | #{ticket['Subject']}"
 		end
-		
-		# Reply with ticket information.
-		m.reply "$#{tnumber}: #{ticket['Subject']} - #{ticket['Requestors']} - (#{ticket['Owner']})"
 
 	end # End of execute function
 
