@@ -17,14 +17,14 @@ class RTSearch
 
 	match("help", method: :help)
 	match(/help rtsearch|help rt/i, method: :rt_help)
-	match(/#?(\d{1,6})/, :use_prefix => false)
+	match(/[#=](\d{1,6})/, :use_prefix => false)
 	
 	def execute(m,tnumber)
 		if m.message.match(/rt#(\d{1,6})\b/i)
 			rt_search m,$1,verbose = true
 		elsif m.message.match(/rt#\d{7,}\b/i)
 			m.reply "Please enter an existing RT ticket number.\n"
-		elsif m.message.match(/support.oit.pdx.edu\/\/Ticket\/Display.html\?id=(\d+)/)	
+		elsif m.message.match(/support.oit.pdx.edu\/\/*Ticket\/\/*Display.html\?id=(\d+)/i)	
 			rt_search m,$1,verbose = true
 		elsif m.message.match(/#(\d{6})\b/)
 			rt_search m,$1,verbose = false
