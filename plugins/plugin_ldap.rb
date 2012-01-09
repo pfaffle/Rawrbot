@@ -18,13 +18,13 @@ class LDAPsearch
 	include Cinch::Plugin
 	
 	require 'net/ldap'
-
+	# make ldapsearch also trigger on "$botnick[:-]? ldap $username"
 	match(/help ldap/i, method: :ldap_help)
 	match(/help phone/i, method: :phone_help)
 	match("help", method: :help)
 	match(/ldap (.+)/i)
+#	match(/^#{m.bot.nick}[:-]? ldap (.+)/i, :use_prefix => false)
 	match(/phone (.+)/i, method: :phone_search)
-
 	# Function: execute
 	#
 	# Description: Parses the search query and executes a search on LDAP to retrieve
@@ -101,41 +101,15 @@ class LDAPsearch
 			# password was originally set by subtracting 6 months from the expiration date.
 			ldap_entry['psuaccountexpiredate'].each do |acctexpiration|
 				d = parse_date acctexpiration
-				reply << "Account expires: #{d['month']} #{d['day']}, #{d['year']} at #{d['hour']}:#{d['min']}:#{d['sec']}\n"
+				reply << "Account expires: #{d.asctime}\n"
 			end
 			ldap_entry['psupasswordexpiredate'].each do |pwdexpiration|
 				d = parse_date pwdexpiration
-				reply << "Password expires: #{d['month']} #{d['day']}, #{d['year']} at #{d['hour']}:#{d['min']}:#{d['sec']}\n"
-				e = d.dup
-				if e['month'] =~ /January/
-				 	e['month'] = 'July'
-				elsif e['month'] =~ /February/ 
-					e['month'] = 'August'
-				elsif e['month'] =~ /March/
-					e['month'] = 'September'
-				elsif e['month'] =~ /April/
-					e['month'] = 'October'
-				elsif e['month'] =~ /May/
-					e['month'] = 'November'
-				elsif e['month'] =~ /June/
-					e['month'] = 'December'
-				elsif e['month'] =~ /July/
-					e['month'] = 'January'
-				elsif e['month'] =~ /August/
-					e['month'] = 'February'
-				elsif e['month'] =~ /September/
-					e['month'] = 'March'
-				elsif e['month'] =~ /October/
-					e['month'] = 'April'
-				elsif e['month'] =~ /November/
-					e['month'] = 'May'
-				elsif e['month'] =~ /December/
-					e['month'] = 'June'
-				end
-				if e['year'] == '2012' # Being lazy. I will have to fix this logic eventually.
-					e['year'] == '2011'
-				end
-				reply << "Password was set: #{e['month']} #{e['day']}, #{e['year']} at #{e['hour']}:#{e['min']}:#{e['sec']}\n"
+				reply << "Password expires: #{d.asctime}\n"
+				# Calculate the date/time that the password was set.
+				day = 86400 # seconds
+				e = d - (180 * day)
+				reply << "Password was set: #{e.asctime}\n"
 			end
 			
 			# Determine if email is being forwarded to an external address.
@@ -161,46 +135,27 @@ class LDAPsearch
 	# Function: parse_date
 	#
 	# Description: Parses a String containing a date in Zulu time, and returns
-	# it as a Hash with each component under a separate key.
+	# it as a Time object.
 	#
 	# Arguments:
 	# - A String, containing a date/time in Zulu time:
 	#   yyyymmddhhmmssZ
 	#
 	# Returns:
-	# - A Hash, containing the parsed date in human-readable format.
-	# 	'year' => '2011'
-	# 	'month' => 'January'
-	# 	'day' => '03'
-	# 	also 'hour','min',sec'
+	# - An instance of class Time, containing the date and time.
 	def parse_date date
 		unless date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/
 			return nil
 		end
 		
-		return_date = {
-			'year' => $1,
-			'month' => $2,
-			'day' => $3,
-			'hour' => $4,
-			'min' => $5,
-			'sec' => $6
-		}
+		year = $1
+		month = $2
+		day = $3
+		hour = $4
+		min = $5
+		sec = $6
 
-		return_date['month'] = 'January' if return_date['month'] == '01'
-		return_date['month'] = 'February' if return_date['month'] == '02'
-		return_date['month'] = 'March' if return_date['month'] == '03'
-		return_date['month'] = 'April' if return_date['month'] == '04'
-		return_date['month'] = 'May' if return_date['month'] == '05'
-		return_date['month'] = 'June' if return_date['month'] == '06'
-		return_date['month'] = 'July' if return_date['month'] == '07'
-		return_date['month'] = 'August' if return_date['month'] == '08'
-		return_date['month'] = 'September' if return_date['month'] == '09'
-		return_date['month'] = 'October' if return_date['month'] == '10'
-		return_date['month'] = 'November' if return_date['month'] == '11'
-		return_date['month'] = 'December' if return_date['month'] == '12'
-		
-		return return_date
+		return Time.mktime(year, month, day, hour, min, sec)
 	end # End of parse_date function.
 	
 	def ldap_search(attr,query)
