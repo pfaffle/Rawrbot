@@ -42,9 +42,10 @@ end
 
 
 # Launch the bot.
+require "#{$pwd}/config.rb"
+config_hash = ret_config
+
 bot = Cinch::Bot.new do
-	require "#{$pwd}/config.rb"
-	config_hash = ret_config
 	configure do |config|
 		config.server		= config_hash['server']
 		config.port			= config_hash['port']
@@ -57,6 +58,6 @@ bot = Cinch::Bot.new do
 	end
 end
 
-# [2011/08/06 12:10:15.783] >> :pfafflebot MODE pfafflebot:+iwz
+Kernel.trap('INT') { bot.quit(config_hash['quitmsg']) }
 
 bot.start
