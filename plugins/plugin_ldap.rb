@@ -89,6 +89,10 @@ class LDAPsearch
 				# Look up sponsor's information.
 				reply << "Sponsored: yes\n"
 				sponsor_uniqueid = ldap_entry['psusponsorpidm'][0]
+				# Fix some malformed psusponsorpidms.
+				if (!(sponsor_uniqueid =~ /^P/i))
+					sponsor_uniqueid = "P" + sponsor_uniqueid
+				end
 				
 				ldap_sponsor_entry = ldap_search "uniqueIdentifier",sponsor_uniqueid
 				
