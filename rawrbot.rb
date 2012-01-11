@@ -56,8 +56,16 @@ bot = Cinch::Bot.new do
 		config.user			= config_hash['user']
 		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,RTSearch]
 	end
+
+	# Authenticate with NickServ.
+	on :connect do |m|
+		if ((config_hash.has_key? 'nickpass') && (bot.nick == config_hash['nick']))
+			User('NickServ').send("identify #{config_hash['nick']} #{config_hash['nickpass']}")
+		end
+	end
 end
 
+# Make CTRL+C shut down the bot cleanly.
 Kernel.trap('INT') { bot.quit(config_hash['quitmsg']) }
 
 bot.start
