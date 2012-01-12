@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# Sample configuration information for Rawrbot.
+#
+def ret_config
+	config = Hash.new
+	config['server']		= 'chat.freenode.net'
+	config['port']			= 6667
+	# To join multiple channels, add entries to the array.
+	# ["#channel_name channel_key",...]
+	config['channels']	= ['#channel_name1 channel_key1', '#channel_name2']
+	config['ssl']				= false
+	config['nick']			= 'mybot'
+	config['realname']	= "my bot's name"
+	config['user']			= 'mybot'
+	config['quitmsg']		=	'My master says I should go away. :('
+	# If the bot has a registered nick, put the password for that nick here.
+	config['nickpass']	= 'password'
+	return config
+end
