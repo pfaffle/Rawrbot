@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+def rt_return_auth
+	rt_auth = Hash.new
+	rt_auth['username'] = 'rt_user'
+	rt_auth['pass'] = 'rt_password'
+	return rt_auth
+end

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+def ldap_return_auth
+	ldap_auth = Hash.new
+	ldap_auth['username'] = 'uid=serviceacct,ou=people,dc=pdx,dc=edu'
+	ldap_auth['pass'] = 'acct_password'
+	return ldap_auth
+end
