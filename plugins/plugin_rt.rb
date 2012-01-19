@@ -8,7 +8,7 @@
 # 	the Requestors, current Status, and Owner.
 #
 # Requirements:
-# 	A file with authentication information for RT.
+# 	A file 'auth_rt.rb' with authentication information for RT.
 class RTSearch
 	include Cinch::Plugin
 	
@@ -21,6 +21,7 @@ class RTSearch
 	
 	def execute(m,tnumber)
 		# only perform ticket number searches in #helpdesk for security reasons.
+		# UNCOMMENT THIS WHEN TESTING.
 		if m.channel == "#helpdesk"
 			if m.message.match(/rt#(\d{1,6})\b/i)
 				rt_search m,$1,verbose = true
@@ -28,8 +29,8 @@ class RTSearch
 				m.reply "Please enter an existing RT ticket number.\n"
 			elsif m.message.match(/support.oit.pdx.edu\/\/*Ticket\/\/*Display.html\?id=(\d+)/i)	
 				rt_search m,$1,verbose = true
-			elsif m.message.match(/#?(\d{6})\b/)
-				rt_search m,$1,verbose = false
+			elsif m.message.match(/\b#?(\d{6})\b/)
+				rt_search m,$1,verbose = true
 			end
 		end
 	end
