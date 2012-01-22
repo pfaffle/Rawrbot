@@ -17,14 +17,19 @@
 class LDAPsearch
 	include Cinch::Plugin
 	
+	prefix lambda{ |m| /^#{m.bot.nick}/ }
+
 	require 'net/ldap'
-	# make ldapsearch also trigger on "$botnick[:-]? ldap $username"
-	match(/help ldap/i, method: :ldap_help)
-	match(/help phone/i, method: :phone_help)
-	match("help", method: :help)
-	match(/ldap (.+)/i)
-#	match(/^#{m.bot.nick}[:-]? ldap (.+)/i, :use_prefix => false)
-	match(/phone (.+)/i, method: :phone_search)
+
+	match(/^!help ldap/i, :use_prefix => false, method: :ldap_help)
+	match(/^!help phone/i, :use_prefix => false, method: :phone_help)
+	match("!help", :use_prefix => false, method: :help)
+	match(/^!ldap (.+)\b/i, :use_prefix => false)
+	# the next line was helped out by:
+	# http://stackoverflow.com/questions/406230/regular-expression-to-match-string-not-containing-a-word
+	match(/[:-]? ldap (((?!(.+)?is ).)+)/i)
+	match(/^!phone (.+)/i, :use_prefix => false, method: :phone_search)
+
 	# Function: execute
 	#
 	# Description: Parses the search query and executes a search on LDAP to retrieve
@@ -234,8 +239,7 @@ class LDAPsearch
 		
 		m.reply reply
 		return
-
-	end
+	end # End of phone_search function.
 
 
 	def ldap_help(m)

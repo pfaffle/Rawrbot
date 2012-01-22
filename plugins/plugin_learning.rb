@@ -34,6 +34,8 @@ class Learning
 			forget(m, $1)
 		elsif m.message.match(/^#{m.bot.nick}[:,-]? literal (.+)/i)
 			literal(m, $1)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? ldap (.+)/i)
+			# do nothing.
 		elsif m.message.match(/^#{m.bot.nick}[:,-]? (.+)/i)
 			teach(m, $1)
 		elsif m.message.match(/^#{m.bot.nick}[:,-]?$/i)
