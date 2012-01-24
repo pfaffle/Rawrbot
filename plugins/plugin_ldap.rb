@@ -25,8 +25,10 @@ class LDAPsearch
 	match(/^!help phone/i, :use_prefix => false, method: :phone_help)
 	match("!help", :use_prefix => false, method: :help)
 	match(/^!ldap (.+)\b/i, :use_prefix => false)
-	# the next line was helped out by:
+	# The next line was helped out by:
 	# http://stackoverflow.com/questions/406230/regular-expression-to-match-string-not-containing-a-word
+	# This is meant to make rawrbot not trigger this module when someone attempts
+	# to teach it about ldap with the learning module.
 	match(/[:-]? ldap (((?!(.+)?is ).)+)/i)
 	match(/^!phone (.+)/i, :use_prefix => false, method: :phone_search)
 
@@ -37,6 +39,8 @@ class LDAPsearch
 	# on what the query looks like. It then prints the results to the IRC user who
 	# made the request.
 	def execute(m, query)
+		
+		reply = String.new
 		
 		# Error-checking to sanitize input. i.e. no illegal symbols.
 		if query =~ /[^\w@._-]/
@@ -50,10 +54,12 @@ class LDAPsearch
 		if query =~ /@pdx.edu/
 			type = 'email alias'
 			attribute = 'mailLocalAddress'
-#   This is not useful anymore after the transition to Google Mail.			
-#		elsif query =~ /@/
-#			type = 'forwarding address'
-#			attribute = 'mailRoutingAddress'
+		# This is not useful anymore after the transition to Google Mail.			
+		elsif query =~ /@/
+			reply << "Error: Searching for forwarding addresses is now disabled; they are not"
+			reply << " stored in LDAP after the Google conversion."
+			m.reply(reply)
+			return
 		else
 			type = 'username'
 			attribute = 'uid'
@@ -63,7 +69,6 @@ class LDAPsearch
 		ldap_entry = ldap_search attribute,query
 	
 		#	Piece together the final results and print them out in user-friendly output.
-		reply = String.new
 		if ldap_entry['dn'].empty?
 			reply = "Error: No results.\n"
 		elsif ldap_entry['dn'].length > 1
@@ -210,9 +215,12 @@ class LDAPsearch
 		# Determine what field to search and proceed to execute it.
 		if query =~ /@pdx.edu/
 			attribute = 'mailLocalAddress'
-#   This is not useful anymore after the transition to Google Mail.			
-#		elsif query =~ /@/
-#			attribute = 'mailRoutingAddress'
+		# This is not useful anymore after the transition to Google Mail.			
+		elsif query =~ /@/
+			reply << "Error: Searching for forwarding addresses is now disabled; they are not"
+			reply << " stored in LDAP after the Google conversion."
+			m.reply(reply)
+			return
 		else
 			attribute = 'uid'
 		end
