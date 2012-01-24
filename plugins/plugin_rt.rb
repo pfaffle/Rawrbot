@@ -22,7 +22,7 @@ class RTSearch
 	def execute(m,tnumber)
 		# only perform ticket number searches in #helpdesk for security reasons.
 		# REMINDER: COMMENT THIS WHEN TESTING.
-#		if m.channel == "#helpdesk"
+		if m.channel == "#helpdesk"
 			if m.message.match(/rt#(\d{1,6})\b/i)
 				rt_search m,$1,verbose = true
 			elsif m.message.match(/rt#\d{7,}\b/i)
@@ -32,7 +32,7 @@ class RTSearch
 			elsif m.message.match(/\b#?(\d{6})\b/)
 				rt_search m,$1,verbose = false
 			end
-#		end
+		end
 	end
 
 	# Function: rt_search
