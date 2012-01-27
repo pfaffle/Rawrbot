@@ -28,7 +28,7 @@ class Learning
 	def execute(m)
 		if m.message.match(/^#{m.bot.nick}[:,-]? (.+?) is (also )?(.+)/i)
 			learn(m, $1, $3)
-		elsif m.message.match(/^#{m.bot.nick}[:,-]? (.+) =~ s\/(.+)\/(.+)\//i)
+		elsif m.message.match(/^#{m.bot.nick}[:,-]? (.+) =~ s\/(.+)\/(.*)\//i)
 			edit(m, $1, $2, $3)
 		elsif m.message.match(/^#{m.bot.nick}[:,-]? forget (.+)/i)
 			forget(m, $1)
