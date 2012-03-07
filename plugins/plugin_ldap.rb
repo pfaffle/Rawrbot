@@ -24,7 +24,7 @@ class LDAPsearch
 	match(/^!help ldap/i, :use_prefix => false, method: :ldap_help)
 	match(/^!help phone/i, :use_prefix => false, method: :phone_help)
 	match("!help", :use_prefix => false, method: :help)
-	match(/^!ldap (.+)\b/i, :use_prefix => false)
+	match(/^!ldap (\S+)/i, :use_prefix => false)
 	# The next line was helped out by:
 	# http://stackoverflow.com/questions/406230/regular-expression-to-match-string-not-containing-a-word
 	# This is meant to make rawrbot not trigger this module when someone attempts
@@ -51,7 +51,7 @@ class LDAPsearch
 		query.downcase!
 		
 		# Determine what field to search and proceed to execute it.
-		if query =~ /@pdx.edu/
+		if query =~ /@pdx\.edu/
 			type = 'email alias'
 			attribute = 'mailLocalAddress'
 		# This is not useful anymore after the transition to Google Mail.			
@@ -67,82 +67,84 @@ class LDAPsearch
 		m.reply "Performing LDAP search on #{type} #{query}."
 		
 		ldap_entry = ldap_search attribute,query
-	
-		#	Piece together the final results and print them out in user-friendly output.
-		if ldap_entry['dn'].empty?
-			reply = "Error: No results.\n"
-		elsif ldap_entry['dn'].length > 1
-			# Realistically this case should never happen because we filtered '*'
-			# out of the search string earlier. If this comes up, something in LDAP
-			# is really janky. The logic to account for this is here nonetheless,
-			# just in case.
-			reply = "Error: Too many results.\n"
+		
+		if (!ldap_entry)
+			m.reply "Error: LDAP query failed. Check configuration."
 		else
-			#	Get name, username and dept of the user.
-			ldap_entry['gecos'].each { |name| reply << "Name: #{name}\n" }
-			ldap_entry['uid'].each { |uid| reply << "Username: #{uid}\n" }
-			ldap_entry['ou'].each { |dept| reply << "Dept: #{dept}\n" }
-			
-			# Determine if the user has opted-in to Google Mail.
-			ldap_entry['mailhost'].each do |mhost|
-				if mhost =~ /gmx.pdx.edu/
-					reply << "Google: yes\n"
-				else
-					reply << "Google: no\n"
-				end
-			end
-			
-			# Determine if this is a sponsored account, and if so, who the sponsor is.
-			if ldap_entry['psusponsorpidm'].empty?
-				reply << "Sponsored: no\n"
+			#	Piece together the final results and print them out in user-friendly output.
+			if ldap_entry['dn'].empty?
+				reply = "Error: No results.\n"
+			elsif ldap_entry['dn'].length > 1
+				# Realistically this case should never happen because we filtered '*'
+				# out of the search string earlier. If this comes up, something in LDAP
+				# is really janky. The logic to account for this is here nonetheless,
+				# just in case.
+				reply = "Error: Too many results.\n"
 			else
-				# Look up sponsor's information.
-				reply << "Sponsored: yes\n"
-				sponsor_uniqueid = ldap_entry['psusponsorpidm'][0]
-				# Fix some malformed psusponsorpidms.
-				if (!(sponsor_uniqueid =~ /^P/i))
-					sponsor_uniqueid = "P" + sponsor_uniqueid
+				#	Get name, username and dept of the user.
+				ldap_entry['gecos'].each { |name| reply << "Name: #{name}\n" }
+				ldap_entry['uid'].each { |uid| reply << "Username: #{uid}\n" }
+				ldap_entry['ou'].each { |dept| reply << "Dept: #{dept}\n" }
+				
+				# Determine if the user has opted-in to Google Mail.
+				ldap_entry['mailhost'].each do |mhost|
+					if mhost =~ /gmx.pdx.edu/
+						reply << "Google: yes\n"
+					else
+						reply << "Google: no\n"
+					end
 				end
 				
-				ldap_sponsor_entry = ldap_search "uniqueIdentifier",sponsor_uniqueid
-				
-				sponsor_name = ldap_sponsor_entry['gecos'][0]
-				sponsor_uid = ldap_sponsor_entry['uid'][0]
-				reply << "Sponsor: #{sponsor_name} (#{sponsor_uid})\n"
-			end
-			
-			# Determine the account and password expiration dates. Also, estimate the date the
-			# password was originally set by subtracting 6 months from the expiration date.
-			ldap_entry['psuaccountexpiredate'].each do |acctexpiration|
-				d = parse_date acctexpiration
-				reply << "Account expires: #{d.asctime}\n"
-			end
-			ldap_entry['psupasswordexpiredate'].each do |pwdexpiration|
-				d = parse_date pwdexpiration
-				reply << "Password expires: #{d.asctime}\n"
-				# Calculate the date/time that the password was set.
-				day = 86400 # seconds
-				e = d - (180 * day)
-				reply << "Password was set: #{e.asctime}\n"
-			end
-			
-			# Determine if email is being forwarded to an external address.
-			ldap_entry['mailroutingaddress'].each do |forward|
-				# If they are on Google, we cannot tell if they are forwarding.
-				if ldap_entry['mailhost'][0] =~ /gmx.pdx.edu/
-					reply << "Email forwarded to: Unable to determine with Gmail.\n"
+				# Determine if this is a sponsored account, and if so, who the sponsor is.
+				if ldap_entry['psusponsorpidm'].empty?
+					reply << "Sponsored: no\n"
 				else
-					reply << "Email forwarded to: #{forward}\n"
+					# Look up sponsor's information.
+					reply << "Sponsored: yes\n"
+					sponsor_uniqueid = ldap_entry['psusponsorpidm'][0]
+					# Fix some malformed psusponsorpidms.
+					if (!(sponsor_uniqueid =~ /^P/i))
+						sponsor_uniqueid = "P" + sponsor_uniqueid
+					end
+					
+					ldap_sponsor_entry = ldap_search "uniqueIdentifier",sponsor_uniqueid
+				
+					sponsor_name = ldap_sponsor_entry['gecos'][0]
+					sponsor_uid = ldap_sponsor_entry['uid'][0]
+					reply << "Sponsor: #{sponsor_name} (#{sponsor_uid})\n"
 				end
+			
+				# Determine the account and password expiration dates. Also, estimate the date the
+				# password was originally set by subtracting 6 months from the expiration date.
+				ldap_entry['psuaccountexpiredate'].each do |acctexpiration|
+					d = parse_date acctexpiration
+					reply << "Account expires: #{d.asctime}\n"
+				end
+				ldap_entry['psupasswordexpiredate'].each do |pwdexpiration|
+					d = parse_date pwdexpiration
+					reply << "Password expires: #{d.asctime}\n"
+					# Calculate the date/time that the password was set.
+					day = 86400 # seconds
+					e = d - (180 * day)
+					reply << "Password was set: #{e.asctime}\n"
+				end
+			
+				# Determine if email is being forwarded to an external address.
+				ldap_entry['mailroutingaddress'].each do |forward|
+					# If they are on Google, we cannot tell if they are forwarding.
+					if ldap_entry['mailhost'][0] =~ /gmx.pdx.edu/
+						reply << "Email forwarded to: Unable to determine with Gmail.\n"
+					else
+						reply << "Email forwarded to: #{forward}\n"
+					end
+				end
+
+				# Print out any email aliases.
+				ldap_entry['maillocaladdress'].each { |email_alias| reply << "Email alias: #{email_alias}\n" }
 			end
-
-			# Print out any email aliases.
-			ldap_entry['maillocaladdress'].each { |email_alias| reply << "Email alias: #{email_alias}\n" }
-
+			# Send results via PM so as to not spam the channel.
+			User(m.user.nick).send(reply)
 		end
-
-		# Send results via PM so as to not spam the channel.
-		User(m.user.nick).send(reply)
 
 	end # End of execute function.
 	
@@ -174,27 +176,35 @@ class LDAPsearch
 	
 	def ldap_search(attr,query)
 		require "#{$pwd}/plugins/auth_ldap.rb"
- 		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
+	
+		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
 		# hash with the username and password to bind to LDAP with.
 		ldap_auth = ldap_return_auth
-		ldap = Net::LDAP.new
-		ldap.host = 'ldap.oit.pdx.edu'
-		ldap.port = 636
-		ldap.auth ldap_auth['username'], ldap_auth['pass']
-		ldap.encryption :method => :simple_tls
-		ldap.base = 'dc=pdx,dc=edu'
-		
-		# Perform the search, then return a hash with LDAP attributes corresponding
-		# to hash keys, and LDAP values corresponding to hash values.
-		filter = Net::LDAP::Filter.eq(attr,query)
+
+		host = 'ldap.oit.pdx.edu'
+		port = 636
+ 		auth = { :method => :simple, :username => ldap_auth['username'], :password => ldap_auth['pass'] }
+		base = 'dc=pdx,dc=edu'
+	
 		result = Hash.new(Array.new)
-		ldap.search(:filter => filter) do |entry|
-			entry.each do |attribute, values|
-				values.each do |value|
-					result["#{attribute}"] += ["#{value}"]
+		Net::LDAP.open(:host => host, :port => port, :auth => auth, :encryption => :simple_tls, :base => base) do |ldap|
+			
+			# Perform the search, then return a hash with LDAP attributes corresponding
+			# to hash keys, and LDAP values corresponding to hash values.
+			filter = Net::LDAP::Filter.eq(attr,query)
+			if (ldap.bind)
+				ldap.search(:filter => filter) do |entry|
+					entry.each do |attribute, values|
+						values.each do |value|
+							result["#{attribute}"] += ["#{value}"]
+						end
+					end
 				end
+			else
+				result = false
 			end
 		end
+
 		return result
 	end # End of ldap_search function
 
@@ -213,7 +223,7 @@ class LDAPsearch
 		query.downcase!
 
 		# Determine what field to search and proceed to execute it.
-		if query =~ /@pdx.edu/
+		if query =~ /@pdx\.edu/
 			attribute = 'mailLocalAddress'
 		# This is not useful anymore after the transition to Google Mail.			
 		elsif query =~ /@/
@@ -226,29 +236,32 @@ class LDAPsearch
 		end
 		
 		ldap_entry = ldap_search attribute,query
-
-		#	Piece together the final results and print them out in user-friendly output.
 		reply = String.new
-		if ldap_entry['dn'].empty?
-			reply = "No results for #{query}.\n"
-		elsif ldap_entry['telephonenumber'].empty?
-			reply = "No results for #{query}.\n"
-		elsif ldap_entry['dn'].length > 1
-			# Realistically this case should never happen because we filtered '*'
-			# out of the search string earlier. If this comes up, something in LDAP
-			# is really janky. The logic to account for this is here nonetheless,
-			# just in case.
-			reply = "Error: Too many results.\n"
-		else
-			#	Get name and phone of the user.
-			ldap_entry['gecos'].each { |name| reply << "Name: #{name}\n" }
-			ldap_entry['telephonenumber'].each { |phone| reply << "Phone: #{phone}\n" }
-		end
 		
+		if (!ldap_entry)
+			reply = "Error: LDAP query failed. Check configuration."
+		else
+			#	Piece together the final results and print them out in user-friendly output.
+			if ldap_entry['dn'].empty?
+				reply = "No results for #{query}.\n"
+			elsif ldap_entry['telephonenumber'].empty?
+				reply = "No results for #{query}.\n"
+			elsif ldap_entry['dn'].length > 1
+				# Realistically this case should never happen because we filtered '*'
+				# out of the search string earlier. If this comes up, something in LDAP
+				# is really janky. The logic to account for this is here nonetheless,
+				# just in case.
+				reply = "Error: Too many results.\n"
+			else
+				#	Get name and phone of the user.
+				ldap_entry['gecos'].each { |name| reply << "Name: #{name}\n" }
+				ldap_entry['telephonenumber'].each { |phone| reply << "Phone: #{phone}\n" }
+			end
+		end
+
 		m.reply reply
 		return
 	end # End of phone_search function.
-
 
 	def ldap_help(m)
 		m.reply "LDAP Search"
