@@ -54,7 +54,7 @@ bot = Cinch::Bot.new do
 		config.nick			= config_hash['nick']
 		config.realname	= config_hash['realname']
 		config.user			= config_hash['user']
-		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,RTSearch]
+		config.plugins.plugins = [LDAPsearch,Social,Messenger,Karma,Learning,RTSearch,SendSignal]
 	end
 
 	# Authenticate with NickServ.
