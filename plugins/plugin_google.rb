@@ -60,6 +60,9 @@ class GoogleRSS
 					if (!@@active)
 						return
 					end
+					if (m.bot.quitting)
+						return
+					end
 				end
 
 			end
