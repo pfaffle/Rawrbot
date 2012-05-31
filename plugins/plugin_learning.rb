@@ -15,6 +15,7 @@ class Learning
 	
 	require 'gdbm'
 	
+	@@learning_db = GDBM.new("learning.db", mode = 0600)
 	match(/[:,-]?/)
 	match("!help", :use_prefix => false, method: :help)
 	match(/^!help learning/i, :use_prefix => false, method: :learning_help)
@@ -52,14 +53,12 @@ class Learning
 		acknowledgements = ['good to know','got it','roger','understood','OK']
 		acknowledgement = acknowledgements[rand(acknowledgements.size)]
 		m.reply "#{acknowledgement}, #{m.user.nick}."
-		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
-		if learning_db.has_key? thing
-			learning_db[thing] = learning_db[thing] + " or #{info}"
+		if @@learning_db.has_key? thing
+			@@learning_db[thing] = @@learning_db[thing] + " or #{info}"
 		else
-			learning_db[thing] = info
+			@@learning_db[thing] = info
 		end
-		learning_db.close
 	end # End of learn function
 
 	# Function: edit
@@ -67,21 +66,19 @@ class Learning
 	# Description:
 	# 	Edits an existing entry in the database by using regex syntax.
 	def edit(m, thing, find, replace)
-		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
-		if learning_db.has_key? thing
+		if @@learning_db.has_key? thing
 			# edit the entry
-			info = learning_db[thing]
+			info = @@learning_db[thing]
 			if info.sub!(/#{find}/,replace).nil?
 				m.reply "#{thing} doesn't contain '#{find}'."
 			else
-				learning_db[thing] = info
+				@@learning_db[thing] = info
 				m.reply "done, #{m.user.nick}."
 			end
 		else
 			m.reply "I don't know anything about #{thing}."
 		end
-		learning_db.close
 	end # End of edit function.
 
 	# Function: teach
@@ -90,16 +87,20 @@ class Learning
 	# 	Makes the bot teach the user what it knows about the given thing, as
 	# 	it is stored in the database.
 	def teach(m, thing)
-		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
-		if learning_db.has_key? thing
-			info = learning_db[thing]
+		if @@learning_db.has_key? thing
+			info = @@learning_db[thing]
 
 			# If the entry contains pipe characters, split it into substrings delimited
 			# by those pipe characters, then choose one randomly to spit back out.
 			if info.match(/\|/)
 				split_entries = info.split '|'
 				info = split_entries[rand(split_entries.size)]
+			end
+			# If the entry contatins '$who', substitute all occurrences of that string
+			# with the nick of the person querying rawrbot.
+			while (info.match(/\$who/i))
+				info.sub!(/\$who/i,"#{m.user.nick}")
 			end
 			
 			# If the entry contains the prefix <reply>, reply by simply saying
@@ -115,7 +116,6 @@ class Learning
 			giveup = giveups[rand(giveups.size)]
 			m.reply "#{giveup}"
 		end
-		learning_db.close
 	end # End of teach function
 
 	# Function: forget
@@ -124,15 +124,13 @@ class Learning
 	# 	Makes the bot forget whatever it knows about hte given thing. Removes
 	# 	that key from the database.
 	def forget(m, thing)
-		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
-		if learning_db.has_key? thing
-			learning_db.delete thing
+		if @@learning_db.has_key? thing
+			@@learning_db.delete thing
 			m.reply "I forgot #{thing}."
 		else
 			m.reply "I don't know anything about #{thing}."
 		end
-		learning_db.close
 	end # End of forget function
 
 	# Function: literal
@@ -141,15 +139,13 @@ class Learning
 	# 	Displays the literal contents of the database entry for the given thing,
 	# 	without parsing special syntax like <reply> and |.
 	def literal(m, thing)
-		learning_db = GDBM.new("learning.db", mode = 0600)
 		thing.downcase!
-		if learning_db.has_key? thing
-			info = learning_db[thing]
+		if @@learning_db.has_key? thing
+			info = @@learning_db[thing]
 			m.reply "#{thing} =is= #{info}."
 		else
 			m.reply "No entry for #{thing}"
 		end
-		learning_db.close
 	end
 
 	# Function: address
