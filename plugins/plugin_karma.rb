@@ -13,7 +13,8 @@ class Karma
 	include Cinch::Plugin
 	
 	require 'gdbm'
-
+	@@karma_db = GDBM.new("#{$pwd}/karma.db", mode = 0600)
+	
 	match(/\S+\+\+/, method: :increment, :use_prefix => false)
 	match(/\S+--/, method: :decrement, :use_prefix => false)
 	match(/karma (.+)/, method: :display)
@@ -31,35 +32,33 @@ class Karma
 	# it deletes it from the DB so the DB doesn't grow any larger
 	# than it has to.
 	def increment(m)
-		karma_db = GDBM.new("#{$pwd}/karma.db", mode = 0600)
 		matches = m.message.scan(/\([^)]+\)\+\+|\S+\+\+/)
 	
 		matches.each do |element|
 			element.downcase!
 			if element =~ /\((.+)\)\+\+/
-				if karma_db.has_key? $1
-					if karma_db[$1] == "-1"
-						karma_db.delete $1	
+				if @@karma_db.has_key? $1
+					if @@karma_db[$1] == "-1"
+						@@karma_db.delete $1	
 					else
-						karma_db[$1] = (karma_db[$1].to_i + 1).to_s
+						@@karma_db[$1] = (@@karma_db[$1].to_i + 1).to_s
 					end
 				else
-					karma_db[$1] = "1"
+					@@karma_db[$1] = "1"
 				end
 			elsif element =~ /(\S+)\+\+/
-				if karma_db.has_key? $1
-					if karma_db[$1] == "-1"
-						karma_db.delete $1
+				if @@karma_db.has_key? $1
+					if @@karma_db[$1] == "-1"
+						@@karma_db.delete $1
 					else
-						karma_db[$1] = (karma_db[$1].to_i + 1).to_s
+						@@karma_db[$1] = (@@karma_db[$1].to_i + 1).to_s
 					end
 				else
-					karma_db[$1] = "1"
+					@@karma_db[$1] = "1"
 				end
 			end
 		end
 
-		karma_db.close
 	end # End of increment function
 	
 	# Function: decrement
@@ -73,35 +72,33 @@ class Karma
 	# it deletes it from the DB so the DB doesn't grow any larger
 	# than it has to.
 	def decrement(m)
-		karma_db = GDBM.new("#{$pwd}/karma.db", mode = 0600)
 		matches = m.message.scan(/\([^)]+\)--|\S+--/)
 		
 		matches.each do |element|
 			element.downcase!
 			if element =~ /\((.+)\)--/
-				if karma_db.has_key? $1
-					if karma_db[$1] == "1"
-						karma_db.delete $1	
+				if @@karma_db.has_key? $1
+					if @@karma_db[$1] == "1"
+						@@karma_db.delete $1	
 					else
-						karma_db[$1] = (karma_db[$1].to_i - 1).to_s
+						@@karma_db[$1] = (@@karma_db[$1].to_i - 1).to_s
 					end
 				else
-					karma_db[$1] = "-1"
+					@@karma_db[$1] = "-1"
 				end
 			elsif element =~ /(\S+)--/
-				if karma_db.has_key? $1
-					if karma_db[$1] == "1"
-						karma_db.delete $1	
+				if @@karma_db.has_key? $1
+					if @@karma_db[$1] == "1"
+						@@karma_db.delete $1	
 					else
-						karma_db[$1] = (karma_db[$1].to_i - 1).to_s
+						@@karma_db[$1] = (@@karma_db[$1].to_i - 1).to_s
 					end
 				else
-					karma_db[$1] = "-1"
+					@@karma_db[$1] = "-1"
 				end
 			end
 		end
 
-		karma_db.close
 	end # End of decrement function
 	
 	# Function: display
@@ -109,14 +106,12 @@ class Karma
 	# Description: Displays the current karma level of the requested element.
 	#   If the element does not exist in the DB, it has neutral (0) karma.
 	def display(m,arg)
-		karma_db = GDBM.new("#{$pwd}/karma.db", mode = 0600)
 		arg.downcase!
-		if karma_db.has_key?("#{arg}")
-			m.reply "#{arg} has karma of #{karma_db[arg]}."
+		if @@karma_db.has_key?("#{arg}")
+			m.reply "#{arg} has karma of #{@@karma_db[arg]}."
 		else
 			m.reply "#{arg} has neutral karma."
 		end
-		karma_db.close
 	end # End of display function
 
 	# Function: karma_help
