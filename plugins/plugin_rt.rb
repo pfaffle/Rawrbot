@@ -51,7 +51,7 @@ class RTSearch
 		headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
 		# Execute the HTTP request.
-		resp, data = http.post("/REST/1.0/ticket/#{tnumber}/show",login,headers)
+		resp, data = http.post("/NoAuthCAS/REST/1.0/ticket/#{tnumber}/show",login,headers)
 		
 		# If there is a '#' symbol immediately after RT's acknowledgement of the request,
 		# it indicates an error message signifying that the ticket could not be displayed.
