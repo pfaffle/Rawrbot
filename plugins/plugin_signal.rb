@@ -13,21 +13,31 @@ class SendSignal
 
 	match("help", method: :help)
 	match(/help signal/i, method: :signal_help)
-	match(/cmeinschsignal (.+)/i)
+	match(/\b(.+)signal (.+)\b$/i)
 	
-	def execute(m,msg)
-		m.reply "Signaling cmeinsch..."
-		Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
-			msgstr = "From: <#{m.user.nick}@irc\n"
-			msgstr << "To: Craig <5037401262@txt.att.net>\n"
-			msgstr << "Subject:\n"
-			msgstr << "Date: #{Time.now}\n"
-			msgstr << msg
-			if (smtp.send_message msgstr, "#{m.user.nick}@irc", '5037401262@txt.att.net')
-				m.reply "Sent message \"#{msg}\" to cmeinsch."
-			else
-				m.reply "Failed to send message to cmeinsch."
+	def execute(m,tgt,msg)
+		load "#{$pwd}/plugins/config_signal.rb"
+		user_list = signal_return_config
+		tgt.downcase!
+		if user_list.has_key? tgt
+			tgt_address = user_list[tgt]
+			m.reply "Signaling #{tgt}..."
+			Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
+				msgstr = "From: <#{m.user.nick}@irc\n"
+				msgstr << "To: #{tgt} <#{tgt_address}>\n"
+				msgstr << "Subject:\n"
+				msgstr << "Date: #{Time.now}\n"
+				msgstr << msg
+				if (smtp.send_message msgstr, "#{m.user.nick}@irc", tgt_address)
+					m.reply "Sent message \"#{msg}\" to #{tgt}."
+				else
+					m.reply "Failed to send message to #{tgt}."
+				end
 			end
+		else
+			reply = "No signaling available for #{tgt} yet."
+			m.reply reply
+			list_signals(m)
 		end
 	end
 
@@ -46,9 +56,23 @@ class SendSignal
 	def signal_help(m)
 		m.reply "Signal"
 		m.reply "==========="
-		m.reply "Sends a text message to cmeinsch to report a problem with the bot."
-		m.reply "cmeinsch gets free texts so feel free to use it, but don't abuse it!"
-		m.reply "Usage: !cmeinschsignal [your message]" 
+		m.reply "Sends a text message to someone to report a problem. Don't abuse it!"
+		m.reply "Usage: ![person]signal [your message]" 
+		list_signals(m)
+	end
+	
+	# Function: list_signals
+	#
+	# Description: Lists the people for whom signaling is available.
+	def list_signals(m)
+		load "#{$pwd}/plugins/config_signal.rb"
+		user_list = signal_return_config
+		reply = "Signaling is available for:"
+		user_list.each do |person, address|
+			reply << " #{person}"
+		end
+		m.reply reply
+		m.reply "Talk to cmeinsch about adding others."
 	end
 
 end
