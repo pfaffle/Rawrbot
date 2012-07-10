@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# This function should return an array of strings containing channel names
+# for the Google RSS plugin to report its output to.
+def google_return_config
+	google_config = ['#channel']
+end

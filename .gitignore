@@ -6,3 +6,4 @@ RAWRBOT
 TEST-RAWRBOT
 plugins/auth_rt.rb
 plugins/auth_ldap.rb
+plugins/config_google.rb
