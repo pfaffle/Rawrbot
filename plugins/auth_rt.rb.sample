@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+# This function should return a Hash containing two key/value pairs:
+# 	'username' => The RT account name used to query RT.
+# 	'pass'		 => The password for the account used to auth with RT.
 def rt_return_auth
 	rt_auth = Hash.new
 	rt_auth['username'] = 'rt_user'
