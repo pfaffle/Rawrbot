@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+# This function should return a hash containing two key value pairs:
+#  'username' => The Distinguished Name of the account used to bind
+#                with LDAP.
+#  'pass'			=> The password of the account used to bind with LDAP.
 def ldap_return_auth
 	ldap_auth = Hash.new
 	ldap_auth['username'] = 'uid=serviceacct,ou=people,dc=pdx,dc=edu'
