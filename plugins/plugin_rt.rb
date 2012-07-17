@@ -23,24 +23,45 @@ class RTSearch
 		# only perform ticket number searches in #helpdesk for security reasons.
 		# REMINDER: COMMENT THIS WHEN TESTING.
 		if m.channel == "#helpdesk"
-			if m.message.match(/rt#(\d{1,6})\b/i)
-				rt_search m,$1,verbose = true
-			elsif m.message.match(/rt#\d{7,}\b/i)
-				m.reply "Please enter an existing RT ticket number.\n"
-			elsif m.message.match(/support.oit.pdx.edu\/\/*Ticket\/\/*Display.html\?id=(\d+)/i)	
-				rt_search m,$1,verbose = true
-			elsif m.message.match(/\b#?(\d{6})\b/)
-				rt_search m,$1,verbose = false
+			# The ticket_list hash is structured like so:
+			# ticket_list["ticketnumber"] = verbose_flag
+			ticket_list = Hash.new
+
+			# Assemble a list of ticket numbers to search for.
+			templist = m.message.scan(/(rt#|rt|#)?(\d{1,6})\b/i)
+			if (!templist.nil?)
+				# Filter out entries that are probably not ticket numbers.
+				templist.each do |maybeticket|
+					if (maybeticket[0].nil?)
+						# Did not have a 'rt' and/or '#' prefix to the number.
+						# Don't be verbose with these.
+						if (maybeticket[1].size() == 6)
+							ticket_list["#{maybeticket[1]}"] = false
+						end
+					else
+						# Explicitly marked as a ticket number with "#" or "RT#".
+						# Be verbose if not a valid ticket.
+						if (maybeticket[1].size() < 7)
+							ticket_list["#{maybeticket[1]}"] = true
+						end
+					end
+				end
 			end
+
+			if (ticket_list.size() > 0)
+				rt_search m,ticket_list
+			end
+		elsif (m.message =~ /rt#\d{1,6}\b/i)
+			m.reply "Ticket searches not allowed here."
 		end
-	end
+	end # End of execute function
 
 	# Function: rt_search
 	# 
 	# Description: Perform the search on RT. Retrieve ticket number and basic
 	# 	ticket details.
-	def rt_search(m,tnumber,verbose)
-		require "#{$pwd}/plugins/auth_rt.rb"
+	def rt_search(m,ticket_list)
+		load "#{$pwd}/plugins/auth_rt.rb"
 		ticket = Hash.new
 		# Format the HTTP request.
 		http = Net::HTTP.new('support.oit.pdx.edu', 443)
@@ -50,30 +71,31 @@ class RTSearch
 		login = "user=#{rt_auth['username']}&pass=#{rt_auth['pass']}"
 		headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
-		# Execute the HTTP request.
-		resp, data = http.post("/NoAuthCAS/REST/1.0/ticket/#{tnumber}/show",login,headers)
+		# Execute the HTTP requests.
+		ticket_list.each do |tnumber,verbose|
+			resp, data = http.post("/NoAuthCAS/REST/1.0/ticket/#{tnumber}/show",login,headers)
 		
-		# If there is a '#' symbol immediately after RT's acknowledgement of the request,
-		# it indicates an error message signifying that the ticket could not be displayed.
-		if data =~ /^RT\/\d(\.\d+)+ 200 Ok\n\n#/
-			if verbose
-				m.reply "Ticket ##{tnumber} could not be displayed.\n"
-			end
-		else
-			# Parse the data retrieved about the ticket into a Hash variable.
-			data = data.split(/\n+/)
-			data.each do |element|
-				if element.match(/([^:]+): ?(.+)/)
-					ticket[$1] = $2
-				elsif element.match(/([^:]+):/)
-					ticket[$1] = ''
+			# If there is a '#' symbol immediately after RT's acknowledgement of the request,
+			# it indicates an error message signifying that the ticket could not be displayed.
+			if data =~ /^RT\/\d(\.\d+)+ 200 Ok\n\n#/
+				if verbose
+					m.reply "Ticket ##{tnumber} could not be displayed.\n"
 				end
+			else
+			# Parse the data retrieved about the ticket into a Hash variable.
+				data = data.split(/\n+/)
+				data.each do |element|
+					if element.match(/([^:]+): ?(.+)/)
+						ticket[$1] = $2
+					elsif element.match(/([^:]+):/)
+						ticket[$1] = ''
+					end
+				end
+				# Reply with ticket information.
+				m.reply "#{tnumber} | #{ticket['Requestors']} | #{ticket['Owner']} | #{ticket['Subject']}"
 			end
-			# Reply with ticket information.
-			m.reply "#{tnumber} | #{ticket['Requestors']} | #{ticket['Owner']} | #{ticket['Subject']}"
 		end
-
-	end # End of execute function
+	end # End of rt_search function
 
 	# Function: help
 	#
