@@ -65,6 +65,8 @@ class GoogleRSS
 
 					cleaned_rss = Sanitize.clean(rss.items[0].description)
 					msg_set = cleaned_rss.split "\u00A0"
+					msg_set.each { |msg| msg.strip! }
+					msg_set.delete_if { |msg| msg.empty? }
 	
 					reply = "[#{rss.items[0].title}] "
 					reply << "#{msg_set[0]}"
