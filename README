@@ -8,18 +8,61 @@ framework. (https://github.com/cinchrb/cinch)
 Functionality is based on plugins loaded into the bot. Plugins
 can be written using Ruby and the Cinch API.
 
-The main purpose of Rawrbot is to assist in OIT Helpdesk-related
-work. The FEATURES file contains a list of all current and planned
-functionality. 
+The original purpose of Rawrbot was to be a tool to assist Portland State
+University's Office of Information Technology Help Desk technicians.
+Many of the plugins I've written are specifically geared towards
+that and are only useful for that purpose. Other plugins are more
+generic or are simply for-fun.
 
-Requirements: 
-	Currently, the bot must be run on an OIT or CAT UNIX machine in
-	order to work properly. It relies on being in PSU's IP space
-	to use its LDAP search, since OIT's LDAP server is firewalled
-  off from off-campus entities.
+REQUIREMENTS:
+=============
+  Rawrbot itself requires
+	- Ruby v1.9.x, and
+	- The 'Cinch' Ruby gem. 
 
-	In addition, Rawrbot requires Ruby v1.9.x to be installed, as well
-	as the following Ruby gems:
-	- Cinch
-	- Net-LDAP
-	- GDBM
+	Individual plugins have their own requirements, which are listed
+	at the top of the plugin file.
+
+INSTALLATION AND CONFIGURATION:
+=============
+
+- Clone the git repo.  
+
+    `git clone git://github.com/pfaffle/Rawrbot.git`
+
+- Edit the list of plugins to load (if desired) in rawrbot.rb.
+	Specifically, edit the line that looks like this:
+
+		config.plugins.plugins = [plugin1,plugin2,plugin3]
+	
+	Inside the square brackets should be a comma-separated list of the Class
+	names of each plugin you wish to load when Rawrbot is started.
+
+- Create and edit the config files.
+
+	Samples are provided for the main rawrbot config file and config
+  and authentication information files for the plugins. In each case,
+	simply create a copy of the file with the same name, excluding the
+  .sample extension, then edit it to your liking.
+
+		`cp config.rb.sample config.rb`
+		`vim config.rb` 
+
+- Run the bot within screen or tmux.
+		
+		`./rawrbot.rb`
+
+MODIFYING/ADDING PLUGINS
+=============
+
+If you want to create your own plugin for Rawrbot, simply
+create a file named plugin_pluginname.rb in the 'plugins' directory
+underneath the bot's installation directory. Use other plugins as
+examples to work from when creating a new plugin.
+
+Add your plugin's Class name to the comma-separated list of plugins
+in rawrbot.rb if you want it to be automatically loaded when
+the bot starts.
+
+For more details, consult the Cinch documentation and see more examples
+at Cinch's Github.com repo.
