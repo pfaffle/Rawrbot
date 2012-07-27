@@ -8,3 +8,4 @@ plugins/auth_rt.rb
 plugins/auth_ldap.rb
 plugins/config_google.rb
 plugins/config_signal.rb
+plugins/config_twitter.rb

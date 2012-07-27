@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# This function should return Hash of key value pairs of channels to report
+# tweets to, usernames of Twitter accounts to get tweets from, and the
+# frequency with which to check.
+def twitter_return_config
+	twitter_config = Hash.new
+	# IRC Channels to report tweets to.
+	twitter_config['channels'] = ['#channel1','#channel2']
+	# Twitter usernames to look for tweets from.
+	twitter_config['usernames'] = ['username1','username2']
+	# Frequency (in seconds) to check these usernames for new tweets.
+	twitter_config['frequency'] = 60
+
+	return twitter_config
+end
