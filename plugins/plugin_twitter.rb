@@ -13,7 +13,7 @@
 class Twitter
 	include Cinch::Plugin
 	
-	@@active = true
+	@@active = false
 	@@feeds = Array.new
 	@@threads = Array.new
 
@@ -34,10 +34,8 @@ class Twitter
 	#   file and kicks off independent Threads for each one, checking them
 	#   periodically to see if there is a new tweet.
 	def start_ticker(m)
+		quiet_start_ticker(m)
 		m.reply "Twitter Feed: On"
-		if (!@@active)
-			quiet_start_ticker(m)
-		end
 	end
 
 	# Function: quiet_start_ticker
@@ -45,12 +43,29 @@ class Twitter
 	# Description:
 	#   Does what start_ticker does except without output.
 	def quiet_start_ticker(m)
-		@@active = true
-		load "#{$pwd}/plugins/config_twitter.rb"
-		twitter_config = twitter_return_config
-		twitter_config['usernames'].each do |feed|
-			@@feeds.push(feed)
-			@@threads.push( Thread.new {run_ticker(m,feed,twitter_config['frequency'],twitter_config['channels'])} )
+		if (!@@active)
+			@@active = true
+			load "#{$pwd}/plugins/config_twitter.rb"
+			twitter_config = twitter_return_config
+			twitter_config['usernames'].each do |feed|
+				http = Net::HTTP.new('api.twitter.com',80)
+				query = "/1/users/show.json?screen_name=#{feed}&include_entities=true"
+				resp, rawdata = http.get(query)
+				data = JSON.parse(rawdata)
+				if (resp.is_a? Net::HTTPOK)
+					@@feeds.push(feed)
+					@@threads.push( Thread.new {run_ticker(m,data,twitter_config['frequency'],twitter_config['channels'])} )
+					# Eventually I'll figure out how to do this using Cinch's built-in
+					# logging/status messages.
+					puts "[Twitter] Subscribed to feed '#{feed}'."
+				elsif (resp.is_a? Net::HTTPNotFound)
+					puts "[Twitter] Unable to subscribe to feed '#{feed}': Not found."
+				elsif (resp.is_a? Net::HTTPForbidden)
+					puts "[Twitter] Unable to subscribe to feed '#{feed}': User suspended."
+				else
+					puts "[Twitter] Unable to subscribe to feed '#{feed}': Unknown error."
+				end
+			end
 		end
 	end
 
@@ -59,23 +74,34 @@ class Twitter
 	# Description:
 	#   Kills off the Threads looking at Twitter so we stop processing them.
 	def stop_ticker(m)
+		quiet_stop_ticker(m)
 		m.reply "Twitter Feed: Off"
-		@@active = false
-		@@threads.each do |thread|
-			thread.kill()
-			@@threads.pop()
-			@@feeds.pop()
-		end
 	end
 	
+	# Function: quiet_stop_ticker
+	#
+	# Description:
+	#   Does what stop_ticker does except without output.
+	def quiet_stop_ticker(m)
+		if (@@active)
+			@@active = false
+			@@threads.each do |thread|
+				thread.kill
+			end
+			@@threads.clear
+			@@feeds.clear
+		end
+	end
+
 	# Function: restart_ticker
 	#
 	# Description:
 	#   Kills Twitter Threads and then restarts them. Good for re-loading an updated
 	#   config file without restarting the bot.
 	def restart_ticker(m)
-		stop_ticker(m)
-		start_ticker(m)
+		quiet_stop_ticker(m)
+		quiet_start_ticker(m)
+		m.reply "Twitter Feed: Restarted"
 	end
 
 	# Function: report_status
@@ -86,9 +112,14 @@ class Twitter
 	def report_status(m)
 		if (@@active)
 			m.reply "Twitter Feed: On"
-			reply = "Feeds subscribed to: "
-			@@feeds.each do |feed|
-				reply << "#{feed} "
+			reply = "Feeds subscribed to:"
+			if (@@feeds.empty?)
+				reply = "None"
+			else
+				@@feeds.each do |feed|
+					reply << " #{feed},"
+				end
+				reply = reply[0,reply.size - 1]
 			end
 			m.reply reply
 		else
@@ -102,15 +133,16 @@ class Twitter
 	#   Periodically checks a particular Twitter account for new activity. When the latest
 	#   tweet (that it knows about) changes, it reports the new tweet to all the subscribed
 	#   IRC channels.
-	def run_ticker(m,feed,freq,channel_list)
+	def run_ticker(m,data,freq,channel_list)
 		source = 'api.twitter.com'
 		http = Net::HTTP.new(source,80)
+		feed = data['screen_name']
 		query = "/1/users/show.json?screen_name=#{feed}&include_entities=true"
-		resp, rawdata = http.get(query)
 		
 		# Get current Tweet. Don't report it - wait until a new one appears.
 		cur_msg = data['status']['text']
-	
+#		puts "[Twitter] User #{feed}'s current tweet: #{cur_msg}."
+
 		# Generate a random time offset between 0-60 seconds to actually report results, so 
 		# that updates don't all get spit out at the same time.
 		offset = rand(60)
@@ -123,8 +155,10 @@ class Twitter
 			resp, rawdata = http.get(query)
 			data = JSON.parse(rawdata)
 			
-			# If most recent tweet has changed, update the old one, then report it.
-			if (cur_msg.hash != data['status']['text'].hash)
+#			puts "[Twitter] User #{feed}'s updated tweet: #{data['status']['text']}."
+			# If most recent tweet has changed, update, then report it.
+			if (cur_msg != data['status']['text'])
+#				puts "[Twitter] ... Different from current tweet of: #{cur_msg}."
 				cur_msg = data['status']['text']
 				reply = "[@#{feed}] #{cur_msg}"
 				
@@ -133,6 +167,8 @@ class Twitter
 					max_msg_size = 512 - m.bot.nick.size - chname.size - 43
 					Channel(chname).send reply[0,max_msg_size]
 				end
+			else
+#				puts "[Twitter] ... Same as current tweet of: #{cur_msg}."
 			end
 
 		end
@@ -145,7 +181,7 @@ class Twitter
 		m.reply "Usage:"
 	  m.reply "  !twitter on (to start reporting)"
 		m.reply "  !twitter off (to stop reporting)"
-		m.reply "  !twitter restart (to restart reporting, reloading a new config)"
+		m.reply "  !twitter restart (to restart reporting, or reload a new config)"
 	end
 
 	def help(m)
