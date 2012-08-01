@@ -72,7 +72,7 @@ class SendSignal
 			reply << " #{person}"
 		end
 		m.reply reply
-		m.reply "Talk to cmeinsch about adding others."
+		m.reply "Talk to #{$owner} about adding others."
 	end
 
 end
