@@ -44,6 +44,7 @@ end
 # Launch the bot.
 require "#{$pwd}/config.rb"
 config_hash = ret_config
+$owner = config_hash['owner']
 
 bot = Cinch::Bot.new do
 	configure do |config|

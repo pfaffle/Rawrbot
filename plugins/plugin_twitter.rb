@@ -24,6 +24,8 @@ class Twitter
 	match /twitter off$/i, method: :stop_ticker
 	match /twitter restart$/i, method: :restart_ticker
 	match /twitter$/i, method: :report_status
+	match /help$/i, method: :help
+	match /help twitter$/i, method: :twitter_help
 
 	listen_to :connect, method: :quiet_start_ticker
 
@@ -182,6 +184,7 @@ class Twitter
 	  m.reply "  !twitter on (to start reporting)"
 		m.reply "  !twitter off (to stop reporting)"
 		m.reply "  !twitter restart (to restart reporting, or reload a new config)"
+		m.reply "Ask #{$owner} to add/remove Twitter feeds."
 	end
 
 	def help(m)
