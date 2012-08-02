@@ -175,7 +175,7 @@ class LDAPsearch
 	end # End of parse_date function.
 	
 	def ldap_search(attr,query)
-		require "#{$pwd}/plugins/auth_ldap.rb"
+		load "#{$pwd}/plugins/auth_ldap.rb"
 	
 		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
 		# hash with the username and password to bind to LDAP with.
