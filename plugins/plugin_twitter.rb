@@ -184,7 +184,7 @@ class Twitter
 	  m.reply "  !twitter on (to start reporting)"
 		m.reply "  !twitter off (to stop reporting)"
 		m.reply "  !twitter restart (to restart reporting, or reload a new config)"
-		m.reply "Ask #{$owner} to add/remove Twitter feeds."
+		m.reply "Ask a bot admin to add/remove Twitter feeds."
 	end
 
 	def help(m)
