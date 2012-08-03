@@ -22,7 +22,7 @@ class RTSearch
 	def execute(m,tnumber)
 		# only perform ticket number searches in #helpdesk for security reasons.
 		# --- REMINDER: COMMENT THE LINE BELOW WHEN TESTING.
-#		if m.channel == "#helpdesk"
+		if m.channel == "#helpdesk"
 			# The ticket_list hash is structured like so:
 			# ticket_list["ticketnumber"] = verbose_flag
 			ticket_list = Hash.new
@@ -52,9 +52,9 @@ class RTSearch
 				rt_search m,ticket_list
 			end
 			# --- REMINDER: COMMENT 3 THREE LINES BELOW WHEN TESTING.
-		#elsif (m.message =~ /rt#\d{1,6}\b/i)
-		#	m.reply "Ticket searches not allowed here."
-		#end
+		elsif (m.message =~ /rt#\d{1,6}\b/i)
+			m.reply "Ticket searches not allowed here."
+		end
 	end # End of execute function
 
 	# Function: rt_search
