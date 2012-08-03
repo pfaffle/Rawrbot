@@ -3,9 +3,12 @@
 #  'username' => The Distinguished Name of the account used to bind
 #                with LDAP.
 #  'pass'			=> The password of the account used to bind with LDAP.
-def ldap_return_auth
-	ldap_auth = Hash.new
-	ldap_auth['username'] = 'uid=serviceacct,ou=people,dc=pdx,dc=edu'
-	ldap_auth['pass'] = 'acct_password'
-	return ldap_auth
+def return_ldap_config
+	ldap_config = Hash.new
+
+	ldap_config['username'] = 'uid=serviceacct,ou=people,dc=pdx,dc=edu'
+
+	ldap_config['pass'] = 'acct_password'
+
+	return ldap_config
 end

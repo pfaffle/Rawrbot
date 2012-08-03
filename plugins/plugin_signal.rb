@@ -16,8 +16,8 @@ class SendSignal
 	match(/\b(.+)signal (.+)\b$/i)
 	
 	def execute(m,tgt,msg)
-		load "#{$pwd}/plugins/config_signal.rb"
-		user_list = signal_return_config
+		load "#{$pwd}/plugins/config/signal_config.rb"
+		user_list = return_signal_config
 		tgt.downcase!
 		if user_list.has_key? tgt
 			tgt_address = user_list[tgt]
@@ -65,8 +65,8 @@ class SendSignal
 	#
 	# Description: Lists the people for whom signaling is available.
 	def list_signals(m)
-		load "#{$pwd}/plugins/config_signal.rb"
-		user_list = signal_return_config
+		load "#{$pwd}/plugins/config/signal_config.rb"
+		user_list = return_signal_config
 		reply = "Signaling is available for:"
 		user_list.each do |person, address|
 			reply << " #{person}"

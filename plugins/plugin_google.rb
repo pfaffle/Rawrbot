@@ -48,9 +48,9 @@ class GoogleRSS
 	end
 
 	def run_ticker(m)
-		load "#{$pwd}/plugins/config_google.rb"
+		load "#{$pwd}/plugins/config/google_config.rb"
 		source = "http://www.google.com/appsstatus/rss/en"
-		channel_list = google_return_config
+		channel_list = return_google_config
 		
 		while (@@active)
 			raw = String.new

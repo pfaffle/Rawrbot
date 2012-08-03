@@ -8,7 +8,7 @@
 # Requirements:
 #		- The Ruby gem NET-LDAP.
 #		- Authentication information for NET-LDAP in the file 'auth_ldap.rb'.
-#			The file must define a function named ldap_return_auth which returns a
+#			The file must define a function named return_ldap_config which returns a
 #			hash with two key->value pairs 'username' and 'pass', which rawrbot
 #			will use to bind with OIT LDAP.
 #		- Rawrbot must be running on PSU's IP space (131.252.x.x). OIT's
@@ -175,15 +175,15 @@ class LDAPsearch
 	end # End of parse_date function.
 	
 	def ldap_search(attr,query)
-		load "#{$pwd}/plugins/auth_ldap.rb"
+		load "#{$pwd}/plugins/config/ldap_config.rb"
 	
 		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
 		# hash with the username and password to bind to LDAP with.
-		ldap_auth = ldap_return_auth
+		ldap_config = return_ldap_config
 
 		host = 'ldap.oit.pdx.edu'
 		port = 636
- 		auth = { :method => :simple, :username => ldap_auth['username'], :password => ldap_auth['pass'] }
+ 		auth = { :method => :simple, :username => ldap_config['username'], :password => ldap_config['pass'] }
 		base = 'dc=pdx,dc=edu'
 	
 		result = Hash.new(Array.new)

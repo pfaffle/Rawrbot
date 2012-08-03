@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 # This function should return an array of strings containing channel names
 # for the Google RSS plugin to report its output to.
-def google_return_config
+def return_google_config
+	google_config = Array.new
+
 	google_config = ['#channel']
+
+	return google_config
 end

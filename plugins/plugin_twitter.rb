@@ -6,7 +6,7 @@
 # 	channels in IRC.
 #
 # Requirements:
-# 	- A file 'config_twitter.rb' with information on what feeds to check and what
+# 	- A file 'twitter_config.rb' with information on what feeds to check and what
 # 		channels to print tweets to.
 # 	- The Ruby gem 'json_pure'
 #
@@ -47,8 +47,8 @@ class Twitter
 	def quiet_start_ticker(m)
 		if (!@@active)
 			@@active = true
-			load "#{$pwd}/plugins/config_twitter.rb"
-			twitter_config = twitter_return_config
+			load "#{$pwd}/plugins/config/twitter_config.rb"
+			twitter_config = return_twitter_config
 			twitter_config['usernames'].each do |feed|
 				http = Net::HTTP.new('api.twitter.com',80)
 				query = "/1/users/show.json?screen_name=#{feed}&include_entities=true"

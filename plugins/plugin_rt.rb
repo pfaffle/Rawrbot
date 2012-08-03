@@ -21,8 +21,8 @@ class RTSearch
 	
 	def execute(m,tnumber)
 		# only perform ticket number searches in #helpdesk for security reasons.
-		# REMINDER: COMMENT THIS WHEN TESTING.
-		if m.channel == "#helpdesk"
+		# --- REMINDER: COMMENT THE LINE BELOW WHEN TESTING.
+#		if m.channel == "#helpdesk"
 			# The ticket_list hash is structured like so:
 			# ticket_list["ticketnumber"] = verbose_flag
 			ticket_list = Hash.new
@@ -51,9 +51,10 @@ class RTSearch
 			if (ticket_list.size() > 0)
 				rt_search m,ticket_list
 			end
-		elsif (m.message =~ /rt#\d{1,6}\b/i)
-			m.reply "Ticket searches not allowed here."
-		end
+			# --- REMINDER: COMMENT 3 THREE LINES BELOW WHEN TESTING.
+		#elsif (m.message =~ /rt#\d{1,6}\b/i)
+		#	m.reply "Ticket searches not allowed here."
+		#end
 	end # End of execute function
 
 	# Function: rt_search
@@ -61,14 +62,14 @@ class RTSearch
 	# Description: Perform the search on RT. Retrieve ticket number and basic
 	# 	ticket details.
 	def rt_search(m,ticket_list)
-		load "#{$pwd}/plugins/auth_rt.rb"
+		load "#{$pwd}/plugins/config/rt_config.rb"
 		ticket = Hash.new
 		# Format the HTTP request.
 		http = Net::HTTP.new('support.oit.pdx.edu', 443)
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		rt_auth = rt_return_auth
-		login = "user=#{rt_auth['username']}&pass=#{rt_auth['pass']}"
+		rt_config = return_rt_config
+		login = "user=#{rt_config['username']}&pass=#{rt_config['pass']}"
 		headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
 		# Execute the HTTP requests.
