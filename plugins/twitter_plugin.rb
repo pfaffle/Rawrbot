@@ -125,6 +125,8 @@ class Twitter
 					reply << " #{feed},"
 				end
 				reply = reply[0,reply.size - 1]
+			else
+				reply << " None"
 			end
 			m.reply reply
 		else
