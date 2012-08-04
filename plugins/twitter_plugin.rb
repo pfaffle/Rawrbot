@@ -14,7 +14,7 @@ class Twitter
 	include Cinch::Plugin
 	
 	@@active = false
-	@@feeds = Array.new
+	@@feeds = Hash.new {|hash,key| hash[key] = []}
 	@@threads = Array.new
 
 	require 'net/http'
@@ -49,14 +49,17 @@ class Twitter
 			@@active = true
 			load "#{$pwd}/plugins/config/twitter_config.rb"
 			twitter_config = return_twitter_config
-			twitter_config['usernames'].each do |feed|
+			twitter_config[:feeds].each do |feed,channels|
 				http = Net::HTTP.new('api.twitter.com',80)
 				query = "/1/users/show.json?screen_name=#{feed}&include_entities=true"
 				resp, rawdata = http.get(query)
 				data = JSON.parse(rawdata)
 				if (resp.is_a? Net::HTTPOK)
-					@@feeds.push(feed)
-					@@threads.push( Thread.new {run_ticker(m,data,twitter_config['frequency'],twitter_config['channels'])} )
+					# Keep track of subscribed feeds by channel.
+					channels.each do |channel|
+						@@feeds[channel] += [feed]
+					end
+					@@threads.push( Thread.new {run_ticker(m,data,twitter_config[:frequency],channels)} )
 					# Eventually I'll figure out how to do this using Cinch's built-in
 					# logging/status messages.
 					puts "[Twitter] Subscribed to feed '#{feed}'."
@@ -115,10 +118,10 @@ class Twitter
 		if (@@active)
 			m.reply "Twitter Feed: On"
 			reply = "Feeds subscribed to:"
-			if (@@feeds.empty?)
-				reply = "None"
-			else
-				@@feeds.each do |feed|
+			# Check if the current channel (or user) has subscribed to any feeds.
+			# If so, list them.
+			if (@@feeds.has_key? m.channel)
+				@@feeds[m.channel].each do |feed|
 					reply << " #{feed},"
 				end
 				reply = reply[0,reply.size - 1]
