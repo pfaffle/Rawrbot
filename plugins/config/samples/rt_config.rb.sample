@@ -1,13 +1,32 @@
 #!/usr/bin/env ruby
-# This function should return a Hash containing two key/value pairs:
-# 	'username' => The RT account name used to query RT.
-# 	'pass'		 => The password for the account used to auth with RT.
+# This function should return a Hash containing configuration
+# information for the bot to interact with RT.
 def return_rt_config
 	rt_config = Hash.new
 
-	rt_config['username'] = 'rt_user'
+ 	# The RT account name used to query RT.
+	rt_config[:username] = 'rt_user'
 
-	rt_config['pass'] = 'rt_password'
+ 	# The password for the account used to auth with RT.
+	rt_config[:pass] = 'rt_password'
+
+	# Array of channels where RT queries are allowed.
+	rt_config[:channels] = ['#channel1','#channel2']
+
+	# Website/server where RT is hosted.
+	rt_config[:server] = 'rt.yourwebsite.com'
+	
+	# Set to true to query RT through https instead of http.
+	rt_config[:ssl]	= true
+	
+	# Port to query RT on. Normally will be the standard
+	# http/https ports: 80 without SSL, 443 with SSL.
+	rt_config[:port] = 443
+
+	# The base URL for the RT REST interface. Should only
+	# include what comes after the server name. The default
+	# should work here, unless you have a special setup.
+	rt_config[:baseurl] = '/REST/1.0/'
 
 	return rt_config
 end

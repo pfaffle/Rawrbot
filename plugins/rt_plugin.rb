@@ -8,7 +8,7 @@
 # 	the Requestors, current Status, and Owner.
 #
 # Requirements:
-# 	A file 'auth_rt.rb' with authentication information for RT.
+# 	A file 'rt_config.rb' with authentication information for RT.
 class RTSearch
 	include Cinch::Plugin
 	
@@ -18,11 +18,19 @@ class RTSearch
 	match("help", method: :help)
 	match(/help rtsearch|help rt/i, method: :rt_help)
 	match(/(\d{1,6})/, :use_prefix => false)
-	
+	match(/rt reload$/i, method: :load_config)
+
+	listen_to :connect, method: :quiet_load_config
+
+	# Function: execute
+	#
+	# Description: Determines if a number is likely to be a ticket number,
+	# 	then calls the rt_search function to query RT for information about
+	# 	it. 
 	def execute(m,tnumber)
-		# only perform ticket number searches in #helpdesk for security reasons.
-		# --- REMINDER: COMMENT THE LINE BELOW WHEN TESTING.
-		if m.channel == "#helpdesk"
+		# Only perform ticket number searches in configured channels for
+		# security purposes.
+		if @@rt_config[:channels].include? m.channel
 			# The ticket_list hash is structured like so:
 			# ticket_list["ticketnumber"] = verbose_flag
 			ticket_list = Hash.new
@@ -53,7 +61,7 @@ class RTSearch
 			end
 			# --- REMINDER: COMMENT 3 THREE LINES BELOW WHEN TESTING.
 		elsif (m.message =~ /rt#\d{1,6}\b/i)
-			m.reply "Ticket searches not allowed here."
+			m.reply "[RT] Ticket searches not allowed here."
 		end
 	end # End of execute function
 
@@ -62,41 +70,64 @@ class RTSearch
 	# Description: Perform the search on RT. Retrieve ticket number and basic
 	# 	ticket details.
 	def rt_search(m,ticket_list)
-		load "#{$pwd}/plugins/config/rt_config.rb"
 		ticket = Hash.new
 		# Format the HTTP request.
-		http = Net::HTTP.new('support.oit.pdx.edu', 443)
-		http.use_ssl = true
-		http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		rt_config = return_rt_config
-		login = "user=#{rt_config['username']}&pass=#{rt_config['pass']}"
+		http = Net::HTTP.new(@@rt_config[:server],@@rt_config[:port])
+		if @@rt_config[:ssl]
+			http.use_ssl = true
+			http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+		end
+		login = "user=#{@@rt_config[:username]}&pass=#{@@rt_config[:pass]}"
 		headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
 		# Execute the HTTP requests.
 		ticket_list.each do |tnumber,verbose|
-			resp, data = http.post("/NoAuthCAS/REST/1.0/ticket/#{tnumber}/show",login,headers)
+			resp, data = http.post("#{@@rt_config[:baseurl]}/ticket/#{tnumber}/show",login,headers)
 		
-			# If there is a '#' symbol immediately after RT's acknowledgement of the request,
-			# it indicates an error message signifying that the ticket could not be displayed.
-			if data =~ /^RT\/\d(\.\d+)+ 200 Ok\n\n#/
-				if verbose
-					m.reply "Ticket ##{tnumber} could not be displayed.\n"
+			if resp.is_a? Net::HTTPOK
+				# If there is a '#' symbol immediately after RT's acknowledgement of the request,
+				# it indicates an error message signifying that the ticket could not be displayed.
+				if data =~ /^RT\/\d(\.\d+)+ 200 Ok\n\n#/
+					if verbose
+						m.reply "[RT] Ticket ##{tnumber} could not be displayed.\n"
+					end
+				else
+				# Parse the data retrieved about the ticket into a Hash variable.
+					data = data.split(/\n+/)
+					data.each do |element|
+						if element.match(/([^:]+): ?(.+)/)
+							ticket[$1] = $2
+						elsif element.match(/([^:]+):/)
+						ticket[$1] = ''
+						end
+					end
+					# Reply with ticket information.
+					m.reply "[RT] #{tnumber} | #{ticket['Requestors']} | #{ticket['Owner']} | #{ticket['Subject']}"
 				end
 			else
-			# Parse the data retrieved about the ticket into a Hash variable.
-				data = data.split(/\n+/)
-				data.each do |element|
-					if element.match(/([^:]+): ?(.+)/)
-						ticket[$1] = $2
-					elsif element.match(/([^:]+):/)
-						ticket[$1] = ''
-					end
-				end
-				# Reply with ticket information.
-				m.reply "#{tnumber} | #{ticket['Requestors']} | #{ticket['Owner']} | #{ticket['Subject']}"
+				m.reply "[RT] Error performing search. Please check config."
+				break
 			end
 		end
 	end # End of rt_search function
+
+	# Function: quiet_load_config
+	#
+	# Description: Reloads configuration/authentication information used for
+	# 	interfacing with RT.
+	def quiet_load_config(m)
+		load "#{$pwd}/plugins/config/rt_config.rb"
+		@@rt_config = return_rt_config
+	end # End of quiet_load_config function
+
+	# Function: load_config
+	#
+	# Description: Reloads configuration/authentication information used for
+	# 	interfacing with RT.
+	def load_config(m)
+		quiet_load_config(m)
+		m.reply "RT config reloaded."
+	end # End of load_config function
 
 	# Function: help
 	#
