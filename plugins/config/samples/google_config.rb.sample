@@ -1,10 +1,17 @@
 #!/usr/bin/env ruby
-# This function should return an array of strings containing channel names
-# for the Google RSS plugin to report its output to.
+# This function should return a Hash containing channel names
+# for the Google RSS plugin to report its output to, as well as
+# the frequency with which to check for new information in
+# the RSS feed.
 def return_google_config
-	google_config = Array.new
+	google_config = Hash.new
 
-	google_config = ['#channel']
+	# Channels to report output to.
+	google_config[:channels] = ['#channel1','#channel2']
 
+	# Time (in seconds) to wait before checking for an update
+	# on the RSS feed.
+	google_config[:frequency] = 300
+	
 	return google_config
 end
