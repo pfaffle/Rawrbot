@@ -22,6 +22,8 @@ class GoogleRSS
 	match /rss off$/i, method: :stop_ticker
 	match /rss restart$/i, method: :restart_ticker
 	match /rss$/i, method: :report_status
+	match /help$/i, method: :help
+	match /help (google|rss)$/i, method: :google_help
 
 	listen_to :connect, method: :quiet_start_ticker
 
@@ -159,6 +161,7 @@ class GoogleRSS
 		reply << "Usage:\n"
 		reply << " !rss on (to start reporting)\n"
 		reply << " !rss off (to disable reporting)\n"
+		reply << " !rss restart (to restart reporting, or reload a new config)\n"
 		m.reply reply
 	end # End of google_help function.
 
