@@ -32,6 +32,9 @@ def ret_config
 	# IRC nickname of the bot's owner (you).
 	config['owner']			= 'masternick'
 
+	# Prefix to use for picking a command
+	config['prefix']			= /^@/
+
 	# If the bot has a registered nick, insert the correct password for
 	# that nick on the line below and then uncomment it.
 	#config['nickpass']	= 'password'
