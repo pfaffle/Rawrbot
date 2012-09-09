@@ -1,0 +1,16 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    cinch (2.0.3)
+    ffi (1.1.5)
+    gdbm (1.2)
+    json (1.7.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cinch
+  ffi
+  gdbm
+  json
