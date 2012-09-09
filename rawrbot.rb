@@ -20,14 +20,14 @@ $owner = config_hash['owner']
 
 bot = Cinch::Bot.new do
 	configure do |config|
-		config.server						= config_hash['server']
-		config.port							= config_hash['port']
-		config.channels					= config_hash['channels']
-		config.ssl.use					= config_hash['ssl']
-		config.nick							= config_hash['nick']
-		config.realname					= config_hash['realname']
-		config.user							= config_hash['user']
-		config.plugins.plugins 	= config_hash['plugins']
+		config.server          = config_hash['server']
+		config.port            = config_hash['port']
+		config.channels        = config_hash['channels']
+		config.ssl.use         = config_hash['ssl']
+		config.nick            = config_hash['nick']
+		config.realname        = config_hash['realname']
+		config.user            = config_hash['user']
+		config.plugins.plugins = config_hash['plugins']
 	end
 
 	# Authenticate with NickServ.
