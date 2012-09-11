@@ -28,6 +28,7 @@ bot = Cinch::Bot.new do
 		config.realname        = config_hash['realname']
 		config.user            = config_hash['user']
 		config.plugins.plugins = config_hash['plugins']
+		config.plugins.prefix  = config_hash['prefix']
 	end
 
 	# Authenticate with NickServ.
