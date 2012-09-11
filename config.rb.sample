@@ -33,7 +33,7 @@ def ret_config
 	config[:prefix]    = /^@/
 
 	# IRC nickname of the bot's admin(s), i.e. you.
-	config[:admins]    = 'masternick'
+	config[:admins]    = ['masternick']
 
 	# If the bot has a registered nick, insert the correct password for
 	# that nick on the line below and then uncomment it.
