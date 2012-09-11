@@ -16,35 +16,35 @@ Dir["#{$pwd}/plugins/*plugin*.rb"].each do |file|
 	puts "Loading #{file}."
 end
 config_hash = ret_config
-$owner = config_hash['owner']
+$admins = config_hash[:admins]
 
 bot = Cinch::Bot.new do
 	configure do |config|
-		config.server          = config_hash['server']
-		config.port            = config_hash['port']
-		config.channels        = config_hash['channels']
-		config.ssl.use         = config_hash['ssl']
-		config.nick            = config_hash['nick']
-		config.realname        = config_hash['realname']
-		config.user            = config_hash['user']
-		config.plugins.plugins = config_hash['plugins']
-		config.plugins.prefix  = config_hash['prefix']
+		config.server          = config_hash[:server]
+		config.port            = config_hash[:port]
+		config.channels        = config_hash[:channels]
+		config.ssl.use         = config_hash[:ssl]
+		config.nick            = config_hash[:nick]
+		config.realname        = config_hash[:realname]
+		config.user            = config_hash[:user]
+		config.plugins.plugins = config_hash[:plugins]
+		config.plugins.prefix  = config_hash[:prefix]
 	end
 
 	# Authenticate with NickServ.
 	# This is specifically designed for Charybdis IRCD.
 	on :connect do |m|
-		if (config_hash.has_key? 'nickpass')
-			if (bot.nick != config_hash['nick'])
-				User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
+		if (config_hash.has_key? :nickpass)
+			if (bot.nick != config_hash[:nick])
+				User('NickServ').send "regain #{config_hash[:nick]} #{config_hash[:nickpass]}"
 			end
-			User('NickServ').send "identify #{config_hash['nick']} #{config_hash['nickpass']}"
+			User('NickServ').send "identify #{config_hash[:nick]} #{config_hash[:nickpass]}"
 		end
 	end
 end
 
 # Make CTRL+C shut down the bot cleanly.
-Kernel.trap('INT') { bot.quit(config_hash['quitmsg']) }
+Kernel.trap('INT') { bot.quit(config_hash[:quitmsg]) }
 
 # Launch the bot.
 bot.start
