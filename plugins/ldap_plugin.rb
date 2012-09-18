@@ -17,7 +17,7 @@
 class LDAPsearch
 	include Cinch::Plugin
 	
-	prefix lambda{ |m| /^#{m.bot.nick}/ }
+	self.prefix = lambda{ |m| /^#{m.bot.nick}/ }
 
 	require 'net/ldap'
 

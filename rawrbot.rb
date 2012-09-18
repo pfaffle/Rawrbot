@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# (c) Craig Meinschein 2011
+# (c) Craig Meinschein 2012
 # Licensed under the GPLv3 or any later version.
 # File:			rawrbot.rb
 # Description:
@@ -9,7 +9,14 @@
 
 # Load plugins and configuration.
 $pwd = Dir.pwd
+
+# Require at least version 2.0.3 of cinch, since some stuff won't work anymore
+# with earlier versions. Comment this line at your own peril.
+#
+# Install the required version of cinch with 'gem install cinch -v 2.0.3'
+gem 'cinch', '>= 2.0.3'
 require 'cinch'
+
 require "#{$pwd}/config.rb"
 Dir["#{$pwd}/plugins/*plugin*.rb"].each do |file| 
 	require file
