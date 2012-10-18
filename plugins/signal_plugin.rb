@@ -69,7 +69,9 @@ class SendSignal
 		user_list = return_signal_config
 		reply = "Signaling is available for:"
 		user_list.each do |person, address|
-			reply << " #{person}"
+			mod_person = person.dup
+			mod_person[rand(mod_person.length)] = '*'
+			reply << " #{mod_person}"
 		end
 		m.reply reply
 		m.reply "Ask a bot admin to add/remove signals."
