@@ -13,7 +13,7 @@ class SendSignal
 
 	match("help", method: :help)
 	match(/help signal/i, method: :signal_help)
-	match(/\b(.+)signal (.+)\b$/i)
+	match(/\bsignal\s+(.+?)\s+(.+)\b$/i)
 	
 	def execute(m,tgt,msg)
 		load "#{$pwd}/plugins/config/signal_config.rb"
@@ -56,8 +56,8 @@ class SendSignal
 	def signal_help(m)
 		m.reply "Signal"
 		m.reply "==========="
-		m.reply "Sends a text message to someone to report a problem. Don't abuse it!"
-		m.reply "Usage: ![person]signal [your message]" 
+		m.reply "Sends a text message to someone. Don't abuse it!"
+		m.reply "Usage: !signal [target] [message]" 
 		list_signals(m)
 	end
 	
