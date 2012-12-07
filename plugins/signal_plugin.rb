@@ -23,12 +23,12 @@ class SendSignal
 			tgt_address = user_list[tgt]
 			m.reply "Signaling #{tgt}..."
 			Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
-				msgstr = "From: <#{m.user.nick}@irc\n"
+				msgstr = "From: #{m.user.nick} <#{m.user.nick}@irc.cat.pdx.edu\n"
 				msgstr << "To: #{tgt} <#{tgt_address}>\n"
 				msgstr << "Subject:\n"
 				msgstr << "Date: #{Time.now}\n"
 				msgstr << msg
-				if (smtp.send_message msgstr, "#{m.user.nick}@irc", tgt_address)
+				if (smtp.send_message msgstr, "#{m.user.nick}@irc.cat.pdx.edu", tgt_address)
 					m.reply "Sent message \"#{msg}\" to #{tgt}."
 				else
 					m.reply "Failed to send message to #{tgt}."
