@@ -95,44 +95,6 @@ class CATldap
 					end
 				end
 
-				#search_result['ou'].each { |dept| reply << "Dept: #{dept}\n" }
-				
-				# Determine if this is a sponsored account, and if so, who the sponsor is.
-				#if (search_result['psusponsorpidm'].empty?)
-					#reply << "Sponsored: no\n"
-				#else
-					# Look up sponsor's information.
-					#reply << "Sponsored: yes\n"
-					#sponsor_uniqueid = search_result['psusponsorpidm'][0]
-					# Fix some malformed psusponsorpidms.
-					#if (!(sponsor_uniqueid =~ /^P/i))
-						#sponsor_uniqueid = "P" + sponsor_uniqueid
-					#end
-					
-					#ldap_sponsor_entry = ldap_search("uniqueIdentifier",sponsor_uniqueid)
-				
-					#sponsor_name = ldap_sponsor_entry['gecos'][0]
-					#sponsor_uid = ldap_sponsor_entry['uid'][0]
-					#reply << "Sponsor: #{sponsor_name} (#{sponsor_uid})\n"
-				#end
-			
-				# Determine the account and password expiration dates. Also, estimate the date the
-				# password was originally set by subtracting 6 months from the expiration date.
-				#search_result['psuaccountexpiredate'].each do |acctexpiration|
-					#acct_expire_date = parse_date(acctexpiration)
-					#reply << "Account expires: #{acct_expire_date.asctime}\n"
-				#end
-				#search_result['psupasswordexpiredate'].each do |pwdexpiration|
-					#pwd_expire_date = parse_date(pwdexpiration)
-					#reply << "Password expires: #{pwd_expire_date.asctime}\n"
-					# Calculate the date/time that the password was set.
-					#day = 86400 # seconds
-					#pwd_set_date = pwd_expire_date - (180 * day)
-					#reply << "Password was set: #{pwd_set_date.asctime}\n"
-				#end
-
-				# Print out any email aliases.
-				#search_result['maillocaladdress'].each { |email_alias| reply << "Email alias: #{email_alias}\n" }
 			end
 			# Send results via PM so as to not spam the channel.
 			User(m.user.nick).send(reply)
@@ -168,8 +130,8 @@ class CATldap
 	def ldap_search(attr,query,config)
 		load config
 	
-		# ldap_return auth (below) is a function from auth_ldap.rb that returns a
-		# hash with the username and password to bind to LDAP with.
+		# return_ldap_config (below) is a function defined in the config file that returns a
+		# hash with the settings to connect to to LDAP with.
 		ldap_config = return_ldap_config()
 
 		host = ldap_config[:server]
@@ -213,25 +175,21 @@ class CATldap
 		end	
 		query.downcase!
 
-		# Determine what field to search and proceed to execute it.
-		if (query =~ /@pdx\.edu/)
-			attribute = 'mailLocalAddress'
-		else
-			attribute = 'uid'
-		end
+		# Execute the search.
+		attribute = 'uid'
 		
-		search_result = ldap_search(attribute,query,@@cat_configfile)
+		cat_search_result = ldap_search(attribute,query,@@cat_configfile)
 		reply = String.new()
 		
-		if (!search_result)
+		if (!cat_search_result)
 			reply = "Error: LDAP query failed. Check configuration."
 		else
 			#	Piece together the final results and print them out in user-friendly output.
-			if (search_result['dn'].empty?)
+			if (cat_search_result['dn'].empty?)
 				reply = "No results for #{query}.\n"
-			elsif (search_result['telephonenumber'].empty?)
-				reply = "No results for #{query}.\n"
-			elsif (search_result['dn'].length > 1)
+			elsif (cat_search_result['uniqueidentifier'].empty?)
+				reply = "No phone number for #{query}.\n"
+			elsif (cat_search_result['dn'].length > 1)
 				# Realistically this case should never happen because we filtered '*'
 				# out of the search string earlier. If this comes up, something in LDAP
 				# is really janky. The logic to account for this is here nonetheless,
@@ -239,8 +197,22 @@ class CATldap
 				reply = "Error: Too many results.\n"
 			else
 				#	Get name and phone of the user.
-				search_result['gecos'].each { |name| reply << "Name: #{name}\n" }
-				search_result['telephonenumber'].each { |phone| reply << "Phone: #{phone}\n" }
+				uniqueid = cat_search_result['uniqueidentifier'][0]
+				if (!(uniqueid =~ /^P/i))
+					uniqueid = "P" + uniqueid
+				end
+				oit_search_result = ldap_search('uniqueidentifier',uniqueid,@@oit_configfile)
+				if (!oit_search_result)
+					reply << "OIT subquery failed.\n"
+				else
+					if (oit_search_result['telephonenumber'].empty?)
+						reply = "No phone number for #{query}.\n"
+					else
+						oit_search_result['gecos'].each { |name| reply << "Name: #{name}    " }
+						oit_search_result['telephonenumber'].each { |phone| reply << "Phone: #{phone}    " }
+						oit_search_result['roomnumber'].each { |room| reply << "Office: #{room}" }
+					end
+				end
 			end
 		end
 
