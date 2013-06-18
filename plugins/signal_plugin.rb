@@ -14,6 +14,7 @@ class SendSignal
 	match("help", method: :help)
 	match(/help signal/i, method: :signal_help)
 	match(/\bsignal\s+(.+?)\s+(.+)\b$/i)
+	match(/^\.(.+?)signal\s+(.+)$/i, :use_prefix => false)
 	
 	def execute(m,tgt,msg)
 		load "#{$pwd}/plugins/config/signal_config.rb"
