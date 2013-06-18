@@ -24,7 +24,7 @@ class SendSignal
 			tgt_address = user_list[tgt]
 			m.reply "Signaling #{tgt}..."
 			Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
-				msgstr = "From: #{m.user.nick} <#{m.user.nick}@irc.cat.pdx.edu\n"
+				msgstr = "From: #{m.user.nick}@irc <#{m.user.nick}@irc.cat.pdx.edu\n"
 				msgstr << "To: #{tgt} <#{tgt_address}>\n"
 				msgstr << "Subject:\n"
 				msgstr << "Date: #{Time.now}\n"
