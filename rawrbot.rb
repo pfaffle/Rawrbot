@@ -16,26 +16,33 @@ $pwd = Dir.pwd
 # You may install the required version of cinch with 'gem install cinch -v 2.0.3'
 gem 'cinch', '>= 2.0.3'
 require 'cinch'
+require 'yaml'
 
-require "#{$pwd}/config.rb"
 Dir["#{$pwd}/plugins/*plugin*.rb"].each do |file| 
     require file
     puts "Loading #{file}."
 end
-config_hash = ret_config
-$admins = config_hash[:admins]
+
+config_hash = YAML.load(File.read("config/config.yaml"))
+$admins = config_hash['admins']
+
+# convert the plugins to classes for cinch to consume
+plugins = []
+config_hash['plugins'].each do |x|
+  plugins << Object.const_get( x )
+end
 
 bot = Cinch::Bot.new do
     configure do |config|
-        config.server          = config_hash[:server]
-        config.port            = config_hash[:port]
-        config.channels        = config_hash[:channels]
-        config.ssl.use         = config_hash[:ssl]
-        config.nick            = config_hash[:nick]
-        config.realname        = config_hash[:realname]
-        config.user            = config_hash[:user]
-        config.plugins.plugins = config_hash[:plugins]
-        config.plugins.prefix  = config_hash[:prefix]
+        config.server          = config_hash['server']
+        config.port            = config_hash['port']
+        config.channels        = config_hash['channels']
+        config.ssl.use         = config_hash['ssl']
+        config.nick            = config_hash['nick']
+        config.realname        = config_hash['realname']
+        config.user            = config_hash['user']
+        config.plugins.plugins = plugins
+        config.plugins.prefix  = config_hash['prefix']
     end
 
     # Authenticate with NickServ.
