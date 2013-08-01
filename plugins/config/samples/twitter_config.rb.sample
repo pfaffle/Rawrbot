@@ -3,17 +3,17 @@
 # tweets to, usernames of Twitter accounts to get tweets from, and the
 # frequency with which to check.
 def return_twitter_config
-	twitter_config = Hash.new
+    twitter_config = Hash.new
 
-	twitter_config[:feeds] = Hash.new {|hash,key| hash[key] = []}
-	# Hash that contains Twitter usernames to monitor and channels to report
-	# tweets to. Should be structured like so:
-	#twitter_config[:feeds]['twitter_user']		= ['#channel1','#channel2']]
-	twitter_config[:feeds]['user']						= ['#channel1','#channel2']
-	twitter_config[:feeds]['user2']						= ['#channel3']
+    twitter_config[:feeds] = Hash.new {|hash,key| hash[key] = []}
+    # Hash that contains Twitter usernames to monitor and channels to report
+    # tweets to. Should be structured like so:
+    #twitter_config[:feeds]['twitter_user'] = ['#channel1','#channel2']]
+    twitter_config[:feeds]['user']  = ['#channel1','#channel2']
+    twitter_config[:feeds]['user2'] = ['#channel3']
 
-	# Frequency (in seconds) to check for new tweets.
-	twitter_config[:frequency] = 300
+    # Frequency (in seconds) to check for new tweets.
+    twitter_config[:frequency] = 300
 
-	return twitter_config
+    return twitter_config
 end

@@ -4,14 +4,14 @@
 # the frequency with which to check for new information in
 # the RSS feed.
 def return_google_config
-	google_config = Hash.new
+    google_config = Hash.new
 
-	# Channels to report output to.
-	google_config[:channels] = ['#channel1','#channel2']
+    # Channels to report output to.
+    google_config[:channels] = ['#channel1','#channel2']
 
-	# Time (in seconds) to wait before checking for an update
-	# on the RSS feed.
-	google_config[:frequency] = 300
-	
-	return google_config
+    # Time (in seconds) to wait before checking for an update
+    # on the RSS feed.
+    google_config[:frequency] = 300
+    
+    return google_config
 end

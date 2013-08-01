@@ -3,11 +3,11 @@
 # sent a signal, and the phone email address (for email text messages) to
 # send to. See below article to translate a phone number to a email address
 # to send a text message to:
-#		http://en.wikipedia.org/wiki/List_of_SMS_gateways
+#        http://en.wikipedia.org/wiki/List_of_SMS_gateways
 def return_signal_config
-	signal_config = Hash.new
+    signal_config = Hash.new
 
-	signal_config['user'] = 'phonenumber@SMSgateway.com'
+    signal_config['user'] = 'phonenumber@SMSgateway.com'
 
-	return signal_config
+    return signal_config
 end

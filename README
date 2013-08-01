@@ -17,11 +17,11 @@ generic or are simply for-fun.
 REQUIREMENTS:
 =============
   Rawrbot itself requires
-	- Ruby v1.9.x, and
-	- The 'Cinch' Ruby gem. 
+    - Ruby v1.9.x, and
+    - The 'Cinch' Ruby gem. 
 
-	Individual plugins have their own requirements, which are listed
-	at the top of the plugin file.
+    Individual plugins have their own requirements, which are listed
+    at the top of the plugin file.
 
 INSTALLATION AND CONFIGURATION:
 =============
@@ -31,26 +31,26 @@ INSTALLATION AND CONFIGURATION:
     `git clone git://github.com/pfaffle/Rawrbot.git`
 
 - Edit the list of plugins to load (if desired) in rawrbot.rb.
-	Specifically, edit the line that looks like this:
+    Specifically, edit the line that looks like this:
 
-		config.plugins.plugins = [plugin1,plugin2,plugin3]
-	
-	Inside the square brackets should be a comma-separated list of the Class
-	names of each plugin you wish to load when Rawrbot is started.
+        config.plugins.plugins = [plugin1,plugin2,plugin3]
+    
+    Inside the square brackets should be a comma-separated list of the Class
+    names of each plugin you wish to load when Rawrbot is started.
 
 - Create and edit the config files.
 
-	Samples are provided for the main rawrbot config file and config
+    Samples are provided for the main rawrbot config file and config
   and authentication information files for the plugins. In each case,
-	simply create a copy of the file with the same name, excluding the
+    simply create a copy of the file with the same name, excluding the
   .sample extension, then edit it to your liking.
 
-		`cp config.rb.sample config.rb`
-		`vim config.rb` 
+        `cp config.rb.sample config.rb`
+        `vim config.rb` 
 
 - Run the bot within screen or tmux.
-		
-		`./rawrbot.rb`
+        
+        `./rawrbot.rb`
 
 MODIFYING/ADDING PLUGINS
 =============

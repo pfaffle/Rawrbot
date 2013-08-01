@@ -15,7 +15,7 @@
 # foo => a silly person
 # bar => a solid object or a difficult test or a place to beer
 #
-#	The delimiter can be edited here:
+#    The delimiter can be edited here:
 #
 delimiter = ' => '
 #
@@ -31,29 +31,29 @@ require 'gdbm'
 # Check if the input and output files exist. Prompt user to
 # create output file if it is missing.
 if !(File.exists? source_text)
-	abort "File #{source_text} not found. Aborting.\n"
+    abort "File #{source_text} not found. Aborting.\n"
 elsif !(File.exists? target_db)
-	print "File #{target_db} not found. Create new database? "
-	create_db = STDIN.gets
-	if create_db =~ /ye?s?/i
-		# continue
-	elsif create_db =~ /no?/i
-		abort "Aborting.\n"
-	else
-		abort "Unrecognized input. Aborting.\n"
-	end
+    print "File #{target_db} not found. Create new database? "
+    create_db = STDIN.gets
+    if create_db =~ /ye?s?/i
+        # continue
+    elsif create_db =~ /no?/i
+        abort "Aborting.\n"
+    else
+        abort "Unrecognized input. Aborting.\n"
+    end
 end
 
 # Import data into database.
 File.open(source_text, 'r') do |file|
-	GDBM.open(target_db) do |db|
-		while (line = file.gets)
-			line =~ /(.+)#{delimiter}(.+)/i 
-			if db.has_key? "#{$1}"
-				db["#{$1}"] = "#{db["#{$1}"]} or #{$2}"
-			else
-				db["#{$1}"] = "#{$2}"
-			end
-		end
-	end
+    GDBM.open(target_db) do |db|
+        while (line = file.gets)
+            line =~ /(.+)#{delimiter}(.+)/i 
+            if db.has_key? "#{$1}"
+                db["#{$1}"] = "#{db["#{$1}"]} or #{$2}"
+            else
+                db["#{$1}"] = "#{$2}"
+            end
+        end
+    end
 end
