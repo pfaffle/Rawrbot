@@ -2,21 +2,24 @@ GEM
   remote: http://rubygems.org/
   specs:
     cinch (2.0.3)
-    ffi (1.1.5)
+    ffi (1.9.0)
     gdbm (1.2)
-    json (1.7.5)
+    json_pure (1.8.0)
+    mini_portile (0.5.1)
     net-ldap (0.3.1)
-    nokogiri (1.5.5)
-    sanitize (2.0.3)
-      nokogiri (>= 1.4.4, < 1.6)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
+    sanitize (2.0.6)
+      nokogiri (>= 1.4.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  cinch
+  cinch (= 2.0.3)
   ffi
   gdbm
-  json
+  json_pure
   net-ldap
+  nokogiri
   sanitize
