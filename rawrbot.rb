@@ -23,7 +23,7 @@ Dir["#{$pwd}/plugins/*plugin*.rb"].each do |file|
     puts "Loading #{file}."
 end
 
-config_hash = YAML.load(File.read("config/config.yaml"))
+config_hash = YAML.load(File.read("config/config.yml"))
 $admins = config_hash['admins']
 
 # convert the plugins to classes for cinch to consume
