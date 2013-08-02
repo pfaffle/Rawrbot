@@ -16,12 +16,12 @@
 #         inaccessible otherwise.
 class CATldap
     include Cinch::Plugin
-    
+
     self.prefix = lambda{ |m| /^#{m.bot.nick}/ }
-    @@cat_configfile = "#{$pwd}/plugins/config/CATldap_config.rb"
-    @@oit_configfile = "#{$pwd}/plugins/config/ldap_config.rb"
 
     require 'net/ldap'
+
+    $config_hash = YAML.load(File.read("config/ldap.yml"))
 
     match(/^!help ldap/i, :use_prefix => false, method: :ldap_help)
     match(/^!help phone/i, :use_prefix => false, method: :phone_help)
@@ -41,25 +41,25 @@ class CATldap
     # on what the query looks like. It then prints the results to the IRC user who
     # made the request.
     def execute(m, query)
-        
+
         reply = String.new()
-        
+
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
             m.reply("Invalid search query '#{query}'")
             return
-        end    
+        end
 
         query.downcase!
-        
+
         # Execute the search.
         type = 'username'
         attribute = 'uid'
-        
+
         m.reply("Performing LDAP search on #{type} #{query}.")
-        
-        cat_search_result = ldap_search(attribute,query,@@cat_configfile)
-        
+
+        cat_search_result = ldap_search(attribute,query,$config_hash['cat'])
+
         if (!cat_search_result)
             m.reply "Error: LDAP query failed. Check configuration."
         else
@@ -83,7 +83,7 @@ class CATldap
                     if (!(uniqueid =~ /^P/i))
                         uniqueid = "P" + uniqueid
                     end
-                    oit_search_result = ldap_search('uniqueidentifier',uniqueid,@@oit_configfile)
+                    oit_search_result = ldap_search('uniqueidentifier',uniqueid,$config_hash['oit'])
                     if (!oit_search_result)
                         reply << "OIT subquery failed.\n"
                     else
@@ -100,7 +100,7 @@ class CATldap
             User(m.user.nick).send(reply)
         end
     end # End of execute function.
-    
+
     # Function: parse_date
     #
     # Description: Parses a String containing a date in Zulu time, and returns
@@ -116,7 +116,7 @@ class CATldap
         unless date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/
             return nil
         end
-        
+
         year = $1
         month = $2
         day = $3
@@ -126,22 +126,21 @@ class CATldap
 
         return Time.mktime(year, month, day, hour, min, sec)
     end # End of parse_date function.
-    
+
     def ldap_search(attr,query,config)
-        load config
-    
+
         # return_ldap_config (below) is a function defined in the config file that returns a
         # hash with the settings to connect to to LDAP with.
-        ldap_config = return_ldap_config()
+        ldap_config = config
 
-        host = ldap_config[:server]
-        port = ldap_config[:port]
-         auth = { :method => :simple, :username => ldap_config[:username], :password => ldap_config[:pass] }
-        base = ldap_config[:basedn]
-    
+        host = ldap_config['server']
+        port = ldap_config['port']
+        auth = { :method => :simple, :username => ldap_config['username'], :password => ldap_config['password'] }
+        base = ldap_config['basedn']
+
         result = Hash.new(Array.new())
         Net::LDAP.open(:host => host, :port => port, :auth => auth, :encryption => :simple_tls, :base => base) do |ldap|
-            
+
             # Perform the search, then return a hash with LDAP attributes corresponding
             # to hash keys, and LDAP values corresponding to hash values.
             filter = Net::LDAP::Filter.eq(attr,query)
@@ -172,15 +171,15 @@ class CATldap
         if (query =~ /[^\w@._-]/)
             m.reply("Invalid search query '#{query}'")
             return
-        end    
+        end
         query.downcase!
 
         # Execute the search.
         attribute = 'uid'
-        
-        cat_search_result = ldap_search(attribute,query,@@cat_configfile)
+
+        cat_search_result = ldap_search(attribute,query, $config_hash['cat'])
         reply = String.new()
-        
+
         if (!cat_search_result)
             reply = "Error: LDAP query failed. Check configuration."
         else
@@ -201,7 +200,7 @@ class CATldap
                 if (!(uniqueid =~ /^P/i))
                     uniqueid = "P" + uniqueid
                 end
-                oit_search_result = ldap_search('uniqueidentifier',uniqueid,@@oit_configfile)
+                oit_search_result = ldap_search('uniqueidentifier',uniqueid, $config_hash['oit'])
                 if (!oit_search_result)
                     reply << "OIT subquery failed.\n"
                 else
@@ -226,7 +225,7 @@ class CATldap
         m.reply("Description: Performs a search on LDAP for the given query, then returns information about the user's account.")
         m.reply("Usage: !ldap [username|email alias]")
     end # End of ldap_help function.
-    
+
     def phone_help(m)
         m.reply("Phone Search")
         m.reply("===========")
