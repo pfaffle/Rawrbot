@@ -8,7 +8,7 @@ class Fdr
   def execute(m, query)
     ldap = LdapHelper.new('cecs')
     attributes = ['homedirectory', 'profilepath']
-    output = ldap.search(query, attributes)
+    output = ldap.search(query, attributes, 'sAMAccountName')
     output.flatten!
     output.each {|s| m.reply(s.to_s)}
   end

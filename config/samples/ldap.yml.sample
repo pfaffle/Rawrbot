@@ -5,15 +5,18 @@ cat:
  server: 'openldap.cat.pdx.edu'
  port: 636
  basedn: 'dc=cat,dc=pdx,dc=edu'
+ encryption: 'simple_tls'
 oit:
  username: 'uid=srvcsacct,ou=people,dc=pdx,dc=edu'
  password: 'secret'
  server: 'ldap.oit.pdx.edu'
  port: 636
  basedn: 'dc=pdx,dc=edu'
+ encryption: 'simple_tls'
 cecs:
  username: 'CECS\srvcacct'
  password: 'secret'
  server: 'ds.cecs.pdx.edu'
  port: 636
  basedn: 'dc=ds,dc=cecs,dc=pdx,dc=edu'
+ encryption:

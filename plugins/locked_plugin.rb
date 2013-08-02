@@ -10,7 +10,7 @@ class LockOutTime
     ldap = LdapHelper.new('cecs')
     util = Util.new
     attributes = ['lockoutTime']
-    output = ldap.search(query, attributes)
+    output = ldap.search(query, attributes, 'sAMAccountName')
     output.flatten!
     output.each { |time|
       if time.to_s == "0"

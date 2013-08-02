@@ -16,15 +16,15 @@ class LdapHelper
               :username => @ldap['username'],
               :password => @ldap['password'],
             },
-#          :encryption => :simple_tls,
+          :encryption => ( @ldap['encryption'].to_sym if not @ldap['encryption'].nil?),
           :base       => @ldap['basedn'],
         } )
     return conn
   end
 
-  def search(user, attributes)
+  def search(user, attributes, scope)
     output = []
-    filter = Net::LDAP::Filter.eq( "cn", user )
+    filter = Net::LDAP::Filter.eq( scope, user )
 
     attributes.each do | attribute |
       self.ldap_conn.search(:filter => filter) do |entry|
