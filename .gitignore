@@ -4,4 +4,4 @@ FEATURES
 RAWRBOT
 TEST-RAWRBOT
 plugins/config/*.rb
-config/config.yml
+config/*.yml
