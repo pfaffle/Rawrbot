@@ -5,3 +5,4 @@ RAWRBOT
 TEST-RAWRBOT
 plugins/config/*.rb
 config/*.yml
+*.swp
