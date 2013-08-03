@@ -48,17 +48,17 @@ bot = Cinch::Bot.new do
     # Authenticate with NickServ.
     # This is specifically designed for Charybdis IRCD.
     on :connect do |m|
-        if (config_hash.has_key? :nickpass)
+        if (config_hash.has_key? 'nickpass')
             if (bot.nick != config_hash[:nick])
-                User('NickServ').send "regain #{config_hash[:nick]} #{config_hash[:nickpass]}"
+                User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
             end
-            User('NickServ').send "identify #{config_hash[:nick]} #{config_hash[:nickpass]}"
+            User('NickServ').send "identify #{config_hash['nick']} #{config_hash['nickpass']}"
         end
     end
 end
 
 # Make CTRL+C shut down the bot cleanly.
-Kernel.trap('INT') { bot.quit(config_hash[:quitmsg]) }
+Kernel.trap('INT') { bot.quit(config_hash['quitmsg']) }
 
 # Launch the bot.
 bot.start
