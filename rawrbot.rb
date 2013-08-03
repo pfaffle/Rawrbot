@@ -49,7 +49,7 @@ bot = Cinch::Bot.new do
     # This is specifically designed for Charybdis IRCD.
     on :connect do |m|
         if (config_hash.has_key? 'nickpass')
-            if (bot.nick != config_hash[:nick])
+            if (bot.nick != config_hash['nick'])
                 User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
             end
             User('NickServ').send "identify #{config_hash['nick']} #{config_hash['nickpass']}"
