@@ -1,37 +1,94 @@
 class LdapHelper
 
-  require 'net/ldap'
+    require 'net/ldap'
+    require 'yaml'
 
-  def initialize(provider)
-    config_hash = YAML.load(File.read("config/ldap.yml"))
-    @ldap = config_hash[provider]
-  end
-
-  def ldap_conn
-    conn = Net::LDAP.new(
-        { :host => @ldap['server'],
-          :port => @ldap['port'],
-          :auth =>
-            { :method => :simple,
-              :username => @ldap['username'],
-              :password => @ldap['password'],
-            },
-          :encryption => ( @ldap['encryption'].to_sym if not @ldap['encryption'].nil?),
-          :base       => @ldap['basedn'],
-        } )
-    return conn
-  end
-
-  def search(user, attributes, scope)
-    output = []
-    filter = Net::LDAP::Filter.eq( scope, user )
-
-    attributes.each do | attribute |
-      self.ldap_conn.search(:filter => filter) do |entry|
-          output << entry[attribute]
-      end
+    # Function: initialize
+    #
+    # Description:
+    #   Constructs an LdapHelper object. Reads the ldap.yml config file and
+    #   initializes the object to search for one particular LDAP server
+    #   (provider) defined in that config file.
+    # Arguments:
+    #   The LDAP provider for this object to search.
+    #
+    # Returns:
+    #   An LdapHelper object.
+    def initialize(provider)
+        configfile = YAML.load(File.read("config/ldap.yml"))
+        @config = configfile[provider]
     end
-    return output
-  end
 
+    # Function: search
+    #
+    # Description:
+    #   Connects to the ldap server with the current configuration, then
+    #   performs the specified search. Returns all results found.
+    #
+    # Arguments:
+    #   - attr:   A string that specifies the attribute that you are
+    #             searching by, e.g. uid.
+    #   - query:  The value of the attribute that you are searching for.
+    #
+    # Returns:
+    #   A Hash table containing keys which correspond with LDAP attributes,
+    #   and values which correspond to the values of those attributes in the
+    #   LDAP search results.
+    def search(attr,query)
+        # Get configuration ready.
+        server = @config['server']
+        port   = @config['port']
+        auth   = { :method => :simple,
+                   :username => @config['username'],
+                   :password => @config['password']
+                 }
+        base   = @config['basedn']
+        encryption = @config['encryption'].to_sym if not @config['encryption'].nil?
+
+        result = Hash.new(Array.new())
+        # Perform the search.
+        Net::LDAP.open(:host => server, :port => port, :auth => auth, :encryption => encryption, :base => base) do |ldap|
+            if !ldap.bind()
+                result = false
+            else
+                filter = Net::LDAP::Filter.eq(attr,query)
+                ldap.search(:filter => filter) do |entry|
+                    entry.each do |attribute, values|
+                        values.each do |value|
+                            result["#{attribute}"] += ["#{value}"]
+                        end
+                    end
+                end
+            end
+        end
+
+        return result
+    end
+    
+    # Function: parse_date
+    #
+    # Description:
+    #   Parses a String containing a date in Zulu time, and returns
+    #   it as a Time object.
+    #
+    # Arguments:
+    #   - A String, containing a date/time in Zulu time:
+    #     yyyymmddhhmmssZ
+    #
+    # Returns:
+    #   An instance of class Time, containing the date and time.
+    def parse_date date
+        unless date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/
+            return nil
+        end
+
+        year = $1
+        month = $2
+        day = $3
+        hour = $4
+        min = $5
+        sec = $6
+
+        return Time.mktime(year, month, day, hour, min, sec)
+    end
 end
