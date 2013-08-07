@@ -27,7 +27,7 @@ user: 'mybot'
 quitmsg: 'My master says I should go away. :('
 
 # Prefix to use for picking a command
-prefix: /^!/
+prefix: '!'
 
 # IRC nickname of the bot's admin(s), i.e. you.
 admins: ['mynick']
