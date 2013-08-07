@@ -8,12 +8,13 @@
 #     the Requestors, current Status, and Owner.
 #
 # Requirements:
-#     A file 'rt_config.rb' with authentication information for RT.
+#     A file 'config.rb' with authentication information for RT.
 class RTSearch
     include Cinch::Plugin
     
     require 'net/http'
     require 'net/https'
+    require 'yaml'
 
     match("help", method: :help)
     match(/help rtsearch|help rt/i, method: :rt_help)
@@ -30,7 +31,7 @@ class RTSearch
     def execute(m,tnumber)
         # Only perform ticket number searches in configured channels for
         # security purposes.
-        if @@rt_config[:channels].include? m.channel
+        if @@config['channels'].include? m.channel
             # The ticket_list hash is structured like so:
             # ticket_list["ticketnumber"] = verbose_flag
             ticket_list = Hash.new
@@ -55,7 +56,6 @@ class RTSearch
                     end
                 end
             end
-
             if (ticket_list.size() > 0)
                 rt_search m,ticket_list
             end
@@ -72,18 +72,17 @@ class RTSearch
     def rt_search(m,ticket_list)
         ticket = Hash.new
         # Format the HTTP request.
-        http = Net::HTTP.new(@@rt_config[:server],@@rt_config[:port])
-        if @@rt_config[:ssl]
+        http = Net::HTTP.new(@@config['server'],@@config['port'])
+        if @@config['ssl']
             http.use_ssl = true
             http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
-        login = "user=#{@@rt_config[:username]}&pass=#{@@rt_config[:pass]}"
+        login = "user=#{@@config['username']}&pass=#{@@config['pass']}"
         headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
 
         # Execute the HTTP requests.
         ticket_list.each do |tnumber,verbose|
-            resp, data = http.post("#{@@rt_config[:baseurl]}/ticket/#{tnumber}/show",login,headers)
-        
+            resp, data = http.post("#{@@config['baseurl']}/ticket/#{tnumber}/show",login,headers)
             if resp.is_a? Net::HTTPOK
                 # If there is a '#' symbol immediately after RT's acknowledgement of the request,
                 # it indicates an error message signifying that the ticket could not be displayed.
@@ -116,8 +115,7 @@ class RTSearch
     # Description: Reloads configuration/authentication information used for
     #     interfacing with RT.
     def quiet_load_config(m)
-        load "#{$pwd}/plugins/config/rt_config.rb"
-        @@rt_config = return_rt_config
+        @@config = YAML.load(File.read("config/rt.yml"))
     end # End of quiet_load_config function
 
     # Function: load_config
