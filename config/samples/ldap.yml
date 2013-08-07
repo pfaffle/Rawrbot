@@ -1,0 +1,10 @@
+---
+# Main config file for the plugins that use LDAP.
+
+ldap:
+ username: 'uid=svcacct,ou=people,dc=pdx,dc=edu'
+ password: 'secret'
+ server: 'ldap.pdx.edu'
+ port: 636
+ basedn: 'dc=pdx,dc=edu'
+ encryption: 'simple_tls'

@@ -1,0 +1,25 @@
+---
+# Main config file for the RT plugin.
+
+# The RT account name used to query RT.
+username: 'svcacct'
+
+# The password for the account used to auth with RT.
+pass: 'secret'
+
+# Array of channels where RT queries are allowed.
+channels: ['#testchan']
+
+# Website/server where RT is hosted.
+server: 'rt.pdx.edu'
+
+# Set to true to query RT through https instead of http.
+ssl: true
+
+# Port to query RT on. Normally will be the standard
+# http/https ports: 80 without SSL, 443 with SSL.
+port: 443
+
+# The base URL for the RT REST interface. Should only
+# include what comes after the server name.
+baseurl: '/REST/1.0/'

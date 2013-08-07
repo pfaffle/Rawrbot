@@ -3,6 +3,6 @@ learning.db
 FEATURES
 RAWRBOT
 TEST-RAWRBOT
-plugins/config/*.rb
 config/*.yml
+!config/samples/*
 *.swp

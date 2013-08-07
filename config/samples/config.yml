@@ -1,21 +1,24 @@
 ---
+# Main Rawrbot config file.
+
+# IRC server to connect to.
 server: 'chat.freenode.net'
 
 # Port to connect to IRC server on.
-port: 6667
+port: 6697
 
 # Array of channels for the bot to join. For keyed channels, use
 # ['#channel_name1 channel_key1','channel_name2 channel_key2',...]
-channels: ['#channel_name1 channel_key1', '#channel_name2']
+channels: ['#testchan']
 
 # Connect to IRC server using SSL?
-ssl: false
+ssl: true
 
 # IRC nickname of the bot.
 nick: 'mybot'
 
 # "Real name" of the bot, shown in WHOIS.
-realname: "my bot's name"
+realname: "My bot"
 
 # Username of the bot.
 user: 'mybot'
@@ -24,14 +27,15 @@ user: 'mybot'
 quitmsg: 'My master says I should go away. :('
 
 # Prefix to use for picking a command
-prefix: /^@/
+prefix: /^!/
 
 # IRC nickname of the bot's admin(s), i.e. you.
-admins: [masternick]
+admins: ['mynick']
 
 # If the bot has a registered nick, insert the correct password for
 # that nick on the line below and then uncomment it.
-#nickpass: 'password'
+#nickpass: 'secret'
 
-# List of plugins to load when the bot is started.
-plugins: [LDAPsearch,Social,Messenger,Karma,Learning,RTSearch,SendSignal,GoogleRSS,Twitter]
+# List of plugins (the names of Classes defined in the plugin files)
+# to load when the bot is started.
+plugins: [Social,Messenger,Karma,Learning,SendSignal,GoogleRSS]
