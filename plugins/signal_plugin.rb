@@ -10,6 +10,7 @@ class SendSignal
     include Cinch::Plugin
     
     require 'net/smtp'
+    require 'yaml'
 
     match("help", method: :help)
     match(/help signal/i, method: :signal_help)

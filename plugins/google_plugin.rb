@@ -15,6 +15,7 @@ class GoogleRSS
     @@active = false
 
     require 'sanitize'
+    require 'yaml'
     require 'rss/1.0'
     require 'rss/2.0'
 
