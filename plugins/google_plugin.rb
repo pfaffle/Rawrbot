@@ -94,8 +94,7 @@ class GoogleRSS
     #     Status tracker, then begins monitoring it for changes. Reports
     #     updates when they appear.
     def run_ticker(m)
-        load "#{$pwd}/plugins/config/google_config.rb"
-        google_config = return_google_config
+        config = YAML.load(File.read("config/google.yml"))
         source = "http://www.google.com/appsstatus/rss/en"
         current_msg = String.new
         
@@ -112,7 +111,7 @@ class GoogleRSS
 
         # Begin checking for new RSS messages.
         while (@@active)
-            sleep(google_config[:frequency])
+            sleep(config['frequency'])
 
             raw = String.new
             open(source) do |input|
@@ -138,7 +137,7 @@ class GoogleRSS
                     reply << "#{msg_set[0]}"
                     
                     # Report RSS results to each channel in the list.
-                    google_config[:channels].each do |chname|
+                    config['channels'].each do |chname|
                         max_msg_size = 512 - m.bot.nick.size - chname.size - 43
                         Channel(chname).send reply[0,max_msg_size]
                         Channel(chname).send "More info at: #{rss.items[0].link}"
