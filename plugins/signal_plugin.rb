@@ -14,8 +14,9 @@ class SendSignal
 
     match("help", method: :help)
     match(/help signal/i, method: :signal_help)
-    match(/\bsignal\s+(.+?)\s+(.+)\b$/i)
-    match(/^\.(.+?)signal\s+(.+)$/i, :use_prefix => false)
+    match(/\bsignal\s+(\S+)\s+(.+)\b$/i)
+    match(/^\.(\S+)signal\s+(.+)$/i, :use_prefix => false)
+    match(/^\.signal(\S+)\s+(.+)$/i, :use_prefix => false)
     
     def execute(m,tgt,msg)
         userlist = YAML.load(File.read("config/signal.yml"))
