@@ -17,11 +17,10 @@ class SendSignal
     match(/^\.(.+?)signal\s+(.+)$/i, :use_prefix => false)
     
     def execute(m,tgt,msg)
-        load "#{$pwd}/plugins/config/signal_config.rb"
-        user_list = return_signal_config
+        userlist = YAML.load(File.read("config/signal.yml"))
         tgt.downcase!
-        if user_list.has_key? tgt
-            tgt_address = user_list[tgt]
+        if userlist.has_key? tgt
+            tgt_address = userlist[tgt]
             m.reply "Signaling #{tgt}..."
             Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
                 msgstr = "From: #{m.user.nick}@irc <#{m.user.nick}@irc.cat.pdx.edu\n"
@@ -66,10 +65,9 @@ class SendSignal
     #
     # Description: Lists the people for whom signaling is available.
     def list_signals(m)
-        load "#{$pwd}/plugins/config/signal_config.rb"
-        user_list = return_signal_config
+        userlist = YAML.load(File.read("config/signal.yml"))
         reply = "Signaling is available for:"
-        user_list.each do |person, address|
+        userlist.each do |person, address|
             mod_person = person.dup
             mod_person[rand(mod_person.length)] = '*'
             reply << " #{mod_person}"
