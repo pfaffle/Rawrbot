@@ -8,7 +8,7 @@ Functionality is based on plugins loaded into the bot. Plugins can be written us
 The original purpose of Rawrbot was to be a tool to assist Portland State University's Office of Information Technology Help Desk technicians. Many of the plugins I've written are specifically geared towards IT support and are only useful for that purpose. Other plugins are more generic or are simply for-fun.
 
 Requirements:
-=============
+-------------
 
 Rawrbot itself requires
 * Ruby v1.9.x, and
@@ -17,7 +17,7 @@ Rawrbot itself requires
 Individual plugins have their own requirements, which are listed at the top of the plugin file.
 
 Installation and Configuration:
-===============================
+-------------------------------
 
 * Clone the Git repo.
 
@@ -34,7 +34,7 @@ Samples are provided for the main Rawrbot config file and for each of the plugin
     `./rawrbot.rb`
 
 Modifying and Adding Plugins:
-=============================
+-----------------------------
 
 If you want to create your own plugin for Rawrbot, simply create a file with a name ending in .rb in the plugins/ directory which contains a Class that includes Cinch::Plugin. Use other plugins as examples to work from when creating a new plugin.
 
