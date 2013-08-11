@@ -1,16 +1,24 @@
 class Fdr
-  include Cinch::Plugin
+    include Cinch::Plugin
 
-  require File.expand_path('../../lib/ldap_helper.rb', __FILE__)
+    require "#{$pwd}/lib/ldap_helper.rb"
 
-  match(/!fdr (\w+)/, :use_prefix => false)
+    match(/fdr (\w+)/)
 
-  def execute(m, query)
-    ldap = LdapHelper.new('cecs')
-    attributes = ['homedirectory', 'profilepath']
-    output = ldap.search(query, attributes, 'sAMAccountName')
-    output.flatten!
-    output.each {|s| m.reply(s.to_s)}
-  end
-
+    def execute(m, query)
+        ldap = LdapHelper.new('cecs')
+        # Error-checking to sanitize input. i.e. no illegal symbols.
+        if (query =~ /[^\w@._-]/)
+            m.reply("Invalid search query '#{query}'")
+            return
+        end
+        reply = String.new()
+    
+        query.downcase!
+        attributes = ['homedirectory', 'profilepath']
+        result = ldap.search('sAMAccountName',query)
+        reply = "Home directory: #{result['homedirectory'][0]}\n"
+        reply += "Profile path: #{result['profilepath'][0]}\n"
+        m.reply(reply)
+    end
 end
