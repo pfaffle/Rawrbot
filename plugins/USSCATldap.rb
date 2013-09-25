@@ -15,17 +15,15 @@
 class USSCATldap
     include Cinch::Plugin
 
-    self.prefix = lambda{ |m| /^#{m.bot.nick}/ }
-
     require 'net/ldap'
     require "#{$pwd}/lib/ldap_helper.rb"
 
     @@catldap = LdapHelper.new('cat')
     @@oitldap = LdapHelper.new('oit')
 
-    match(/^!help catldap/i, :use_prefix => false, method: :catldap_help)
-    match("!help", :use_prefix => false, method: :help)
-    match(/^!catldap (\S+)/i, :use_prefix => false)
+    match(/help catldap$/i, method: :catldap_help)
+    match("help", method: :help)
+    match(/catldap (\S+)$/i)
 
     # Function: execute
     #

@@ -15,24 +15,21 @@
 class OITldap
     include Cinch::Plugin
     
-    self.prefix = lambda{ |m| /^#{m.bot.nick}/ }
-
     require 'net/ldap'
     require "#{$pwd}/lib/ldap_helper.rb"
     
     @@oitldap = LdapHelper.new('oit')
 
-    match(/^!help ldap/i, :use_prefix => false, method: :ldap_help)
-    match(/^!help phone/i, :use_prefix => false, method: :phone_help)
-    match("!help", :use_prefix => false, method: :help)
-    match(/^!ldap (\S+)/i, :use_prefix => false)
+    match(/help ldap$/i, method: :ldap_help)
+    match(/help phone$/i, method: :phone_help)
+    match("help", method: :help)
+    match(/ldap (\S+)$/i)
     # The next line was helped out by:
-    # http://stackoverflow.com/questions/406230/
-    # regular-expression-to-match-string-not-containing-a-word
-    # This is meant to make rawrbot not trigger this module when someone
-    # attempts to teach it about ldap with the learning module.
+    # http://stackoverflow.com/questions/406230/regular-expression-to-match-string-not-containing-a-word
+    # This is meant to make rawrbot not trigger this module when someone attempts
+    # to teach it about ldap with the learning module.
     match(/[:-]? ldap (((?!(.+)?is ).)+)/i)
-    match(/^!phone (.+)/i, :use_prefix => false, method: :phone_search)
+    match(/phone (.+)$/i, method: :phone_search)
 
     # Function: execute
     #
