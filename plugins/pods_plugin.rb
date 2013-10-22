@@ -27,9 +27,8 @@ class Pods
         elsif (result['dn'].length > 1)
             reply = "Error: Too many results.\n"
         else
-            reply = "pods:"
             result['pod'].each do |pod|
-                reply += " #{pod}"
+                reply += "#{pod} "
             end
             reply += "\n"
         end
