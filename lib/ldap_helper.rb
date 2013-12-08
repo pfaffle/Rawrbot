@@ -45,20 +45,15 @@ class LdapHelper
         base   = @config['basedn']
         encryption = @config['encryption'].to_sym if not @config['encryption'].nil?
 
-        result = Hash.new(Array.new())
+        #result = Hash.new(Array.new())
+        result = Hash.new(Hash.new(Array.new()))
         # Perform the search.
         Net::LDAP.open(:host => server, :port => port, :auth => auth, :encryption => encryption, :base => base) do |ldap|
             if !ldap.bind()
                 result = false
             else
                 filter = Net::LDAP::Filter.eq(attr,query)
-                ldap.search(:filter => filter) do |entry|
-                    entry.each do |attribute, values|
-                        values.each do |value|
-                            result["#{attribute}"] += ["#{value}"]
-                        end
-                    end
-                end
+                result = ldap.search(:filter => filter)
             end
         end
 
