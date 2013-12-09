@@ -20,8 +20,8 @@ class CATldap
     require 'net/ldap'
     require "#{$pwd}/lib/ldap_helper.rb"
 
-    $catldap = LdapHelper.new('cat')
-    $oitldap = LdapHelper.new('oit')
+    @@catldap = LdapHelper.new('cat')
+    @@oitldap = LdapHelper.new('oit')
 
     match(/^!help ldap/i, :use_prefix => false, method: :ldap_help)
     match(/^!help phone/i, :use_prefix => false, method: :phone_help)
@@ -56,52 +56,57 @@ class CATldap
         type = 'username'
         attribute = 'uid'
         m.reply("Performing LDAP search on #{type} #{query}.")
-        cat_result = $catldap.search(attribute,query)
+        cat_result = @@catldap.search(attribute,query)
 
         # Check for errors.
         if (!cat_result)
-            m.reply "Error: LDAP query failed. Check configuration."
-        else
-            if (cat_result['dn'].empty?)
-                reply = "Error: No results.\n"
-            elsif (cat_result['dn'].length > 1)
-                reply = "Error: Too many results.\n"
-            else
-                # Piece together the final results and print them out in user-friendly output.
-                cat_result['gecos'].each { |name| reply << "Name: #{name}\n" }
-                cat_result['uid'].each { |uid| reply << "CAT uid: #{uid}\n" }
-                if (cat_result['uniqueidentifier'].empty?)
-                    reply << "OIT uid: no\n"
-                else
-                    uniqueid = cat_result['uniqueidentifier'][0]
-                    # Fix malformed uniqueids.
-                    if (!(uniqueid =~ /^P/i))
-                        uniqueid = "P" + uniqueid
-                    end
-                    oit_result = $oitldap.search('uniqueidentifier',uniqueid)
-                    if (!oit_result)
-                        reply << "OIT subquery failed.\n"
-                    else
-                        oit_result['uid'].each { |uid| reply << "OIT uid: #{uid}\n" }
-                        oit_result['roomnumber'].each { |room| reply << "Office: #{room}\n" }
-                        oit_result['telephonenumber'].each { |phone| reply << "Phone: #{phone}\n" }
-                        oit_result['ou'].each { |dept| reply << "Dept: #{dept}\n" }
-                        oit_result['title'].each { |title| reply << "Title: #{title}\n" }
-                    end
-                end
-            end
-            # Send results via PM so as to not spam the channel.
-            User(m.user.nick).send(reply)
+            m.reply "Error: LDAP query failed. Check configuration.\n"
+            return
+        elsif (cat_result.empty?)
+            User(m.user.nick).send("Error: No results.\n")
+            return
         end
+
+        # Iterate over each LDAP entry in the search result and print
+        # relevant information.
+        cat_result.each do |catEntry|
+	        reply << "Name: #{catEntry[:gecos][0]}\n"
+	        reply << "CAT uid: #{catEntry[:uid][0]}\n"
+	        if (catEntry[:uniqueidentifier].empty?)
+	            reply << "OIT uid: n/a\n"
+	        else
+	            uniqueid = catEntry[:uniqueidentifier][0]
+	            # Fix malformed uniqueids.
+	            if (!(uniqueid =~ /^P/i))
+	                uniqueid = "P" + uniqueid
+	            end
+	            oit_result = @@oitldap.search('uniqueidentifier',uniqueid)
+	            if (!oit_result)
+	                reply << "OIT subquery failed.\n"
+	            else
+                    oit_result.each do |oitEntry|
+		                reply << "OIT uid: #{oitEntry[:uid][0]}\n"
+		                reply << "Office: #{oitEntry[:roomnumber][0]}\n"
+		                reply << "Phone: #{oitEntry[:telephonenumber][0]}\n"
+		                reply << "Dept: #{oitEntry[:ou][0]}\n"
+		                reply << "Title: #{oitEntry[:title][0]}\n"
+                    end
+	            end
+	        end
+        end
+
+        # Send results via PM so as to not spam the channel.
+        User(m.user.nick).send(reply)
     end # End of execute function.
 
 
 
     # Function: phone_search
     #
-    # Description: Executes a search on LDAP for a person's username or email address to
-    # retrieve a phone number. It then prints the results to the channel where the IRC
-    # user made the request.
+    # Description: Executes a search on LDAP for a person's username or email
+    # address to retrieve a phone number. It then prints the results to the
+    # channel where the IRC user made the request.
+    # 
     def phone_search(m, query)
 
         # Error-checking to sanitize input. i.e. no illegal symbols.
@@ -114,39 +119,49 @@ class CATldap
         # Execute the search.
         attribute = 'uid'
 
-        cat_result = $catldap.search(attribute,query)
+        cat_result = @@catldap.search(attribute,query)
         reply = String.new()
 
         # Check for errors.
         if (!cat_result)
-            reply = "Error: LDAP query failed. Check configuration."
-        else
-            if (cat_result['dn'].empty?)
-                reply = "No results for #{query}.\n"
-            elsif (cat_result['uniqueidentifier'].empty?)
-                reply = "No phone number for #{query}.\n"
-            elsif (cat_result['dn'].length > 1)
-                reply = "Error: Too many results.\n"
-            else
-                # Piece together the final results and print them out in user-friendly output.
-                uniqueid = cat_result['uniqueidentifier'][0]
-                # Fix malformed uniqueids.
-                if (!(uniqueid =~ /^P/i))
-                    uniqueid = "P" + uniqueid
-                end
-                oit_result = $oitldap.search('uniqueidentifier',uniqueid)
-                if (!oit_result)
-                    reply << "OIT subquery failed.\n"
-                else
-                    if (oit_result['telephonenumber'].empty?)
-                        reply = "No phone number for #{query}.\n"
-                    else
-                        oit_result['gecos'].each { |name| reply << "Name: #{name}    " }
-                        oit_result['telephonenumber'].each { |phone| reply << "Phone: #{phone}    " }
-                        oit_result['roomnumber'].each { |room| reply << "Office: #{room}" }
+            m.reply "Error: LDAP query failed. Check configuration.\n"
+            return
+        elsif (cat_result.empty?)
+            User(m.user.nick).send("Error: No results.\n")
+            return
+        end
+
+        # Iterate over each LDAP entry in the search result and print
+        # relevant information.
+        cat_result.each do |catEntry|
+            reply << "Name: #{catEntry[:gecos][0]}"
+	        uniqueid = catEntry[:uniqueidentifier][0]
+	        # Fix malformed uniqueids.
+	        if (!(uniqueid =~ /^P/i))
+	            uniqueid = "P" + uniqueid
+	        end
+	        oit_result = @@oitldap.search('uniqueidentifier',uniqueid)
+	        if (!oit_result)
+	            reply << "\nOIT subquery failed.\n"
+            elsif (oit_result.empty?)
+                reply << "\nNo corresponding OIT account found.\n"
+	        else
+	            oit_result.each do |oitEntry|
+                    # Append phone number and office location if they
+                    # exist in LDAP.
+		            if (oitEntry[:telephonenumber].empty?)
+		                phone = "n/a"
+		            else
+	                    phone = oitEntry[:telephonenumber][0]
                     end
-                end
-            end
+                    if (oitEntry[:roomnumber].empty?)
+                        room = "n/a"
+                    else
+	                    room = oitEntry[:roomnumber][0]
+                    end
+	                reply << "    Phone: #{phone}    Office: #{room}\n"
+	            end
+	        end
         end
 
         m.reply(reply)
