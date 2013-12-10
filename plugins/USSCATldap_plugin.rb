@@ -23,7 +23,7 @@ class USSCATldap
     @@catldap = LdapHelper.new('cat')
     @@oitldap = LdapHelper.new('oit')
 
-    match(/^!help catldap/i, :use_prefix => false, method: :ldap_help)
+    match(/^!help catldap/i, :use_prefix => false, method: :catldap_help)
     match("!help", :use_prefix => false, method: :help)
     match(/^!catldap (\S+)/i, :use_prefix => false)
 
