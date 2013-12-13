@@ -22,7 +22,7 @@ class LdapHelper
     # Function: search
     #
     # Description:
-    #   Connects to the ldap server with the current configuration, then
+    #   Connects to the LDAP server with the current configuration, then
     #   performs the specified search. Returns all results found.
     #
     # Arguments:
@@ -43,13 +43,16 @@ class LdapHelper
                    :password => @config['password']
                  }
         base   = @config['basedn']
-        encryption = @config['encryption'].to_sym if not @config['encryption'].nil?
+        if (!@config['encryption'].nil?)
+            encryption = @config['encryption'].to_sym
+        end
 
-        #result = Hash.new(Array.new())
-        result = Hash.new(Hash.new(Array.new()))
+        result = Net::LDAP::Entry.new()
+
         # Perform the search.
-        Net::LDAP.open(:host => server, :port => port, :auth => auth, :encryption => encryption, :base => base) do |ldap|
-            if !ldap.bind()
+        Net::LDAP.open(:host => server, :port => port, :auth => auth,
+                       :encryption => encryption, :base => base) do |ldap|
+            if (!ldap.bind())
                 result = false
             else
                 filter = Net::LDAP::Filter.eq(attr,query)
