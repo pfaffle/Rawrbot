@@ -6,7 +6,7 @@
 # the the phone email address (for email text messages) to send the
 # message to. See below article to translate a phone number to a email
 # address to send a text message to:
-#   http://en.wikipedia.org/wiki/List_of_SMS_gateways
+#   https://github.com/mfitzp/List_of_SMS_gateways/
 
 user1: '5035554444@txt.att.net'
 user2: '9714445555@txt.att.net'
