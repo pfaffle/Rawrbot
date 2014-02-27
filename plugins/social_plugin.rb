@@ -10,7 +10,7 @@
 class Social
     include Cinch::Plugin
 
-    match(/hello|hi|howdy|hey|greetings|sup/i, :use_prefix => false, method: :greet)
+    match(/hello|hi|howdy|hey|greetings|sup|hola/i, :use_prefix => false, method: :greet)
     match(/(good)? ?(morning|afternoon|evening|night)/i, :use_prefix => false, method: :timeofday_greet)
     match(/(good)?bye|adios|farewell|later|see ?(ya|you|u)|cya/i, :use_prefix => false, method: :farewell)
 
