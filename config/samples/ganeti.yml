@@ -1,0 +1,5 @@
+---
+# Main config file for the Ganeti plugin.
+api_version: 2
+port: 5080
+server: https://ganeti.example.org
