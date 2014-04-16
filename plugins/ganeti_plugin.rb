@@ -5,40 +5,65 @@ class Ganeti
     require 'uri'
     require 'yaml'
 
-    match(/ganeti instance (\w+ \w+)$/, method: :instanceQuery)
-    match(/ganeti help instance (\w+)$/, method: :helpInstance)
+    match(/ganeti (\w+ \w+ \w+)$/, method: :ganetiQuery)
 
     def config
       YAML.load(File.read("config/ganeti.yml"))
     end
 
     def connectHttp
-        uri = URI.parse("#{config['server']}:#{config['port']}")
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        return http
+      uri              = URI.parse("#{config['server']}:#{config['port']}")
+      http             = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl     = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      return http
     end
 
-    def querySplit(query)
-      property = query.to_s.split(' ')[0]
-      host     = query.to_s.split(' ')[1]
-      return [property, host]
+    def gArg(query)
+      h = Hash.new
+      h['type']     = query.to_s.split(' ')[0]
+      h['host']     = query.to_s.split(' ')[1]
+      h['property'] = query.to_s.split(' ')[2]
+      h['type']     = pluralize(h['type'])
+      return h
     end
 
-    def helpInstance(m, query)
-      config
-      resp   = connectHttp.get("/#{config['api_version']}/instances/#{query}")
+    def validHost?(host, type)
+      resp   = connectHttp.get("/#{config['api_version']}/#{type}")
       parsed = JSON.parse(resp.body)
-      m.reply("Available properties for #{query}are: #{parsed.keys}")
+      parsed.each do |hash|
+        if hash['id'] =~ /#{host}.*.pdx.edu/
+          return true
+        end
+      end
+      return false
     end
 
-    def instanceQuery(m, query)
+    def pluralize(string)
+      if string[-1, 1] != 's'
+        return string + 's'
+      else
+        return string
+      end
+    end
+
+    def ganetiQuery(m, query)
       config
-      host     = querySplit(query)[1]
-      property = querySplit(query)[0]
-      resp     = connectHttp.get("/#{config['api_version']}/instances/#{host}")
-      parsed   = JSON.parse(resp.body)
-      m.reply("#{property} for #{host}: #{parsed["#{property}"]}")
+      host     = gArg(query)['host']
+      property = gArg(query)['property']
+      type     = gArg(query)['type']
+
+      if validHost?(host, type)
+        resp     = connectHttp.get("/#{config['api_version']}/#{type}/#{host}")
+        parsed   = JSON.parse(resp.body)
+
+        if resp.code !~ /2[0-9][0-9]/
+          m.reply("HTTP error #{resp.code}!")
+        else
+          m.reply("#{property} for #{host}: #{parsed["#{property}"]}")
+        end
+      else
+        m.reply("#{host} is not a valid host.")
+      end
     end
 end
