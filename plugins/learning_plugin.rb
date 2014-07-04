@@ -29,8 +29,8 @@ class Learning
     super(m)
     @@learning_db = SQLite3::Database.new('learning.sqlite3')
     @@learning_db.execute("CREATE TABLE IF NOT EXISTS learning(
-                          thing TEXT PRIMARY KEY,
-                          info TEXT)")
+                          key TEXT PRIMARY KEY,
+                          val TEXT)")
   end
 
   # ============================================================================
@@ -66,26 +66,26 @@ class Learning
   # Makes the bot learn something about the given thing. Stores it in the
   # learning database.
   #
-  def learn(m, thing, info)
+  def learn(m, key, val)
     usr = m.user.nick
     responses  = ["good to know, #{usr}.","got it, #{usr}.","roger, #{usr}."]
     responses += ["understood, #{usr}.","OK, #{usr}.","so speaketh #{usr}."]
     responses += ["whatever you say, #{usr}."]
     responses += ["I'll take your word for it, #{usr}."]
     resp = responses[rand(responses.size)]
-    thing.downcase!
-    r = @@learning_db.get_first_value("SELECT info FROM learning WHERE thing=?",
-                                      thing)
+    key.downcase!
+    r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
+                                      key)
     if (r != nil)
-      # Thing already exists in the db; update it.
-      @@learning_db.execute("UPDATE learning SET info=? WHERE thing=?",
-                            "#{r} or #{info}",
-                            thing)
+      # key already exists in the db; update it.
+      @@learning_db.execute("UPDATE learning SET val=? WHERE key=?",
+                            "#{r} or #{val}",
+                            key)
     else
-      # Thing does not yet exist in the db; insert it.
-      @@learning_db.execute("INSERT INTO learning (thing,info) VALUES (?,?)",
-                            thing,
-                            info)
+      # key does not yet exist in the db; insert it.
+      @@learning_db.execute("INSERT INTO learning (key,val) VALUES (?,?)",
+                            key,
+                            val)
     end
     m.reply(resp)
   end
@@ -96,22 +96,22 @@ class Learning
   #
   # Edits an existing entry in the database by using regex syntax.
   #
-  def edit(m, thing, find, replace)
-    r = @@learning_db.get_first_value("SELECT info FROM learning WHERE thing=?",
-                                      thing.downcase)
+  def edit(m, key, find, replace)
+    r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
+                                      key.downcase)
     if (r != nil)
       # Thing exists in the db; search for target string and update it.
       if (r.sub!(/#{find}/,replace).nil?)
-        m.reply("#{thing} doesn't contain '#{find}'.")
+        m.reply("#{key} doesn't contain '#{find}'.")
       else
-        @@learning_db.execute("UPDATE learning SET info=? WHERE thing=?",
+        @@learning_db.execute("UPDATE learning SET val=? WHERE key=?",
                               r,
-                              thing)
+                              key)
         m.reply("done, #{m.user.nick}.")
       end
     else
       # Thing does not exist in the db; abort.
-      m.reply("I don't know anything about #{thing}.")
+      m.reply("I don't know anything about #{key}.")
     end
   end
 
@@ -122,13 +122,13 @@ class Learning
   # Makes the bot teach the user what it knows about the given thing, as it is
   # stored in the database.
   #
-  def teach(m, thing)
+  def teach(m, key)
     usr = m.user.nick
     giveups  = ["bugger all, I dunno, #{usr}.","no idea, #{usr}.","huh?"]
     giveups += ["what?","dunno, #{usr}."]
     giveup = giveups[rand(giveups.size)]
-    r = @@learning_db.get_first_value("SELECT info FROM learning WHERE thing=?",
-                                      thing.downcase)
+    r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
+                                      key.downcase)
     if (r != nil)
       # If the entry contains pipe characters, split it into substrings delimited
       # by those pipe characters, then choose one randomly to spit back out.
@@ -148,7 +148,7 @@ class Learning
       if (r.match(/^<reply> ?(.+)/))
         m.reply($1)
       else
-        m.reply("#{thing} is #{r}.")
+        m.reply("#{key} is #{r}.")
       end
       
     else
@@ -164,14 +164,14 @@ class Learning
   # Makes the bot forget whatever it knows about the given thing. Removes that
   # key from the database.
   #
-  def forget(m, thing)
-    r = @@learning_db.get_first_value("SELECT info FROM learning WHERE thing=?",
-                                      thing.downcase)
+  def forget(m, key)
+    r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
+                                      key.downcase)
     if (r != nil)
-      @@learning_db.execute("DELETE FROM learning WHERE thing=?",thing.downcase)
-      m.reply("I forgot #{thing}.")
+      @@learning_db.execute("DELETE FROM learning WHERE key=?",key.downcase)
+      m.reply("I forgot #{key}.")
     else
-      m.reply("I don't know anything about #{thing}.")
+      m.reply("I don't know anything about #{key}.")
     end
   end
 
@@ -182,13 +182,13 @@ class Learning
   # Displays the literal contents of the database entry for the given thing,
   # without parsing special syntax like <reply> and |.
   #
-  def literal(m, thing)
-    r = @@learning_db.get_first_value("SELECT info FROM learning WHERE thing=?",
-                                      thing.downcase)
+  def literal(m, key)
+    r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
+                                      key.downcase)
     if (r != nil)
-      m.reply("#{thing} =is= #{r}.")
+      m.reply("#{key} =is= #{r}.")
     else
-      m.reply("No entry for #{thing}")
+      m.reply("No entry for #{key}")
     end
   end
 
