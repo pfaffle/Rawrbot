@@ -26,7 +26,7 @@ class Karma
     super(m)
     @@karma_db = SQLite3::Database.new('karma.sqlite3')
     @@karma_db.execute("CREATE TABLE IF NOT EXISTS karma(
-                          obj TEXT PRIMARY KEY,
+                          key TEXT PRIMARY KEY,
                           val INTEGER)")
   end
 
@@ -40,7 +40,7 @@ class Karma
   def self.init_db()
     db = SQLite3::Database.new('karma.sqlite3')
     db.execute("CREATE TABLE IF NOT EXISTS karma(
-                  obj TEXT PRIMARY KEY,
+                  key TEXT PRIMARY KEY,
                   val INTEGER)")
     return db
   end
@@ -68,17 +68,17 @@ class Karma
         break
       end
 
-      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE obj=?", key)
+      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
       if (r != nil)
         # Element already exists in the db; update or delete it.
         if (r == -1)
-          @@karma_db.execute("DELETE FROM karma WHERE obj=?", key)
+          @@karma_db.execute("DELETE FROM karma WHERE key=?", key)
         else
-          @@karma_db.execute("UPDATE karma SET val=? WHERE obj=?", r+1, key)
+          @@karma_db.execute("UPDATE karma SET val=? WHERE key=?", r+1, key)
         end
       else
         # Element does not yet exist in the db; insert it.
-        @@karma_db.execute("INSERT INTO karma (obj,val) VALUES (?,?)", key, 1)
+        @@karma_db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, 1)
       end
     end
   end
@@ -106,17 +106,17 @@ class Karma
         break
       end
 
-      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE obj=?", key)
+      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
       if (r != nil)
         # Element already exists in the db; update or delete it.
         if (r == 1)
-          @@karma_db.execute("DELETE FROM karma WHERE obj=?", key)
+          @@karma_db.execute("DELETE FROM karma WHERE key=?", key)
         else
-          @@karma_db.execute("UPDATE karma SET val=? WHERE obj=?", r-1, key)
+          @@karma_db.execute("UPDATE karma SET val=? WHERE key=?", r-1, key)
         end
       else
         # Element does not yet exist in the db; insert it.
-        @@karma_db.execute("INSERT INTO karma (obj,val) VALUES (?,?)", key, -1)
+        @@karma_db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, -1)
       end
     end
   end
@@ -130,7 +130,7 @@ class Karma
   #
   def display(m,key)
     key.downcase!
-    r = @@karma_db.get_first_value("SELECT val FROM karma WHERE obj=?", key)
+    r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
     if (r != nil)
       m.reply("#{key} has karma of #{r}.")
     else

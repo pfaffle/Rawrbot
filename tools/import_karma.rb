@@ -33,7 +33,7 @@ end
 # Initialize database.
 db = SQLite3::Database.new(target)
 db.execute("CREATE TABLE IF NOT EXISTS karma(
-              obj TEXT PRIMARY KEY,
+              key TEXT PRIMARY KEY,
               val INTEGER)")
 
 # Import data into database.
@@ -50,15 +50,15 @@ File.open(source, 'r:UTF-8') do |file|
     end
     key = $1
     val = $2
-    r = db.get_first_value("SELECT val FROM karma WHERE obj=?", key)
+    r = db.get_first_value("SELECT val FROM karma WHERE key=?", key)
     begin
       next if (val == '0')
       if (r.nil?)
         # Element does not yet exist in the db; insert it.
-        db.execute("INSERT INTO karma (obj,val) VALUES (?,?)", key, val)
+        db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, val)
       else
         # Element already exists in the db; update it.
-        db.execute("UPDATE karma SET val=? WHERE obj=?", val, key)
+        db.execute("UPDATE karma SET val=? WHERE key=?", val, key)
       end
     rescue => e
       warn("Failed to insert data. Error: #{e}\nLine: #{line}")
