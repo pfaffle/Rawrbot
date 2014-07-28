@@ -16,3 +16,6 @@ gem 'net-ldap'
 
 # required by google plugin
 gem 'sanitize'
+
+# required by learning and karma plugins
+gem 'sqlite3'
