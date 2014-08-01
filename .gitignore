@@ -1,5 +1,7 @@
 karma.db
+karma.sqlite3
 learning.db
+learning.sqlite3
 FEATURES
 RAWRBOT
 TEST-RAWRBOT
