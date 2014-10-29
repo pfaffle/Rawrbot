@@ -75,7 +75,7 @@ class OITldap
         # Iterate over each LDAP entry in the search result and print
         # relevant information.
         result.each do |oitEntry|
-            reply << "Name: #{oitEntry[:gecos][0]}\n"
+            reply << "Name: #{oitEntry[:preferredcn][0]}\n"
             reply << "Username: #{oitEntry[:uid][0]}\n"
             reply << "Dept: #{oitEntry[:ou][0]}\n"
             
