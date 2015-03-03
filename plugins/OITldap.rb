@@ -158,7 +158,7 @@ class OITldap
 
         # Format output.
         result.each do |entry|
-            reply << "Name: #{entry[:gecos][0]}"
+            reply << "Name: #{entry[:preferredcn][0]}"
             if (entry[:telephonenumber].empty?)
                 phone = 'n/a'
             else
