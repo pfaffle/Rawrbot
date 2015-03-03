@@ -18,18 +18,15 @@ gem 'cinch', '>= 2.0.3'
 require 'cinch'
 require 'yaml'
 
-Dir["#{$pwd}/plugins/*plugin*.rb"].each do |file| 
-    require file
-    puts "Loading #{file}."
-end
-
 config_hash = YAML.load(File.read("config/config.yml"))
 $admins = config_hash['admins']
 
-# convert the plugins to classes for cinch to consume
 plugins = []
-config_hash['plugins'].each do |x|
-  plugins << Object.const_get( x )
+config_hash['plugins'].each do |plugin|
+    file = "#{$pwd}/plugins/#{plugin}.rb"
+    require file
+    plugins.push(Object.const_get(plugin))
+    puts "Loading #{file}."
 end
 
 bot = Cinch::Bot.new do
