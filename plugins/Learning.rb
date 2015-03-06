@@ -50,7 +50,7 @@ class Learning
       edit(m, $1, $2, $3)
     elsif (m.message.match(/^#{m.bot.nick}[:,-]? forget (.+)/i))
       forget(m, $1)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? literal (.+)/i))
+    elsif (m.message.match(/^#{m.bot.nick}[:,-]? literal(ly)? (.+)/i))
       literal(m, $1)
     elsif (m.message.match(/^#{m.bot.nick}[:,-]? ldap (.+)/i))
       # do nothing.
