@@ -80,8 +80,13 @@ class Learning
                                       key)
     if (r != nil)
       # key already exists in the db; update it.
+      if (val.start_with? '|')
+        update = "#{r}#{val}"
+      else
+        update = "#{r} or #{val}"
+      end
       @@learning_db.execute("UPDATE learning SET val=? WHERE key=?",
-                            "#{r} or #{val}",
+                            update,
                             key)
     else
       # key does not yet exist in the db; insert it.
