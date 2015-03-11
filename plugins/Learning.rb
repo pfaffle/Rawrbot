@@ -154,6 +154,10 @@ class Learning
       # anything following it, rather than saying 'x is y'.
       if (r.match(/^<reply> ?(.+)/))
         m.reply($1)
+      # If the entry contains the prefix <action>, send an action followed
+      # by the entry
+      elsif (r.match(/^<action> ?(.+)/))
+        m.action_reply($1)
       else
         m.reply("#{key} is #{r}.")
       end
