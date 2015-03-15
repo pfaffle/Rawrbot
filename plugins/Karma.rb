@@ -14,6 +14,8 @@ class Karma
 
   require 'sqlite3'
 
+  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
   @@karma_db = nil
   
   match(/\S+\+\+/, method: :increment, :use_prefix => false)
@@ -145,11 +147,12 @@ class Karma
   # Displays help information for how to use the Karma plugin.
   #
   def karma_help(m)
+    p = self.class.prefix.call(m)
     reply  = "Karma tracker\n"
     reply += "===========\n"
     reply += "Description: Tracks karma for things. Higher karma = liked more, "
     reply += "lower karma = disliked more.\n"
-    reply += "Usage: !karma foo (to see karma level of 'foo')\n"
+    reply += "Usage: #{p}karma foo (to see karma level of 'foo')\n"
     reply += "foo++ (foo bar)++ increments karma for 'foo' and 'foo bar'\n"
     reply += "foo-- (foo bar)-- decrements karma for 'foo' and 'foo bar'"
     m.reply(reply)
@@ -164,6 +167,7 @@ class Karma
   # Karma module specifically.
   #
   def help(m)
-    m.reply("See: !help karma")
+    p = self.class.prefix.call(m)
+    m.reply("See: #{p}help karma")
   end
 end
