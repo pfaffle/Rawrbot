@@ -19,6 +19,8 @@ class GoogleRSS
     require 'rss/1.0'
     require 'rss/2.0'
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match /rss on$/i, method: :start_ticker
     match /rss off$/i, method: :stop_ticker
     match /rss restart$/i, method: :restart_ticker
@@ -154,14 +156,15 @@ class GoogleRSS
     #
     # Description: Displays help information for how to use the Google plugin.
     def google_help(m)
+        p = self.class.prefix.call(m)
         reply = "Google Apps Status RSS feed\n"
         reply << "===========\n"
         reply << "Description: Periodically checks the Google Apps Status RSS "
       reply << "feed and report any outages and when they are resolved.\n"
         reply << "Usage:\n"
-        reply << " !rss on (to start reporting)\n"
-        reply << " !rss off (to disable reporting)\n"
-        reply << " !rss restart (to restart reporting, or reload a new config)\n"
+        reply << " #{p}rss on (to start reporting)\n"
+        reply << " #{p}rss off (to disable reporting)\n"
+        reply << " #{p}rss restart (to restart reporting, or reload a new config)\n"
         m.reply reply
     end # End of google_help function.
 
@@ -171,7 +174,8 @@ class GoogleRSS
     #   people to use a more specific command to get more details about the
     #   functionality of this module specifically.
     def help(m)
-        m.reply "See: !help google"
+        p = self.class.prefix.call(m)
+        m.reply "See: #{p}help google"
     end
 
 end
