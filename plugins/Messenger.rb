@@ -9,6 +9,8 @@
 class Messenger
     include Cinch::Plugin
     
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/tell (.+?) (.+)/)
     
     # Function: execute
