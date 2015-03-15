@@ -3,6 +3,8 @@ class Pods
 
     require "#{$pwd}/lib/ldap_helper.rb"
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/pods (\w+)$/)
 
     def execute(m, query)
