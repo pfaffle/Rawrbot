@@ -1,6 +1,8 @@
 class Riker
   include Cinch::Plugin
 
+  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
   match(/riker/, method: :quote)
 
   def quote(m)
