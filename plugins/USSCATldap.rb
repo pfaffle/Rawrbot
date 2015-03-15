@@ -18,6 +18,8 @@ class USSCATldap
     require 'net/ldap'
     require "#{$pwd}/lib/ldap_helper.rb"
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     @@catldap = LdapHelper.new('cat')
     @@oitldap = LdapHelper.new('oit')
 
@@ -110,17 +112,19 @@ class USSCATldap
 
     # Help that is specific to the LDAP search function.
     def catldap_help(m)
+        p = self.class.prefix.call(m)
         reply  = "CAT LDAP Search\n"
         reply += "===========\n"
         reply += "Description: Performs a search on CAT LDAP for the given query, "
         reply += "then returns information about the user's account.\n"
-        reply += "Usage: !catldap [username|email alias]"
+        reply += "Usage: #{p}catldap [username|email alias]"
         m.reply(reply)
     end
 
     # General help to point users to the more specific help functions.
     def help(m)
-        m.reply("See: !help catldap")
+        p = self.class.prefix.call(m)
+        m.reply("See: #{p}help catldap")
     end
 
 end
