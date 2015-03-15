@@ -15,15 +15,15 @@
 class Learning
   include Cinch::Plugin
 
-  self.prefix = lambda{ |m| /^#{m.bot.nick}/ } 
-
   require 'sqlite3'
  
   @@learning_db = nil
 
-  match(/[:,-]?/)
-  match("!help", :use_prefix => false, method: :help)
-  match(/^!help learning/i, :use_prefix => false, method: :learning_help)
+  set :prefix, lambda{ |m| m.bot.config.plugins.prefix }
+
+  match //, :use_prefix => false
+  match "help", method: :help
+  match /help learning/i, method: :learning_help
 
   def initialize(m)
     super(m)
@@ -224,7 +224,8 @@ class Learning
   # module specifically.
   #
   def help(m)
-    m.reply("See: !help learning")
+    p = self.class.prefix.call(m)
+    m.reply("See: #{p}help learning")
   end
   
   # ============================================================================
