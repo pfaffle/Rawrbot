@@ -20,6 +20,8 @@ class Twitter
     require 'net/http'
     require 'json/pure'
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match /twitter on$/i, method: :start_ticker
     match /twitter off$/i, method: :stop_ticker
     match /twitter restart$/i, method: :restart_ticker
@@ -182,18 +184,20 @@ class Twitter
     end
 
     def twitter_help(m)
+        p = self.class.prefix.call(m)
         m.reply "Twitter feed"
         m.reply "==========="
         m.reply "Description: Periodically checks Twitter feeds and prints new tweets."
         m.reply "Usage:"
-        m.reply "  !twitter on (to start reporting)"
-        m.reply "  !twitter off (to stop reporting)"
-        m.reply "  !twitter restart (to restart reporting, or reload a new config)"
+        m.reply "  #{p}twitter on (to start reporting)"
+        m.reply "  #{p}twitter off (to stop reporting)"
+        m.reply "  #{p}twitter restart (to restart reporting, or reload a new config)"
         m.reply "Ask a bot admin to add/remove Twitter feeds."
     end
 
     def help(m)
-        m.reply "See: !help twitter"
+        p = self.class.prefix.call(m)
+        m.reply "See: #{p}help twitter"
     end
 
 end
