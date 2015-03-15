@@ -4,6 +4,8 @@ class LockOutTime
     require "#{$pwd}/lib/ldap_helper.rb"
     require "#{$pwd}/lib/util.rb"
   
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/locked (\w+)$/)
     match(/lockoutTime (\w+)$/)
   
