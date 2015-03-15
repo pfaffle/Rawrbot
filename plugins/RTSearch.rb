@@ -16,6 +16,8 @@ class RTSearch
     require 'net/https'
     require 'yaml'
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match("help", method: :help)
     match(/help rtsearch|help rt/i, method: :rt_help)
     match(/(\d{1,6})/, :use_prefix => false)
@@ -133,7 +135,8 @@ class RTSearch
     #   people to use a more specific command to get more details about the
     #   functionality of the module specifically.
     def help(m)
-        m.reply "See: !help rtsearch"
+        p = self.class.prefix.call(m)
+        m.reply "See: #{p}help rtsearch"
     end # End of help function
     
     # Function: rt_help
