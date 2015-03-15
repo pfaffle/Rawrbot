@@ -18,6 +18,8 @@ class CATldap
     require 'net/ldap'
     require "#{$pwd}/lib/ldap_helper.rb"
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     @@catldap = LdapHelper.new('cat')
     @@oitldap = LdapHelper.new('oit')
 
@@ -168,28 +170,31 @@ class CATldap
 
     # Help that is specific to the LDAP search function.
     def ldap_help(m)
+        p = self.class.prefix.call(m)
         reply  = "LDAP Search\n"
         reply += "===========\n"
         reply += "Description: Performs a search on LDAP for the given query, "
         reply += "then returns information about the user's account.\n"
-        reply += "Usage: !ldap [username|email alias]"
+        reply += "Usage: #{p}ldap [username|email alias]"
         m.reply(reply)
     end
 
     # Help that is specific to the phone search function.
     def phone_help(m)
+        p = self.class.prefix.call(m)
         reply  = "Phone Search\n"
         reply += "===========\n"
         reply += "Description: Searches LDAP for the given query, then returns "
         reply += "the user's phone number, if it exists in LDAP.\n"
-        reply += "Usage: !phone [username|email alias]"
+        reply += "Usage: #{p}phone [username|email alias]"
         m.reply(reply)
     end
 
     # General help to point users to the more specific help functions.
     def help(m)
-        m.reply("See: !help ldap")
-        m.reply("See: !help phone")
+        p = self.class.prefix.call(m)
+        m.reply("See: #{p}help ldap")
+        m.reply("See: #{p}help phone")
     end
 
 end
