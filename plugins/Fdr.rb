@@ -3,6 +3,8 @@ class Fdr
 
     require "#{$pwd}/lib/ldap_helper.rb"
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/fdr (\w+)$/)
 
     def execute(m, query)
