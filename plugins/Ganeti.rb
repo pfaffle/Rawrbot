@@ -5,6 +5,8 @@ class Ganeti
     require 'uri'
     require 'yaml'
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/ganeti (\w+ \w+ \w+)$/, method: :ganetiQuery)
 
     def config
