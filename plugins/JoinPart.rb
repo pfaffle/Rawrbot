@@ -9,6 +9,8 @@
 class JoinPart
     include Cinch::Plugin
     
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match(/join (#?\S+)( \S+)?/, method: :join)
     match(/part (#?\S+)( \S+)?/, method: :part)
     
