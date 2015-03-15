@@ -12,6 +12,8 @@ class SendSignal
     require 'net/smtp'
     require 'yaml'
 
+    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+
     match("help", method: :help)
     match(/help signal/i, method: :signal_help)
     match(/\bsignal\s+(\S+)\s+(.+)\b$/i)
@@ -49,17 +51,19 @@ class SendSignal
     #   people to use a more specific command to get more details about the
     #   functionality of the module specifically.
     def help(m)
-        m.reply "See: !help signal"
+        p = self.class.prefix.call(m)
+        m.reply "See: #{p}help signal"
     end # End of help function
     
     # Function: signal_help
     #
     # Description: Displays help information for how to use the plugin.
     def signal_help(m)
+        p = self.class.prefix.call(m)
         m.reply "Signal"
         m.reply "==========="
         m.reply "Sends a text message to someone. Don't abuse it!"
-        m.reply "Usage: !signal [target] [message]" 
+        m.reply "Usage: #{p}signal [target] [message]" 
         list_signals(m)
     end
     
