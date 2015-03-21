@@ -14,6 +14,8 @@ class SendSignal
 
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
+    ConfigFile = 'config/signal.yml'
+
     match("help", method: :help)
     match(/help signal/i, method: :signal_help)
     match(/\bsignal\s+(\S+)\s+(.+)\b$/i)
@@ -21,7 +23,10 @@ class SendSignal
     match(/^\.signal(\S+)\s+(.+)$/i, :use_prefix => false)
     
     def execute(m,tgt,msg)
-        userlist = YAML.load(File.read("config/signal.yml"))
+        cfg = read_config(ConfigFile)
+        userlist = Hash.new()
+        userlist.merge! cfg['signals'] if cfg.has_key? 'signals'
+        userlist.merge! cfg['secret_signals'] if cfg.has_key? 'secret_signals'
         tgt.downcase!
         if userlist.has_key? tgt
             tgt_address = userlist[tgt]
@@ -43,6 +48,17 @@ class SendSignal
             m.reply reply
             list_signals(m)
         end
+    end
+
+    # Read in and validate the structure of the config file.
+    def read_config(cfg)
+        signals = YAML.load(File.read(cfg))
+        if !(signals.has_key?('signals') || signals.has_key?('secret_signals'))
+            exc = "Please update SendSignal config file to the new format shown"
+            exc << " in the samples directory."
+            raise exc
+        end
+        return signals
     end
 
     # Function: help
@@ -71,14 +87,17 @@ class SendSignal
     #
     # Description: Lists the people for whom signaling is available.
     def list_signals(m)
-        userlist = YAML.load(File.read("config/signal.yml"))
-        reply = "Signaling is available for:"
-        userlist.each do |person, address|
-            mod_person = person.dup
-            mod_person[rand(mod_person.length)] = '*'
-            reply << " #{mod_person}"
+        cfg = read_config(ConfigFile)
+        if cfg.has_key? 'signals'
+            userlist = cfg['signals']
+            reply = "Signaling is available for:"
+            userlist.each do |person, address|
+                mod_person = person.dup
+                mod_person[rand(mod_person.length)] = '*'
+                reply << " #{mod_person}"
+            end
+            m.reply reply
         end
-        m.reply reply
         m.reply "Ask a bot admin to add/remove signals."
     end
 

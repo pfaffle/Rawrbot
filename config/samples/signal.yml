@@ -7,6 +7,19 @@
 # message to. See below article to translate a phone number to a email
 # address to send a text message to:
 #   https://github.com/mfitzp/List_of_SMS_gateways/
+#
+# These key-value pairs must be contained in a structure titled 'signals'
+# or 'secret_signals'. Any signal recipients listed in the 'signals' group
+# will be listed as possible signal recipients by Rawrbot. Any signal
+# recipients in the 'secret_signals' group can still be sent a signal, but
+# will not be advertised as the bot as a potential target.
+#
+# You can omit either signals or secret_signals if you don't wish to use
+# them, but at least one of them must be defined to use the Signal plugin.
 
-user1: '5035554444@txt.att.net'
-user2: '9714445555@txt.att.net'
+signals:
+    user1: '5035554444@txt.att.net'
+    user2: '9714445555@txt.att.net'
+secret_signals:
+    user3: '5558887777@txt.att.net'
+
