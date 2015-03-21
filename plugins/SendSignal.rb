@@ -97,10 +97,14 @@ class SendSignal
         if cfg.has_key? 'signals'
             userlist = cfg['signals']
             reply = "Signaling is available for:"
-            userlist.each do |person, address|
-                mod_person = person.dup
-                mod_person[rand(mod_person.length)] = '*'
-                reply << " #{mod_person}"
+            userlist.each_key do |k|
+                person = String.new(k)
+                if person.length == 3
+                    person[1] = '*'
+                elsif person.length > 3 
+                    person[2] = '*'
+                end
+                reply << " #{person}"
             end
             m.reply reply
         end
