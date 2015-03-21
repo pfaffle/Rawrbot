@@ -25,11 +25,17 @@ class SendSignal
     def execute(m,tgt,msg)
         cfg = read_config(ConfigFile)
         userlist = Hash.new()
-        userlist.merge! cfg['signals'] if cfg.has_key? 'signals'
-        userlist.merge! cfg['secret_signals'] if cfg.has_key? 'secret_signals'
-        tgt.downcase!
-        if userlist.has_key? tgt
-            tgt_address = userlist[tgt]
+
+        # Enumerate signal targets.
+        if cfg.has_key? 'signals'
+            cfg['signals'].each { |k,v| userlist[k.downcase] = v }
+        end
+        if cfg.has_key? 'secret_signals'
+            cfg['secret_signals'].each { |k,v| userlist[k.downcase] = v }
+        end
+        
+        if userlist.has_key? tgt.downcase
+            tgt_address = userlist[tgt.downcase]
             m.reply "Signaling #{tgt}..."
             Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
                 msgstr = "From: #{m.user.nick}@irc <#{m.user.nick}@irc.cat.pdx.edu\n"
