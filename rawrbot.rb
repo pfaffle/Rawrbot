@@ -19,7 +19,7 @@ $admins = config_hash['admins']
 plugins = []
 config_hash['plugins'].each do |plugin|
     file = "#{$pwd}/plugins/#{plugin}.rb"
-    require file
+    load file
     plugins.push(Object.const_get(plugin))
     puts "Loading #{file}."
 end
