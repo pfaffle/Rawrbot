@@ -84,7 +84,8 @@ class RTSearch
 
         # Execute the HTTP requests.
         ticket_list.each do |tnumber,verbose|
-            resp, data = http.post("#{@@config['baseurl']}/ticket/#{tnumber}/show",login,headers)
+            resp = http.post("#{@@config['baseurl']}/ticket/#{tnumber}/show",login,headers)
+            data = resp.body
             if resp.is_a? Net::HTTPOK
                 # If there is a '#' symbol immediately after RT's acknowledgement of the request,
                 # it indicates an error message signifying that the ticket could not be displayed.
