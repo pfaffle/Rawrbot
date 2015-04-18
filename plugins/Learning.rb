@@ -113,7 +113,7 @@ class Learning
       else
         @@learning_db.execute("UPDATE learning SET val=? WHERE key=?",
                               r,
-                              key)
+                              key.downcase)
         m.reply("done, #{m.user.nick}.")
       end
     else
