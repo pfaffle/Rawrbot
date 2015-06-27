@@ -4,15 +4,17 @@ ruby '1.9.3'
 gem 'cinch', '2.2.4'
 gem 'ffi'
 
-# required by twitter plugin
+# Required by plugins: UrbanDictionary, UrlTitle 
 gem 'nokogiri'
+
+# Required by plugins: Ganeti, Twitter
 gem 'json_pure'
 
-# required by ldap plugin
+# Required by plugins: CATLdap, OITLdap, USSCATLdap
 gem 'net-ldap'
 
-# required by google plugin
+# Required by plugins: GoogleRSS
 gem 'sanitize'
 
-# required by learning and karma plugins
+# Required by plugins: Karma, Learning
 gem 'sqlite3'
