@@ -17,12 +17,14 @@ class UrlTitle
   end
 
   def getUrl(msg)
-    return msg =~ /(#{URI::regexp(['http','https'])})/i ? $1 : nil
+    msg =~ /(#{URI::regexp(['http','https'])})/i
+    url = URI::parse($1)
+    return url.is_a?(URI::HTTP) ? url : nil
   end
 
   def getPageTitle(url)
     if (url)
-      title = Nokogiri::HTML(open(url)).css('title').text
+      title = Nokogiri::HTML(url.open(:read_timeout => 5)).css('title').text
       return title ? title.strip.delete("\t\r\n").squeeze(" ") : nil
     end
   end
