@@ -1,0 +1,8 @@
+# reactions.yml : Config file for the Reactions plugin.
+#
+# This is a key-value store of the keywords that trigger a reaction, and the
+# response to send back when that keyword is found in a message that the bot
+# sees. The triggers are matched as a case-insensitive regex.
+
+shrug: '¯\_(ツ)_/¯'
+tableflip: '(╯°□°）╯︵ ┻━┻'
