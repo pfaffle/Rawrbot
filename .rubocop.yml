@@ -169,7 +169,6 @@ Style/EmptyLines:
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/EmptyLinesAroundClassBody:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'lib/util.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/ChPrefix.rb'
@@ -246,7 +245,6 @@ Style/HashSyntax:
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/Ganeti.rb'
     - 'plugins/GoogleRSS.rb'
@@ -290,7 +288,6 @@ Style/LeadingCommentSpace:
 # Cop supports --auto-correct.
 Style/MethodCallParentheses:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/Fdr.rb'
     - 'plugins/LockOutTime.rb'
@@ -322,7 +319,6 @@ Style/MultilineOperationIndentation:
 # Cop supports --auto-correct.
 Style/NegatedIf:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/GoogleRSS.rb'
     - 'plugins/JoinPart.rb'
@@ -364,7 +360,6 @@ Style/ParenthesesAroundCondition:
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'plugins/Karma.rb'
     - 'plugins/Learning.rb'
     - 'plugins/RTSearch.rb'
@@ -384,7 +379,6 @@ Style/PredicateName:
 # Configuration parameters: AllowMultipleReturnValues.
 Style/RedundantReturn:
   Exclude:
-    - 'lib/ldap_helper.rb'
     - 'lib/util.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/Ganeti.rb'
