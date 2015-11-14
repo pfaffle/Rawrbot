@@ -42,23 +42,35 @@ class Learning
   # from the bot.
   #
   def execute(m)
-    if (m.message.match(/^#{m.bot.nick}[:,-]? (.+?) is (also )?(.+)/i))
-      learn(m, $1, $3)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? (.+?) are (also )?(.+)/i))
-      learn(m, $1, $3)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? (.+) =~ s\/(.+)\/(.*)\//i))
-      edit(m, $1, $2, $3)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? forget (.+)/i))
-      forget(m, $1)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? literal(ly)? (.+)/i))
-      literal(m, $2)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? ldap (.+)/i))
-      # do nothing.
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? (.+)/i))
-      teach(m, $1)
-    elsif (m.message.match(/^#{m.bot.nick}[:,-]? ?$/i))
-      address(m)
+    if (addressed?(m))
+      if (message_without_bot_nick(m).match(/(.+?) is (also )?(.+)/i))
+        learn(m, $1, $3)
+      elsif (message_without_bot_nick(m).match(/(.+?) are (also )?(.+)/i))
+        learn(m, $1, $3)
+      elsif (message_without_bot_nick(m).match(/(.+) =~ s\/(.+)\/(.*)\//i))
+        edit(m, $1, $2, $3)
+      elsif (message_without_bot_nick(m).match(/forget (.+)/i))
+        forget(m, $1)
+      elsif (message_without_bot_nick(m).match(/literal(ly)? (.+)/i))
+        literal(m, $2)
+      elsif (message_without_bot_nick(m).match(/(.+)/i))
+        teach(m, $1)
+      else
+        respond(m)
+      end
     end
+  end
+
+  def addressed?(m)
+    return m.message.match(/^#{m.bot.nick}[:,-]?/i) || \
+           m.channel.nil?
+  end
+
+  def message_without_bot_nick(m)
+    if (m.message.match(/^(#{m.bot.nick}[:,-]?)/i))
+      return m.message.partition($1)[2].lstrip
+    end
+    return m.message
   end
 
   # ============================================================================
@@ -206,12 +218,12 @@ class Learning
   end
 
   # ============================================================================
-  # Function: address
+  # Function: respond
   # ============================================================================
   #
   # If the bot is named but given no arguments, it responds with this function.
   #
-  def address(m)
+  def respond(m)
     responses = ["#{m.user.nick}?",'yes?','you called?','what?']
     resp = responses[rand(responses.size)]
     m.reply(resp)
