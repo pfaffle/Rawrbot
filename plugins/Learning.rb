@@ -177,6 +177,7 @@ class Learning
   # key from the database.
   #
   def forget(m, key)
+    key.strip!
     r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
                                       key.downcase)
     if (r != nil)
