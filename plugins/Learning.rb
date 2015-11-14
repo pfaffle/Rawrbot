@@ -134,6 +134,7 @@ class Learning
     giveups  = ["bugger all, I dunno, #{usr}.","no idea, #{usr}.","huh?"]
     giveups += ["what?","dunno, #{usr}."]
     giveup = giveups[rand(giveups.size)]
+    key.strip!
     r = @@learning_db.get_first_value("SELECT val FROM learning WHERE key=?",
                                       key.downcase)
     if (r != nil)
