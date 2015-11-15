@@ -42,7 +42,7 @@ class Learning
   # from the bot.
   #
   def execute(m)
-    if (addressed?(m))
+    if (is_bot_addressed?(m) && is_not_prefixed_command?(m))
       if (message_without_bot_nick(m).match(/(.+?) is (also )?(.+)/i))
         learn(m, $1, $3)
       elsif (message_without_bot_nick(m).match(/(.+?) are (also )?(.+)/i))
@@ -61,9 +61,13 @@ class Learning
     end
   end
 
-  def addressed?(m)
+  def is_bot_addressed?(m)
     return m.message.match(/^#{m.bot.nick}[:,-]?/i) || \
            m.channel.nil?
+  end
+
+  def is_not_prefixed_command?(m)
+    return !m.message.start_with?(m.bot.config.plugins.prefix)
   end
 
   def message_without_bot_nick(m)
