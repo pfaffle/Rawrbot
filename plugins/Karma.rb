@@ -132,6 +132,7 @@ class Karma
   #
   def display(m,key)
     key.downcase!
+    key.strip!
     r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
     if (r != nil)
       m.reply("#{key} has karma of #{r}.")
