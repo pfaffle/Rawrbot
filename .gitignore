@@ -8,3 +8,6 @@ TEST-RAWRBOT
 config/*.yml
 !config/samples/*
 *.swp
+.idea
+*.iml
+*.ipr
