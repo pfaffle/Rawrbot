@@ -3,6 +3,9 @@ source 'http://rubygems.org'
 ruby '1.9.3'
 gem 'cinch', '2.2.4'
 gem 'ffi'
+gem 'rspec'
+gem 'rspec-mocks'
+gem 'cinch-test'
 
 # Required by plugins: UrbanDictionary, UrlTitle 
 gem 'nokogiri'
