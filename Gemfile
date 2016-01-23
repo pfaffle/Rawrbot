@@ -15,7 +15,8 @@ gem 'nokogiri'
 gem 'json_pure'
 
 # Required by plugins: CATLdap, OITLdap, USSCATLdap
-gem 'net-ldap'
+# net-ldap dropped support for Ruby 1.9.3 in their 0.13.0 release.
+gem 'net-ldap', '0.12.0'
 
 # Required by plugins: GoogleRSS
 gem 'sanitize'
