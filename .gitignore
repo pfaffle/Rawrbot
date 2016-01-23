@@ -11,3 +11,4 @@ config/*.yml
 .idea
 *.iml
 *.ipr
+Gemfile.lock
