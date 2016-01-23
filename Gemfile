@@ -6,6 +6,7 @@ gem 'ffi'
 gem 'rspec'
 gem 'rspec-mocks'
 gem 'cinch-test'
+gem 'rake'
 
 # Required by plugins: UrbanDictionary, UrlTitle 
 gem 'nokogiri'
