@@ -9,6 +9,7 @@
 # Requirements:
 # - The Ruby gem 'sqlite3' must be installed.
 #
+# noinspection RubyClassVariableUsageInspection
 class Karma
   include Cinch::Plugin
 
@@ -17,19 +18,19 @@ class Karma
   set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
   @@karma_db = nil
-  
+
   match(/\S+\+\+/, method: :increment, :use_prefix => false)
   match(/\S+--/, method: :decrement, :use_prefix => false)
   match(/karma (.+)/, method: :display)
   match(/help karma/i, method: :karma_help)
-  match("help", method: :help)
+  match('help', method: :help)
 
   def initialize(m)
     super(m)
     @@karma_db = SQLite3::Database.new('karma.sqlite3')
-    @@karma_db.execute("CREATE TABLE IF NOT EXISTS karma(
+    @@karma_db.execute('CREATE TABLE IF NOT EXISTS karma(
                           key TEXT PRIMARY KEY,
-                          val INTEGER)")
+                          val INTEGER)')
   end
 
   # ============================================================================
@@ -39,12 +40,12 @@ class Karma
   # Creates the sqlite database if it doesn't exist and inserts a table for
   # tracking karma.
   #
-  def self.init_db()
+  def self.init_db
     db = SQLite3::Database.new('karma.sqlite3')
-    db.execute("CREATE TABLE IF NOT EXISTS karma(
+    db.execute('CREATE TABLE IF NOT EXISTS karma(
                   key TEXT PRIMARY KEY,
-                  val INTEGER)")
-    return db
+                  val INTEGER)')
+    db
   end
 
   # ============================================================================
@@ -61,30 +62,29 @@ class Karma
     # Iterate through each element to be incremented and do it.
     matches.each do |element|
       element.downcase!
-      key = String.new()
-      if (element =~ /\((.+)\)\+\+/)
+      if element =~ /\((.+)\)\+\+/
         key = $1
-      elsif (element =~ /(\S+)\+\+/)
+      elsif element =~ /(\S+)\+\+/
         key = $1
       else
         break
       end
 
-      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
-      if (r != nil)
+      r = @@karma_db.get_first_value('SELECT val FROM karma WHERE key=?', key)
+      if !r.nil?
         # Element already exists in the db; update or delete it.
-        if (r == -1)
-          @@karma_db.execute("DELETE FROM karma WHERE key=?", key)
+        if r == -1
+          @@karma_db.execute('DELETE FROM karma WHERE key=?', key)
         else
-          @@karma_db.execute("UPDATE karma SET val=? WHERE key=?", r+1, key)
+          @@karma_db.execute('UPDATE karma SET val=? WHERE key=?', r + 1, key)
         end
       else
         # Element does not yet exist in the db; insert it.
-        @@karma_db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, 1)
+        @@karma_db.execute('INSERT INTO karma (key,val) VALUES (?,?)', key, 1)
       end
     end
   end
-  
+
   # ============================================================================
   # Function: decrement
   # ============================================================================
@@ -99,30 +99,29 @@ class Karma
     # Iterate through each element to be incremented and do it.
     matches.each do |element|
       element.downcase!
-      key = String.new()
-      if (element =~ /\((.+)\)--/)
+      if element =~ /\((.+)\)--/
         key = $1
-      elsif (element =~ /(\S+)--/)
+      elsif element =~ /(\S+)--/
         key = $1
       else
         break
       end
 
-      r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
-      if (r != nil)
+      r = @@karma_db.get_first_value('SELECT val FROM karma WHERE key=?', key)
+      if !r.nil?
         # Element already exists in the db; update or delete it.
-        if (r == 1)
-          @@karma_db.execute("DELETE FROM karma WHERE key=?", key)
+        if r == 1
+          @@karma_db.execute('DELETE FROM karma WHERE key=?', key)
         else
-          @@karma_db.execute("UPDATE karma SET val=? WHERE key=?", r-1, key)
+          @@karma_db.execute('UPDATE karma SET val=? WHERE key=?', r - 1, key)
         end
       else
         # Element does not yet exist in the db; insert it.
-        @@karma_db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, -1)
+        @@karma_db.execute('INSERT INTO karma (key,val) VALUES (?,?)', key, -1)
       end
     end
   end
-  
+
   # ============================================================================
   # Function: display
   # ============================================================================
@@ -130,11 +129,11 @@ class Karma
   # Displays the current karma level of the requested element. If the element
   # does not exist in the DB, it has neutral (0) karma.
   #
-  def display(m,key)
+  def display(m, key)
     key.downcase!
     key.strip!
-    r = @@karma_db.get_first_value("SELECT val FROM karma WHERE key=?", key)
-    if (r != nil)
+    r = @@karma_db.get_first_value('SELECT val FROM karma WHERE key=?', key)
+    if !r.nil?
       m.reply("#{key} has karma of #{r}.")
     else
       m.reply("#{key} has neutral karma.")
@@ -149,16 +148,17 @@ class Karma
   #
   def karma_help(m)
     p = self.class.prefix.call(m)
-    reply  = "Karma tracker\n"
-    reply += "===========\n"
-    reply += "Description: Tracks karma for things. Higher karma = liked more, "
-    reply += "lower karma = disliked more.\n"
-    reply += "Usage: #{p}karma foo (to see karma level of 'foo')\n"
-    reply += "foo++ (foo bar)++ increments karma for 'foo' and 'foo bar'\n"
-    reply += "foo-- (foo bar)-- decrements karma for 'foo' and 'foo bar'"
-    m.reply(reply)
+    msg = <<EOS
+Karma tracker
+===========
+Description: Tracks karma for things. Higher karma = liked more, lower karma = disliked more.
+Usage: #{p}karma foo (to see karma level of 'foo')
+foo++ (foo bar)++ increments karma for 'foo' and 'foo bar'
+foo-- (foo bar)-- decrements karma for 'foo' and 'foo bar'
+EOS
+    m.reply(msg)
   end
-  
+
   # ============================================================================
   # Function: help
   # ============================================================================

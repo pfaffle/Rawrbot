@@ -13,7 +13,7 @@ end
 
 RSpec.describe 'Karma#display' do
   before(:each) do
-    @bot = make_bot()
+    @bot = make_bot
     @bot.loggers.level = :error
     @bot.plugins.register_plugin(Karma)
   end
