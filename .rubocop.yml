@@ -90,11 +90,6 @@ Metrics/PerceivedComplexity:
   Max: 15
 
 # Offense count: 1
-Style/AccessorMethodName:
-  Exclude:
-    - 'spec/Karma_spec.rb'
-
-# Offense count: 1
 # Cop supports --auto-correct.
 Style/BlockComments:
   Exclude:
@@ -137,7 +132,6 @@ Style/ConstantName:
 Style/DefWithParentheses:
   Exclude:
     - 'plugins/Karma.rb'
-    - 'spec/Karma_spec.rb'
 
 # Offense count: 8
 # Cop supports --auto-correct.
@@ -320,7 +314,6 @@ Style/MethodCallParentheses:
     - 'plugins/RTSearch.rb'
     - 'plugins/SendSignal.rb'
     - 'plugins/USSCATldap.rb'
-    - 'spec/Karma_spec.rb'
     - 'tools/export_gdbm.rb'
 
 # Offense count: 1
@@ -418,7 +411,6 @@ Style/RedundantReturn:
     - 'plugins/Riker.rb'
     - 'plugins/SendSignal.rb'
     - 'plugins/UrlTitle.rb'
-    - 'spec/Karma_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
