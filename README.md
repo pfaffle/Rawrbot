@@ -1,5 +1,6 @@
 Rawrbot - An IRC Bot
 ====================
+![Build status](https://travis-ci.org/pfaffle/Rawrbot.svg?branch=master)
 
 Rawrbot is an IRC bot written in Ruby which uses the Cinch framework (https://github.com/cinchrb/cinch).
 
