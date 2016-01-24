@@ -18,12 +18,12 @@ RSpec.describe 'Karma#display' do
     @bot.plugins.register_plugin(Karma)
   end
 
+  let(:db) { 'karma.sqlite3' }
+
   ['imatestkey', 'multi word key'].each do |key|
     let(:karma_key) { key }
 
     context 'key does not exist in the database' do
-      let(:db) { 'karma.sqlite3' }
-
       before(:each) do
         # TODO: refactor Karma plugin so we can use a test-only db here
         delete_key_from_db(SQLite3::Database.new(db), karma_key)
@@ -40,8 +40,6 @@ RSpec.describe 'Karma#display' do
     end
 
     context 'key has a value in the database' do
-      let(:db) { 'karma.sqlite3' }
-
       [-9999, -1, 1, 10034].each do |val|
         let(:karma_value) { val }
 
