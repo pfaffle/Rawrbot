@@ -127,12 +127,6 @@ Style/ConstantName:
   Exclude:
     - 'plugins/SendSignal.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/DefWithParentheses:
-  Exclude:
-    - 'plugins/Karma.rb'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/DeprecatedHashMethods:
@@ -210,7 +204,6 @@ Style/EmptyLiteral:
     - 'plugins/Fdr.rb'
     - 'plugins/Ganeti.rb'
     - 'plugins/GoogleRSS.rb'
-    - 'plugins/Karma.rb'
     - 'plugins/LockOutTime.rb'
     - 'plugins/OITldap.rb'
     - 'plugins/Pods.rb'
@@ -307,7 +300,6 @@ Style/MethodCallParentheses:
     - 'lib/ldap_helper.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/Fdr.rb'
-    - 'plugins/Karma.rb'
     - 'plugins/LockOutTime.rb'
     - 'plugins/OITldap.rb'
     - 'plugins/Pods.rb'
@@ -362,7 +354,6 @@ Style/Next:
 # Configuration parameters: IncludeSemanticChanges.
 Style/NonNilCheck:
   Exclude:
-    - 'plugins/Karma.rb'
     - 'plugins/Learning.rb'
 
 # Offense count: 3
@@ -404,7 +395,6 @@ Style/RedundantReturn:
     - 'lib/util.rb'
     - 'plugins/CATldap.rb'
     - 'plugins/Ganeti.rb'
-    - 'plugins/Karma.rb'
     - 'plugins/Learning.rb'
     - 'plugins/OITldap.rb'
     - 'plugins/Reload.rb'
@@ -444,7 +434,6 @@ Style/SpaceAfterComma:
 Style/SpaceAroundOperators:
   Exclude:
     - 'lib/util.rb'
-    - 'plugins/Karma.rb'
     - 'plugins/Riker.rb'
 
 # Offense count: 1
