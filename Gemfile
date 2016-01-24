@@ -7,6 +7,7 @@ gem 'rspec'
 gem 'rspec-mocks'
 gem 'cinch-test'
 gem 'rake'
+gem 'rubocop', '~> 0.34.2', require: false
 
 # Required by plugins: UrbanDictionary, UrlTitle 
 gem 'nokogiri'
