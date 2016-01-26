@@ -7,7 +7,6 @@ class KeyValueDatabase
     def initialize(filename)
       @db = SQLite3::Database.new(filename)
       @db.execute('CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY, val TEXT)')
-      @mutex = Mutex.new
     end
 
     def close
@@ -18,14 +17,12 @@ class KeyValueDatabase
       set(key, value)
     end
 
-    def set(key, value)
-      @mutex.synchronize do
-        @db.transaction do |stmt|
-          if get(key).nil?
-            stmt.execute('INSERT INTO data (key,val) VALUES (?,?)', key, value)
-          else
-            stmt.execute('UPDATE data SET val=? WHERE key=?', value, key)
-          end
+    def set(key, val)
+      @db.transaction do |txn|
+        if get(key).nil?
+          txn.execute('INSERT INTO data (key,val) VALUES (?,?)', key, val)
+        else
+          txn.execute('UPDATE data SET val=? WHERE key=?', val, key)
         end
       end
     end
