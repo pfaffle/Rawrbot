@@ -34,5 +34,11 @@ class KeyValueDatabase
     def get(key)
       @db.get_first_value('SELECT val FROM data WHERE key=?', key)
     end
+
+    def delete(key)
+      @db.transaction do |txn|
+        txn.execute('DELETE FROM data WHERE key=?', key)
+      end
+    end
   end
 end
