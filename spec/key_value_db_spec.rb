@@ -1,4 +1,5 @@
 require 'lib/key_value_db'
+require 'shared_examples/key_value_db'
 
 def insert_into_db(key, value)
   db = SQLite3::Database.new(db_name)
@@ -16,6 +17,7 @@ end
 
 RSpec.describe 'KeyValueDatabase::SQLite' do
   let(:db_name) { 'testdb.sqlite3' }
+
   before(:each) do
     @db = KeyValueDatabase::SQLite.new(db_name)
   end
@@ -24,57 +26,9 @@ RSpec.describe 'KeyValueDatabase::SQLite' do
     File.delete(db_name)
   end
 
+  it_behaves_like 'a key-value store that contains', 'foo' => 'bar'
+
   it 'exists' do
     expect(File).to exist("./#{db_name}")
-  end
-
-  context 'with get and set methods' do
-    it 'returns nothing for a nonexistent key' do
-      expect(@db.get('foo')).to be(nil)
-    end
-
-    it 'gets the existing value if key is set' do
-      insert_into_db('foo', 'bar')
-      expect(@db.get('foo')).to eq('bar')
-    end
-
-    it 'inserts a new key' do
-      @db.set('foo', 'bar')
-      expect(get_from_db('foo')).to eq('bar')
-    end
-
-    it 'updates an existing key' do
-      insert_into_db('foo', 'bar')
-      @db.set('foo', 'baz')
-      expect(get_from_db('foo')).to eq('baz')
-    end
-
-    it 'deletes an existing key' do
-      insert_into_db('foo', 'bar')
-      @db.delete('foo')
-      expect(get_from_db('foo')).to be(nil)
-    end
-  end
-
-  context 'with hash-style syntax' do
-    it 'returns nothing for a nonexistent key' do
-      expect(@db['foo']).to be(nil)
-    end
-
-    it 'gets the existing value if key is set' do
-      insert_into_db('foo', 'bar')
-      expect(@db['foo']).to eq('bar')
-    end
-
-    it 'inserts a new key' do
-      @db['foo'] = 'bar'
-      expect(get_from_db('foo')).to eq('bar')
-    end
-
-    it 'updates an existing key' do
-      insert_into_db('foo', 'bar')
-      @db['foo'] = 'baz'
-      expect(get_from_db('foo')).to eq('baz')
-    end
   end
 end
