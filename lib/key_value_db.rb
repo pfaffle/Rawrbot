@@ -4,9 +4,9 @@ class KeyValueDatabase
   class SQLite
     require 'sqlite3'
 
-    def initialize(filename)
+    def initialize(filename, key_type = String, value_type = String)
       @db = SQLite3::Database.new(filename)
-      @db.execute('CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY, val TEXT)')
+      init_db(key_type, value_type)
     end
 
     def close
@@ -39,6 +39,23 @@ class KeyValueDatabase
       @db.transaction do |txn|
         txn.execute('DELETE FROM data WHERE key=?', key)
       end
+    end
+
+    private
+
+    def init_db(key_type, value_type)
+      @db.execute('CREATE TABLE IF NOT EXISTS data('\
+                      "key #{to_sql_type(key_type)} PRIMARY KEY, "\
+                      "val #{to_sql_type(value_type)})")
+    end
+
+    def to_sql_type(type)
+      map = {
+        String => 'TEXT',
+        Integer => 'INT'
+      }
+      fail("Unsupported type #{type}") if map[type].nil?
+      map[type]
     end
   end
 end

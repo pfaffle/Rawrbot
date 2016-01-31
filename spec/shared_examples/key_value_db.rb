@@ -1,8 +1,8 @@
 require 'rspec'
 
-RSpec.shared_examples 'a key-value store that contains' do |key_value_hash|
-  let(:key) { key_value_hash.keys[0].to_s }
-  let(:value) { key_value_hash[key] }
+RSpec.shared_examples 'a key-value store that contains' do |hash|
+  let(:key) { hash.keys[0] }
+  let(:value) { hash[key] }
 
   context 'with get and set methods' do
     it 'returns nothing for a nonexistent key' do

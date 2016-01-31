@@ -18,17 +18,28 @@ end
 RSpec.describe 'KeyValueDatabase::SQLite' do
   let(:db_name) { 'testdb.sqlite3' }
 
-  before(:each) do
-    @db = KeyValueDatabase::SQLite.new(db_name)
-  end
   after(:each) do
     @db.close
     File.delete(db_name)
   end
 
-  it_behaves_like 'a key-value store that contains', 'foo' => 'bar'
+  context 'with the default String=>String key-value store' do
+    before(:each) do
+      @db = KeyValueDatabase::SQLite.new(db_name)
+    end
+    it 'exists' do
+      expect(File).to exist("./#{db_name}")
+    end
+    it_behaves_like 'a key-value store that contains', 'foo' => 'bar'
+  end
 
-  it 'exists' do
-    expect(File).to exist("./#{db_name}")
+  context 'with a String=>Integer key-value store' do
+    before(:each) do
+      @db = KeyValueDatabase::SQLite.new(db_name, String, Integer)
+    end
+    it 'exists' do
+      expect(File).to exist("./#{db_name}")
+    end
+    it_behaves_like 'a key-value store that contains', 'foo' => 4
   end
 end
