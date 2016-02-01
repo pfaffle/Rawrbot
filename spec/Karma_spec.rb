@@ -1,31 +1,37 @@
 require 'plugins/Karma'
 
-def delete_key_from_db(db, key)
-  db.execute('DELETE FROM karma WHERE key=?', key)
-  expect(db.get_first_value('SELECT val FROM karma WHERE key=?', key)).to eq nil
+def delete_key_from_db(key)
+  @db.delete(key)
+  expect(@db.get(key)).to eq nil
 end
 
-def set_db_key_value(db, key, val)
-  delete_key_from_db(db, key)
-  db.execute('INSERT INTO karma (key,val) VALUES (?,?)', key, val)
-  expect(db.get_first_value('SELECT val FROM karma WHERE key=?', key)).to eq val
+def set_db_key_value(key, val)
+  delete_key_from_db(key)
+  @db.set(key, val)
+  expect(@db.get(key)).to eq val
 end
 
 RSpec.describe 'Karma' do
+  # TODO: refactor Karma plugin so we can use a test-only db here
+  let(:db_file) { 'karma.sqlite3' }
+  let(:table) { 'karma' }
+
   before(:each) do
     @bot = make_bot
     @bot.loggers.level = :error
     @bot.plugins.register_plugin(Karma)
+    @db = KeyValueDatabase::SQLite.new(db_file) do |config|
+      config.key_type = String
+      config.value_type = Integer
+      config.table = table
+    end
   end
-
-  let(:db) { 'karma.sqlite3' }
 
   context 'key does not have a karma value' do
     context 'with a single-word key' do
       let(:karma_key) { 'imatestkey' }
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        delete_key_from_db(SQLite3::Database.new(db), karma_key)
+        delete_key_from_db(karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -66,8 +72,7 @@ RSpec.describe 'Karma' do
     context 'with a multi-word key' do
       let(:karma_key) { 'multi word key' }
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        delete_key_from_db(SQLite3::Database.new(db), karma_key)
+        delete_key_from_db(karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -108,11 +113,12 @@ RSpec.describe 'Karma' do
 
   context 'key has an existing karma value of -1' do
     let(:karma_value) { -1 }
+
     context 'with a single-word key' do
       let(:karma_key) { 'imatestkey' }
+
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -152,9 +158,9 @@ RSpec.describe 'Karma' do
 
     context 'with a multi-word key' do
       let(:karma_key) { 'multi word key' }
+
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -198,9 +204,9 @@ RSpec.describe 'Karma' do
 
     context 'with a single-word key' do
       let(:karma_key) { 'imatestkey' }
+
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -240,9 +246,9 @@ RSpec.describe 'Karma' do
 
     context 'with a multi-word key' do
       let(:karma_key) { 'multi word key' }
+
       before(:each) do
-        # TODO: refactor Karma plugin so we can use a test-only db here
-        set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -287,9 +293,9 @@ RSpec.describe 'Karma' do
 
       context 'with a single-word key' do
         let(:karma_key) { 'imatestkey' }
+
         before(:each) do
-          # TODO: refactor Karma plugin so we can use a test-only db here
-          set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+          set_db_key_value(karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
@@ -326,11 +332,12 @@ RSpec.describe 'Karma' do
           expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value - 2}."
         end
       end
+
       context 'with a multi-word key' do
         let(:karma_key) { 'multi word key' }
+
         before(:each) do
-          # TODO: refactor Karma plugin so we can use a test-only db here
-          set_db_key_value(SQLite3::Database.new(db), karma_key, karma_value)
+          set_db_key_value(karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
