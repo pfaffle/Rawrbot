@@ -21,7 +21,7 @@ class Karma
   match('help', method: :help)
 
   def initialize(m)
-    super(m)
+    super
     @@karma_db = KeyValueDatabase::SQLite.new('karma.sqlite3') do |config|
       config.table = 'karma'
       config.key_type = String
@@ -38,48 +38,12 @@ class Karma
     end
   end
 
-  def increment(element)
-    element.downcase!
-    if element =~ /\((.+)\)\+\+/
-      key = $1
-    elsif element =~ /(\S+)\+\+/
-      key = $1
-    else
-      return
-    end
-
-    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
-    if karma_value == -1
-      @@karma_db.delete(key)
-    else
-      @@karma_db[key] = karma_value + 1
-    end
-  end
-
   # Decrements karma by one point for each element that has a -- after it. If
   # an element reaches neutral (0) karma, it is deleted from the DB so the DB
   # doesn't grow any larger than it has to.
   def decrement_all(m)
     m.message.scan(/\([^)]+\)--|\S+--/).each do |element|
       decrement(element)
-    end
-  end
-
-  def decrement(element)
-    element.downcase!
-    if element =~ /\((.+)\)--/
-      key = $1
-    elsif element =~ /(\S+)--/
-      key = $1
-    else
-      return
-    end
-
-    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
-    if karma_value == 1
-      @@karma_db.delete(key)
-    else
-      @@karma_db[key] = karma_value - 1
     end
   end
 
@@ -116,5 +80,43 @@ EOS
   def help(m)
     p = self.class.prefix.call(m)
     m.reply("See: #{p}help karma")
+  end
+
+  private
+
+  def increment(element)
+    element.downcase!
+    if element =~ /\((.+)\)\+\+/
+      key = $1
+    elsif element =~ /(\S+)\+\+/
+      key = $1
+    else
+      return
+    end
+
+    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
+    if karma_value == -1
+      @@karma_db.delete(key)
+    else
+      @@karma_db[key] = karma_value + 1
+    end
+  end
+
+  def decrement(element)
+    element.downcase!
+    if element =~ /\((.+)\)--/
+      key = $1
+    elsif element =~ /(\S+)--/
+      key = $1
+    else
+      return
+    end
+
+    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
+    if karma_value == 1
+      @@karma_db.delete(key)
+    else
+      @@karma_db[key] = karma_value - 1
+    end
   end
 end
