@@ -1,14 +1,14 @@
 require 'plugins/Karma'
 
-def delete_key_from_db(db, key)
-  db.execute("DELETE FROM #{table} WHERE key=?", key)
-  expect(db.get_first_value("SELECT val FROM #{table} WHERE key=?", key)).to eq nil
+def delete_key_from_db(key)
+  @db.delete(key)
+  expect(@db.get(key)).to eq nil
 end
 
-def set_db_key_value(db, key, val)
-  delete_key_from_db(db, key)
-  db.execute("INSERT INTO #{table} (key,val) VALUES (?,?)", key, val)
-  expect(db.get_first_value("SELECT val FROM #{table} WHERE key=?", key)).to eq val
+def set_db_key_value(key, val)
+  delete_key_from_db(key)
+  @db.set(key, val)
+  expect(@db.get(key)).to eq val
 end
 
 RSpec.describe 'Karma' do
@@ -20,13 +20,18 @@ RSpec.describe 'Karma' do
     @bot = make_bot
     @bot.loggers.level = :error
     @bot.plugins.register_plugin(Karma)
+    @db = KeyValueDatabase::SQLite.new(db_file) do |config|
+      config.key_type = String
+      config.value_type = Integer
+      config.table = table
+    end
   end
 
   context 'key does not have a karma value' do
     context 'with a single-word key' do
       let(:karma_key) { 'imatestkey' }
       before(:each) do
-        delete_key_from_db(SQLite3::Database.new(db_file), karma_key)
+        delete_key_from_db(karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -67,7 +72,7 @@ RSpec.describe 'Karma' do
     context 'with a multi-word key' do
       let(:karma_key) { 'multi word key' }
       before(:each) do
-        delete_key_from_db(SQLite3::Database.new(db_file), karma_key)
+        delete_key_from_db(karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -113,7 +118,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'imatestkey' }
 
       before(:each) do
-        set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -155,7 +160,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'multi word key' }
 
       before(:each) do
-        set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -201,7 +206,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'imatestkey' }
 
       before(:each) do
-        set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -243,7 +248,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'multi word key' }
 
       before(:each) do
-        set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+        set_db_key_value(karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -290,7 +295,7 @@ RSpec.describe 'Karma' do
         let(:karma_key) { 'imatestkey' }
 
         before(:each) do
-          set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+          set_db_key_value(karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
@@ -332,7 +337,7 @@ RSpec.describe 'Karma' do
         let(:karma_key) { 'multi word key' }
 
         before(:each) do
-          set_db_key_value(SQLite3::Database.new(db_file), karma_key, karma_value)
+          set_db_key_value(karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
