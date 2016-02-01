@@ -4,9 +4,15 @@ class KeyValueDatabase
   class SQLite
     require 'sqlite3'
 
-    def initialize(filename, key_type = String, value_type = String)
+    attr_accessor :table, :key_type, :value_type
+
+    def initialize(filename)
       @db = SQLite3::Database.new(filename)
-      init_db(key_type, value_type)
+      @table = 'data'
+      @key_type = String
+      @value_type = String
+      yield self if block_given?
+      init_db
     end
 
     def close
@@ -20,9 +26,9 @@ class KeyValueDatabase
     def set(key, val)
       @db.transaction do |txn|
         if get(key).nil?
-          txn.execute('INSERT INTO data (key,val) VALUES (?,?)', key, val)
+          txn.execute("INSERT INTO #{@table} (key,val) VALUES (?,?)", key, val)
         else
-          txn.execute('UPDATE data SET val=? WHERE key=?', val, key)
+          txn.execute("UPDATE #{@table} SET val=? WHERE key=?", val, key)
         end
       end
     end
@@ -32,21 +38,21 @@ class KeyValueDatabase
     end
 
     def get(key)
-      @db.get_first_value('SELECT val FROM data WHERE key=?', key)
+      @db.get_first_value("SELECT val FROM #{@table} WHERE key=?", key)
     end
 
     def delete(key)
       @db.transaction do |txn|
-        txn.execute('DELETE FROM data WHERE key=?', key)
+        txn.execute("DELETE FROM #{@table} WHERE key=?", key)
       end
     end
 
     private
 
-    def init_db(key_type, value_type)
-      @db.execute('CREATE TABLE IF NOT EXISTS data('\
-                      "key #{to_sql_type(key_type)} PRIMARY KEY, "\
-                      "val #{to_sql_type(value_type)})")
+    def init_db
+      @db.execute("CREATE TABLE IF NOT EXISTS #{@table}("\
+                      "key #{to_sql_type(@key_type)} PRIMARY KEY, "\
+                      "val #{to_sql_type(@value_type)})")
     end
 
     def to_sql_type(type)
