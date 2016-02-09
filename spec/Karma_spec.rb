@@ -12,8 +12,7 @@ def set_db_key_value(key, val)
 end
 
 RSpec.describe 'Karma' do
-  # TODO: refactor Karma plugin so we can use a test-only db here
-  let(:db_file) { 'karma.sqlite3' }
+  let(:db_file) { 'test_karma.sqlite3' }
   let(:table) { 'karma' }
 
   before(:each) do
@@ -25,6 +24,11 @@ RSpec.describe 'Karma' do
       config.value_type = Integer
       config.table = table
     end
+    @bot.plugins[0].use_db(@db)
+  end
+  after(:each) do
+    @db.close
+    File.delete(db_file)
   end
 
   context 'key does not have a karma value' do
