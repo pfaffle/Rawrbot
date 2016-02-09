@@ -22,11 +22,12 @@ class Karma
 
   def initialize(m)
     super
-    @@karma_db = KeyValueDatabase::SQLite.new('karma.sqlite3') do |config|
-      config.table = 'karma'
-      config.key_type = String
-      config.value_type = Integer
-    end
+    init_db
+  end
+
+  # For testing
+  def use_db(new_db)
+    @@karma_db = new_db if new_db
   end
 
   # Increments karma by one point for each element that has a ++ after it. If
@@ -117,6 +118,15 @@ EOS
       @@karma_db.delete(key)
     else
       @@karma_db[key] = karma_value - 1
+    end
+  end
+
+  def init_db
+    return unless @@karma_db.nil?
+    @@karma_db = KeyValueDatabase::SQLite.new('karma.sqlite3') do |config|
+      config.table = 'karma'
+      config.key_type = String
+      config.value_type = Integer
     end
   end
 end
