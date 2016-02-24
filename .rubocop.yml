@@ -365,7 +365,6 @@ Style/ParenthesesAroundCondition:
 Style/PerlBackrefs:
   Exclude:
     - 'lib/ldap_helper.rb'
-    - 'plugins/Karma.rb'
     - 'plugins/Learning.rb'
     - 'plugins/RTSearch.rb'
     - 'plugins/Social.rb'
