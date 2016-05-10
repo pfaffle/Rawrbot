@@ -24,7 +24,7 @@ class UrlTitle
 
   def getPageTitle(url)
     if (url)
-      title = Nokogiri::HTML(url.open(:read_timeout => 5)).css('title').text
+      title = Nokogiri::HTML(url.open(:read_timeout => 5)).css('title')[0].text
       return stripWhiteSpace(title)
     end
   end
