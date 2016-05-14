@@ -38,12 +38,6 @@ Lint/DeprecatedClassMethods:
 Lint/EndAlignment:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'rawrbot.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Lint/UnusedMethodArgument:
@@ -133,7 +127,6 @@ Style/DeprecatedHashMethods:
   Exclude:
     - 'plugins/SendSignal.rb'
     - 'plugins/Twitter.rb'
-    - 'rawrbot.rb'
 
 # Offense count: 10
 # Configuration parameters: Exclude.
