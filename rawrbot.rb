@@ -3,14 +3,12 @@
 # Licensed under the GPLv3 or any later version.
 # An irc bot implemented in Ruby, using the Cinch framework from:
 # https://github.com/cinchrb/cinch
-$pwd = Dir.pwd
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-
-gem 'cinch', '2.2.4'
 require 'cinch'
 require 'yaml'
 
-config_hash = YAML.load(File.read("config/config.yml"))
+config_hash = YAML.load(File.read('config/config.yml'))
+$pwd = Dir.pwd
+$LOAD_PATH.unshift(File.dirname(__FILE__))
 $admins = config_hash['admins']
 
 plugins = []
@@ -36,8 +34,8 @@ bot = Cinch::Bot.new do
 
   # Authenticate with NickServ.
   # This is specifically designed for Charybdis IRCD.
-  on :connect do |m|
-    if (config_hash.has_key? 'nickpass')
+  on :connect do
+    if (config_hash.key?('nickpass'))
       if (bot.nick != config_hash['nick'])
         User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
       end
@@ -47,7 +45,11 @@ bot = Cinch::Bot.new do
 end
 
 # Make CTRL+C shut down the bot cleanly.
-Kernel.trap('INT') { bot.quit(config_hash['quitmsg']) }
+quit_thread = nil
+Kernel.trap('INT') do
+  quit_thread = Thread.new { bot.quit(config_hash['quitmsg']) }
+end
 
 # Launch the bot.
 bot.start
+quit_thread.join
