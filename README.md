@@ -32,7 +32,7 @@ Quick Start Guide:
 
 * Install a compatible Ruby
 
-    `rvm install 1.9.3`
+    `rvm install 2.2.4`
 
 * Install Bundler
 
