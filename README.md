@@ -12,7 +12,7 @@ Requirements:
 -------------
 
 Rawrbot itself requires
-* Ruby v1.9.x, and
+* Ruby v2.2.4, and
 * The 'Cinch' Ruby gem.
 
 Individual plugins have their own requirements, which are listed at the top of the plugin file.
@@ -53,6 +53,8 @@ Samples are provided for the main Rawrbot config file and for each of the plugin
 * Run the bot within screen or tmux.
 
     `./rawrbot.rb`
+
+Note that Rawrbot will run on Windows as well. The steps for setting it up are roughly the same, although you probably won't be using RVM as your Ruby version manager.
 
 Contributing to Rawrbot:
 ------------------------
