@@ -51,10 +51,10 @@ class Karma
   # does not exist in the DB, it has neutral (0) karma.
   def display_karma(m, element)
     karma_value = @@karma_db[element.downcase.strip]
-    if !karma_value.nil?
-      m.reply("#{element.strip} has karma of #{karma_value}.")
-    else
+    if karma_value.nil?
       m.reply("#{element.strip} has neutral karma.")
+    else
+      m.reply("#{element.strip} has karma of #{karma_value}.")
     end
   end
 
