@@ -16,9 +16,7 @@ RSpec.describe 'Karma' do
   let(:table) { 'karma' }
 
   before(:each) do
-    @bot = make_bot
-    @bot.loggers.level = :error
-    @bot.plugins.register_plugin(Karma)
+    @bot = new_bot_with_plugins(Karma)
     @db = KeyValueDatabase::SQLite.new(db_file) do |config|
       config.key_type = String
       config.value_type = Integer
@@ -293,47 +291,46 @@ RSpec.describe 'Karma' do
 
   context 'key has an existing karma value that is not 1 or -1' do
     [-9999, -4, 32, 10601].each do |val|
-      let(:karma_value) { val }
 
       context 'with a single-word key' do
         let(:karma_key) { 'imatestkey' }
 
         before(:each) do
-          set_db_key_value(karma_key, karma_value)
+          set_db_key_value(karma_key, val)
         end
 
-        it 'shows existing karma value' do
+        it "shows existing karma value of #{val}" do
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val}."
         end
-        it 'shows karma as 1 more after incrementing' do
+        it "shows karma as 1 more after incrementing #{val}" do
           msg = make_message(@bot, "#{karma_key}++", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value + 1}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val + 1}."
         end
         it 'shows karma as 2 more after incrementing twice in one line' do
           msg = make_message(@bot, "#{karma_key}++ #{karma_key}++", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value + 2}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val + 2}."
         end
         it 'shows karma as 1 fewer after decrementing' do
           msg = make_message(@bot, "#{karma_key}--", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value - 1}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val - 1}."
         end
         it 'shows karma as 2 fewer after decrementing twice in one line' do
           msg = make_message(@bot, "#{karma_key}-- #{karma_key}--", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value - 2}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val - 2}."
         end
       end
 
@@ -341,41 +338,41 @@ RSpec.describe 'Karma' do
         let(:karma_key) { 'multi word key' }
 
         before(:each) do
-          set_db_key_value(karma_key, karma_value)
+          set_db_key_value(karma_key, val)
         end
 
         it 'shows existing karma value' do
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val}."
         end
         it 'shows karma as 1 more after incrementing' do
           msg = make_message(@bot, "(#{karma_key})++", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value + 1}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val + 1}."
         end
         it 'shows karma as 2 more after incrementing twice in one line' do
           msg = make_message(@bot, "(#{karma_key})++ (#{karma_key})++", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value + 2}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val + 2}."
         end
         it 'shows karma as 1 fewer after decrementing' do
           msg = make_message(@bot, "(#{karma_key})--", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value - 1}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val - 1}."
         end
         it 'shows karma as 2 fewer after decrementing twice in one line' do
           msg = make_message(@bot, "(#{karma_key})-- (#{karma_key})--", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
-          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{karma_value - 2}."
+          expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val - 2}."
         end
       end
     end
