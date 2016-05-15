@@ -5,7 +5,6 @@
 # Requirements:
 # - The Ruby gem 'sqlite3' must be installed.
 #
-# noinspection RubyClassVariableUsageInspection
 class Karma
   include Cinch::Plugin
 
@@ -35,7 +34,7 @@ class Karma
   # doesn't grow any larger than it has to.
   def increment_all(m)
     m.message.scan(/\([^)]+\)\+\+|\S+\+\+/).each do |element|
-      increment(element)
+      increment(strip_parens(strip_operator(element.downcase)))
     end
   end
 
@@ -44,20 +43,18 @@ class Karma
   # doesn't grow any larger than it has to.
   def decrement_all(m)
     m.message.scan(/\([^)]+\)--|\S+--/).each do |element|
-      decrement(element)
+      decrement(strip_parens(strip_operator(element.downcase)))
     end
   end
 
   # Displays the current karma level of the requested element. If the element
   # does not exist in the DB, it has neutral (0) karma.
-  def display_karma(m, key)
-    key.downcase!
-    key.strip!
-    karma_value = @@karma_db[key]
-    if !karma_value.nil?
-      m.reply("#{key} has karma of #{karma_value}.")
+  def display_karma(m, element)
+    karma_value = @@karma_db[element.downcase.strip]
+    if karma_value.nil?
+      m.reply("#{element.strip} has neutral karma.")
     else
-      m.reply("#{key} has neutral karma.")
+      m.reply("#{element.strip} has karma of #{karma_value}.")
     end
   end
 
@@ -86,39 +83,37 @@ EOS
   private
 
   def increment(element)
-    element.downcase!
-    if element =~ /\((.+)\)\+\+/
-      key = $1
-    elsif element =~ /(\S+)\+\+/
-      key = $1
-    else
-      return
-    end
-
-    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
+    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
     if karma_value == -1
-      @@karma_db.delete(key)
+      @@karma_db.delete(element)
     else
-      @@karma_db[key] = karma_value + 1
+      @@karma_db[element] = karma_value + 1
     end
   end
 
   def decrement(element)
-    element.downcase!
-    if element =~ /\((.+)\)--/
-      key = $1
-    elsif element =~ /(\S+)--/
-      key = $1
-    else
-      return
-    end
-
-    karma_value = @@karma_db[key] ? @@karma_db[key] : 0
+    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
     if karma_value == 1
-      @@karma_db.delete(key)
+      @@karma_db.delete(element)
     else
-      @@karma_db[key] = karma_value - 1
+      @@karma_db[element] = karma_value - 1
     end
+  end
+
+  def strip_operator(element)
+    if element.end_with?('++')
+      return element.chomp('++')
+    elsif element.end_with?('--')
+      return element.chomp('--')
+    end
+    element
+  end
+
+  def strip_parens(element)
+    if element.start_with?('(') && element.end_with?(')')
+      return element[1, element.length - 2]
+    end
+    element
   end
 
   def init_db
