@@ -23,6 +23,15 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..'))
 require 'cinch'
 require 'cinch/test'
 
+def new_bot_with_plugins(*plugins)
+  bot = make_bot
+  bot.loggers.level = :error
+  plugins.each do |plugin|
+    bot.plugins.register_plugin(plugin)
+  end
+  bot
+end
+
 RSpec.configure do |config|
   config.include(Cinch::Test)
   # rspec-expectations config goes here. You can use an alternate

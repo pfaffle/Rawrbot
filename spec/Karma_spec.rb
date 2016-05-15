@@ -16,9 +16,7 @@ RSpec.describe 'Karma' do
   let(:table) { 'karma' }
 
   before(:each) do
-    @bot = make_bot
-    @bot.loggers.level = :error
-    @bot.plugins.register_plugin(Karma)
+    @bot = new_bot_with_plugins(Karma)
     @db = KeyValueDatabase::SQLite.new(db_file) do |config|
       config.key_type = String
       config.value_type = Integer
@@ -291,10 +289,8 @@ RSpec.describe 'Karma' do
     end
   end
 
-  context 'key has an existing karma value that is not 1 or -1' do
-    [-9999, -4, 32, 10601].each do |val|
-      let(:karma_value) { val }
-
+  [-9999, -4, 32, 10601].each do |karma_value|
+    context "key has an existing karma value of #{karma_value}" do
       context 'with a single-word key' do
         let(:karma_key) { 'imatestkey' }
 
