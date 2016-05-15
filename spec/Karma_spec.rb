@@ -289,9 +289,8 @@ RSpec.describe 'Karma' do
     end
   end
 
-  context 'key has an existing karma value that is not 1 or -1' do
-    [-9999, -4, 32, 10601].each do |val|
-
+  [-9999, -4, 32, 10601].each do |val|
+    context "key has an existing karma value of #{val}" do
       context 'with a single-word key' do
         let(:karma_key) { 'imatestkey' }
 
@@ -299,12 +298,12 @@ RSpec.describe 'Karma' do
           set_db_key_value(karma_key, val)
         end
 
-        it "shows existing karma value of #{val}" do
+        it 'shows existing karma value' do
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
           expect(get_replies(msg).length).to eq 1
           expect(get_replies(msg)[0].text).to eq "#{karma_key} has karma of #{val}."
         end
-        it "shows karma as 1 more after incrementing #{val}" do
+        it 'shows karma as 1 more after incrementing' do
           msg = make_message(@bot, "#{karma_key}++", channel: '#testchan')
           expect(get_replies(msg).length).to eq 0
           msg = make_message(@bot, "!karma #{karma_key}", channel: '#testchan')
