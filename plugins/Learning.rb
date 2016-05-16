@@ -42,18 +42,18 @@ class Learning
   # from the bot.
   #
   def execute(m)
-    if (is_bot_addressed?(m) && is_not_prefixed_command?(m))
-      if (message_without_bot_nick(m).match(/(.+?) is (also )?(.+)/i))
+    if is_bot_addressed?(m) && is_not_prefixed_command?(m)
+      if message_without_bot_nick(m).match(/(.+?) is (also )?(.+)/i)
         learn(m, $1, $3)
-      elsif (message_without_bot_nick(m).match(/(.+?) are (also )?(.+)/i))
+      elsif message_without_bot_nick(m).match(/(.+?) are (also )?(.+)/i)
         learn(m, $1, $3)
-      elsif (message_without_bot_nick(m).match(/(.+) =~ s\/(.+)\/(.*)\//i))
+      elsif message_without_bot_nick(m).match(/(.+) =~ s\/(.+)\/(.*)\//i)
         edit(m, $1, $2, $3)
-      elsif (message_without_bot_nick(m).match(/forget (.+)/i))
+      elsif message_without_bot_nick(m).match(/forget (.+)/i)
         forget(m, $1)
-      elsif (message_without_bot_nick(m).match(/literal(ly)? (.+)/i))
+      elsif message_without_bot_nick(m).match(/literal(ly)? (.+)/i)
         literal(m, $2)
-      elsif (message_without_bot_nick(m).match(/(.+)/i))
+      elsif message_without_bot_nick(m).match(/(.+)/i)
         teach(m, $1)
       else
         respond(m)
@@ -62,12 +62,11 @@ class Learning
   end
 
   def is_bot_addressed?(m)
-    return m.message.match(/^#{m.bot.nick}[:,-]?/i) || \
-           m.channel.nil?
+    !m.message.match(/^#{m.bot.nick}[:,-]?/i).nil? || m.channel.nil?
   end
 
   def is_not_prefixed_command?(m)
-    return !m.message.start_with?(m.bot.config.plugins.prefix)
+    m.message.match(m.bot.config.plugins.prefix).nil?
   end
 
   def message_without_bot_nick(m)
