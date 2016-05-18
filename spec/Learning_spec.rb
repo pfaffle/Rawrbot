@@ -40,11 +40,11 @@ describe 'Learning' do
     @db = KeyValueDatabase::SQLite.new(db_file) do |config|
       config.table = table
     end
-    #@bot.plugins[0].use_db(@db)
+    # @bot.plugins[0].use_db(@db)
   end
   after(:each) do
     @db.close
-    #File.delete(db_file)
+    # File.delete(db_file)
   end
 
   context 'bot does not know of item' do
