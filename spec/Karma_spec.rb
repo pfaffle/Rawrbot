@@ -1,15 +1,5 @@
 require 'plugins/Karma'
-
-def delete_key_from_db(key)
-  @db.delete(key)
-  expect(@db.get(key)).to eq nil
-end
-
-def set_db_key_value(key, val)
-  delete_key_from_db(key)
-  @db.set(key, val)
-  expect(@db.get(key)).to eq val
-end
+require 'database_helper'
 
 RSpec.describe 'Karma' do
   let(:db_file) { 'test_karma.sqlite3' }
@@ -33,7 +23,7 @@ RSpec.describe 'Karma' do
     context 'with a single-word key' do
       let(:karma_key) { 'imatestkey' }
       before(:each) do
-        delete_key_from_db(karma_key)
+        delete_key_from_db(@db, karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -74,7 +64,7 @@ RSpec.describe 'Karma' do
     context 'with a multi-word key' do
       let(:karma_key) { 'multi word key' }
       before(:each) do
-        delete_key_from_db(karma_key)
+        delete_key_from_db(@db, karma_key)
       end
 
       it 'shows karma as neutral' do
@@ -120,7 +110,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'imatestkey' }
 
       before(:each) do
-        set_db_key_value(karma_key, karma_value)
+        set_db_key_value(@db, karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -162,7 +152,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'multi word key' }
 
       before(:each) do
-        set_db_key_value(karma_key, karma_value)
+        set_db_key_value(@db, karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -208,7 +198,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'imatestkey' }
 
       before(:each) do
-        set_db_key_value(karma_key, karma_value)
+        set_db_key_value(@db, karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -250,7 +240,7 @@ RSpec.describe 'Karma' do
       let(:karma_key) { 'multi word key' }
 
       before(:each) do
-        set_db_key_value(karma_key, karma_value)
+        set_db_key_value(@db, karma_key, karma_value)
       end
 
       it 'shows existing karma value' do
@@ -295,7 +285,7 @@ RSpec.describe 'Karma' do
         let(:karma_key) { 'imatestkey' }
 
         before(:each) do
-          set_db_key_value(karma_key, karma_value)
+          set_db_key_value(@db, karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
@@ -337,7 +327,7 @@ RSpec.describe 'Karma' do
         let(:karma_key) { 'multi word key' }
 
         before(:each) do
-          set_db_key_value(karma_key, karma_value)
+          set_db_key_value(@db, karma_key, karma_value)
         end
 
         it 'shows existing karma value' do
