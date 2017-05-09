@@ -1,92 +1,65 @@
+require 'net/ldap'
+require 'yaml'
+
 class LdapHelper
+  DEFAULT_CONFIG_FILE = 'config/ldap.yml'
 
-    require 'net/ldap'
-    require 'yaml'
+  def initialize(config)
+    @config = config.dup
+    @config['basedn'] ||= ''
+    validate_config
+  end
 
-    # Function: initialize
-    #
-    # Description:
-    #   Constructs an LdapHelper object. Reads the ldap.yml config file and
-    #   initializes the object to search for one particular LDAP server
-    #   (provider) defined in that config file.
-    # Arguments:
-    #   The LDAP provider for this object to search.
-    #
-    # Returns:
-    #   An LdapHelper object.
-    def initialize(provider)
-        configfile = YAML.load(File.read("config/ldap.yml"))
-        @config = configfile[provider]
+  def self.load_from_yaml_file(path, key)
+    LdapHelper.new(YAML.load(File.read(path))[key])
+  end
+
+  def search(attribute, query_string)
+    server.search(:filter => Net::LDAP::Filter.eq(attribute, query_string))
+  end
+
+  def bind
+    server.bind
+  end
+
+  def parse_date(date)
+    match = date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/
+    return nil unless match
+    Time.mktime(match[0], match[1], match[2], match[3], match[4], match[5])
+  end
+
+  private
+
+  def encryption
+    return nil unless @config['encryption']
+    :simple_tls
+  end
+
+  def server
+    Net::LDAP.new(
+      :host => @config['server'],
+      :port => @config['port'],
+      :auth => auth,
+      :encryption => encryption,
+      :base => @config['basedn']
+    )
+  end
+
+  def auth
+    if @config['username'].nil?
+      { method: :anonymous }
+    else
+      {
+        method: :simple,
+        username: @config['username'],
+        password: @config['password']
+      }
     end
+  end
 
-    # Function: search
-    #
-    # Description:
-    #   Connects to the LDAP server with the current configuration, then
-    #   performs the specified search. Returns all results found.
-    #
-    # Arguments:
-    #   - attr:   A string that specifies the attribute that you are
-    #             searching by, e.g. uid.
-    #   - query:  The value of the attribute that you are searching for.
-    #
-    # Returns:
-    #   A Hash table containing keys which correspond with LDAP attributes,
-    #   and values which correspond to the values of those attributes in the
-    #   LDAP search results.
-    def search(attr,query)
-        # Get configuration ready.
-        server = @config['server']
-        port   = @config['port']
-        auth   = { :method => :simple,
-                   :username => @config['username'],
-                   :password => @config['password']
-                 }
-        base   = @config['basedn']
-        if (!@config['encryption'].nil?)
-            encryption = @config['encryption'].to_sym
-        end
-
-        result = Net::LDAP::Entry.new()
-
-        # Perform the search.
-        Net::LDAP.open(:host => server, :port => port, :auth => auth,
-                       :encryption => encryption, :base => base) do |ldap|
-            if (!ldap.bind())
-                result = false
-            else
-                filter = Net::LDAP::Filter.eq(attr,query)
-                result = ldap.search(:filter => filter)
-            end
-        end
-
-        return result
+  def validate_config
+    %w(server port).each do |key|
+      fail "Missing required LDAP config param: #{key}" if @config[key].nil?
     end
-    
-    # Function: parse_date
-    #
-    # Description:
-    #   Parses a String containing a date in Zulu time, and returns
-    #   it as a Time object.
-    #
-    # Arguments:
-    #   - A String, containing a date/time in Zulu time:
-    #     yyyymmddhhmmssZ
-    #
-    # Returns:
-    #   An instance of class Time, containing the date and time.
-    def parse_date date
-        unless date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/
-            return nil
-        end
-
-        year = $1
-        month = $2
-        day = $3
-        hour = $4
-        min = $5
-        sec = $6
-
-        return Time.mktime(year, month, day, hour, min, sec)
-    end
+  end
 end
