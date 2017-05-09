@@ -10,8 +10,8 @@
 #        - Server configuration and authentication information for NET-LDAP in the
 #          file 'ldap.yml'.
 #        - Rawrbot must be running on PSU's IP space (131.252.x.x). OIT's
-#          authenticated LDAP directory (what rawrbot uses in this module) is
-#          inaccessible otherwise.
+#          LDAP directory (what rawrbot uses in this module) is inaccessible
+#          otherwise.
 class CATldap
     include Cinch::Plugin
 
@@ -20,8 +20,10 @@ class CATldap
 
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
-    @@catldap = LdapHelper.new('cat')
-    @@oitldap = LdapHelper.new('oit')
+    @@catldap = LdapHelper.load_from_yaml_file(
+      LdapHelper::DEFAULT_CONFIG_FILE, 'cat')
+    @@oitldap = LdapHelper.load_from_yaml_file(
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
 
     match(/help ldap$/i, method: :ldap_help)
     match(/help phone$/i, method: :phone_help)

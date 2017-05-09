@@ -20,8 +20,10 @@ class USSCATldap
 
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
-    @@catldap = LdapHelper.new('cat')
-    @@oitldap = LdapHelper.new('oit')
+    @@catldap = LdapHelper.load_from_yaml_file(
+      LdapHelper::DEFAULT_CONFIG_FILE, 'cat')
+    @@oitldap = LdapHelper.load_from_yaml_file(
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
 
     match(/help catldap$/i, method: :catldap_help)
     match("help", method: :help)

@@ -8,7 +8,8 @@ class Fdr
     match(/fdr (\w+)$/)
 
     def execute(m, query)
-        ldap = LdapHelper.new('cecs')
+        ldap = LdapHelper.load_from_yaml_file(
+          LdapHelper::DEFAULT_CONFIG_FILE, 'cecs')
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
             m.reply("Invalid search query '#{query}'")

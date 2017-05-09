@@ -20,7 +20,8 @@ class OITldap
     
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
-    @@oitldap = LdapHelper.new('oit')
+    @@oitldap = LdapHelper.load_from_yaml_file(
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
 
     match(/help ldap$/i, method: :ldap_help)
     match(/help phone$/i, method: :phone_help)
