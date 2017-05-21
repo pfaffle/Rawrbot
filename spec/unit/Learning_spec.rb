@@ -17,6 +17,15 @@ RSpec::Matchers.define :be_an_acknowledgement do
   end
 end
 
+RSpec::Matchers.define :be_a_successful_edit do
+  # When using cinch-test, the nick of the user sending the message is
+  # always 'test' and can't be overridden.
+  usr = 'test'
+  match do |actual|
+    "done, #{usr}." == actual.text
+  end
+end
+
 RSpec::Matchers.define :give_up do
   # When using cinch-test, the nick of the user sending the message is
   # always 'test' and can't be overridden.
@@ -29,7 +38,7 @@ RSpec::Matchers.define :give_up do
 end
 
 describe 'Learning' do
-  let(:db_file) { 'learning.sqlite3' }
+  let(:db_file) { 'test_learning.sqlite3' }
   let(:table) { 'learning' }
   let(:bot_nick) { 'testbot' }
 
@@ -40,11 +49,11 @@ describe 'Learning' do
     @db = KeyValueDatabase::SQLite.new(db_file) do |config|
       config.table = table
     end
-    # @bot.plugins[0].use_db(@db)
+    @bot.plugins[0].use_db(@db)
   end
   after(:each) do
     @db.close
-    # File.delete(db_file)
+    File.delete(db_file)
   end
 
   context 'bot does not know of item' do
@@ -60,43 +69,84 @@ describe 'Learning' do
       replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.length).to eq 1
       expect(replies.first).to give_up
-      expect(@db[key]).to be(nil)
     end
 
     it 'should literally admit it' do
       replies = get_replies_to("#{bot_nick}: literal #{key}")
       expect(replies.length).to eq 1
       expect(replies.first.text).to eq("No entry for #{key}")
-      expect(@db[key]).to be(nil)
     end
 
     it 'should not be able to forget it' do
       replies = get_replies_to("#{bot_nick}: forget #{key}")
       expect(replies.length).to eq 1
       expect(replies.first.text).to eq("I don't know anything about #{key}.")
-      expect(@db[key]).to be(nil)
     end
 
     it 'should not be able to edit it' do
       replies = get_replies_to("#{bot_nick}: #{key} =~ s/foo/bar/")
       expect(replies.length).to eq 1
       expect(replies.first.text).to eq("I don't know anything about #{key}.")
-      expect(@db[key]).to be(nil)
     end
 
-    it 'should learn' do
+    it 'should learn in a case-insensitive way' do
       replies = get_replies_to("#{bot_nick}: #{key} is #{value}")
       expect(replies.length).to eq 1
       expect(replies.first).to be_an_acknowledgement
-      expect(@db[key]).to eq(value)
-    end
-
-    it 'should learn using a lowercase key' do
-      replies = get_replies_to("#{bot_nick}: #{key.upcase} is #{value}")
+      replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.length).to eq 1
-      expect(replies.first).to be_an_acknowledgement
-      expect(@db[key.upcase]).to be(nil)
-      expect(@db[key.downcase]).to eq(value)
+      expect(replies.first.text).to eq("#{key} is #{value}.")
     end
   end
+
+  context 'bot knows of item' do
+    let(:key) { 'foo' }
+    let(:value) { 'bar' }
+    let(:channel) { '#testchan' }
+
+    before(:each) do
+      set_db_key_value(@db, key, value)
+    end
+
+    it 'should teach it' do
+      replies = get_replies_to("#{bot_nick}: #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("#{key} is #{value}.")
+    end
+
+    it 'should literally teach it' do
+      replies = get_replies_to("#{bot_nick}: literal #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("#{key} =is= #{value}.")
+    end
+
+    it 'should be able to forget it' do
+      replies = get_replies_to("#{bot_nick}: forget #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("I forgot #{key}.")
+      replies = get_replies_to("#{bot_nick}: #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first).to give_up
+    end
+
+    it 'should be able to edit it' do
+      replies = get_replies_to("#{bot_nick}: #{key} =~ s/#{value}/baz/")
+      expect(replies.length).to eq 1
+      expect(replies.first).to be_a_successful_edit
+      replies = get_replies_to("#{bot_nick}: #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("#{key} is baz.")
+    end
+
+    it 'should be able to add to it' do
+      replies = get_replies_to("#{bot_nick}: #{key} is baz")
+      expect(replies.length).to eq 1
+      expect(replies.first).to be_an_acknowledgement
+      replies = get_replies_to("#{bot_nick}: #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("#{key} is #{value} or baz.")
+    end
+  end
+
+  # TODO: add some tests around |, <who> and <reply> special cases
 end
