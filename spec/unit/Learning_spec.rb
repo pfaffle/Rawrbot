@@ -35,11 +35,11 @@ describe 'Learning' do
   let(:db_file) {'test_learning.sqlite3'}
   let(:table) {'learning'}
   let(:bot_nick) {'testbot'}
-
+  let(:prefix) { /^!/ }
   before(:each) do
     @bot = new_bot_with_plugins(Learning)
     @bot.set_nick(bot_nick)
-    @bot.config.prefix = '!'
+    @bot.config.plugins.prefix = prefix
     @db = KeyValueDatabase::SQLite.new(db_file) do |config|
       config.table = table
     end
@@ -90,6 +90,15 @@ describe 'Learning' do
       replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.length).to eq 1
       expect(replies.first.text).to eq("#{key} is #{value}.")
+    end
+
+    it 'should be able to learn an entry with the configured prefix in it' do
+      replies = get_replies_to("#{bot_nick}: #{key} is #{prefix}#{value}")
+      expect(replies.length).to eq 1
+      expect(replies.first).to be_an_acknowledgement
+      replies = get_replies_to("#{bot_nick}: #{key}")
+      expect(replies.length).to eq 1
+      expect(replies.first.text).to eq("#{key} is #{prefix}#{value}.")
     end
   end
 
