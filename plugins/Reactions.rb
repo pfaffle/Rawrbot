@@ -7,7 +7,7 @@ class Reactions
 
   def initialize(*args)
     super
-    @reactions = YAML.load(File.read("config/reactions.yml"))
+    @reactions = YAML.safe_load(File.read("config/reactions.yml"))
   end
 
   def execute(m)

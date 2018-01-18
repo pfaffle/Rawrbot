@@ -6,7 +6,7 @@
 require 'cinch'
 require 'yaml'
 
-config_hash = YAML.load(File.read('config/config.yml'))
+config_hash = YAML.safe_load(File.read('config/config.yml'))
 $pwd = Dir.pwd
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $admins = config_hash['admins']
@@ -35,7 +35,7 @@ bot = Cinch::Bot.new do
   # Authenticate with NickServ.
   # This is specifically designed for Charybdis IRCD.
   on :connect do
-    if (config_hash.key?('nickpass'))
+    if config_hash.key?('nickpass')
       if (bot.nick != config_hash['nick'])
         User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
       end

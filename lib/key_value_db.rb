@@ -60,7 +60,7 @@ class KeyValueDatabase
         String => 'TEXT',
         Integer => 'INT'
       }
-      fail("Unsupported type #{type}") if map[type].nil?
+      raise("Unsupported type #{type}") if map[type].nil?
       map[type]
     end
   end
