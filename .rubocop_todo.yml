@@ -91,3 +91,11 @@ Style/IfInsideElse:
     - 'plugins/Learning.rb'
     - 'plugins/RTSearch.rb'
 
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Performance/UnfreezeString:
+  Enabled: false
+
+Performance/RegexpMatch:
+  Enabled: false
