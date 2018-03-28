@@ -24,10 +24,10 @@ class LockOutTime
 	    result = ldap.search('sAMAccountName',query)
 	
 	    # Check for errors.
-	    if (!result)
+	    if !result
 	        m.reply "Error: LDAP query failed. Check configuration.\n"
 	        return
-	    elsif (result.empty?)
+	    elsif result.empty?
 	        User(m.user.nick).send("Error: No results.\n")
 	        return
 	    end
@@ -35,11 +35,11 @@ class LockOutTime
 	    catEntry = result[0]
 	    time = catEntry[:lockouttime][0]
 	
-	    if time.to_s == "0"
-	        reply = "Account is not locked."
-	    else
-	        reply = "Account has been locked since #{util.dos2unixtime(time)}."
-	    end
+	    reply = if time.to_s == "0"
+	        "Account is not locked."
+	            else
+	        "Account has been locked since #{util.dos2unixtime(time)}."
+	            end
 
 	    m.reply(reply)
     end

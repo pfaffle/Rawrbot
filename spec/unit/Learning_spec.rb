@@ -19,7 +19,7 @@ end
 
 RSpec::Matchers.define :be_a_successful_edit do
   match do |actual|
-    'done, test.' == actual.text
+    actual.text == 'done, test.'
   end
 end
 
@@ -183,7 +183,8 @@ describe 'Learning' do
 
     it 'should be able to edit it' do
       replies = get_replies_to(
-        "#{bot_nick}: #{key} =~ s/#{Regexp.escape(value)}/baz/")
+        "#{bot_nick}: #{key} =~ s/#{Regexp.escape(value)}/baz/"
+      )
       expect(replies.length).to eq 1
       expect(replies.first).to be_a_successful_edit
       replies = get_replies_to("#{bot_nick}: #{key}")
@@ -236,7 +237,8 @@ describe 'Learning' do
 
     it 'should be able to edit it' do
       replies = get_replies_to(
-        "#{bot_nick}: #{key} =~ s/#{Regexp.escape(value)}/baz/")
+        "#{bot_nick}: #{key} =~ s/#{Regexp.escape(value)}/baz/"
+      )
       expect(replies.length).to eq 1
       expect(replies.first).to be_a_successful_edit
       replies = get_replies_to("#{bot_nick}: #{key}")

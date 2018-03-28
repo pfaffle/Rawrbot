@@ -21,10 +21,10 @@ class Pods
         result = ldap.search('uid',query)
 
         # Check for errors.
-        if (!result)
+        if !result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (result.empty?)
+        elsif result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end

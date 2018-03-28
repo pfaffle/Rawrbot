@@ -10,7 +10,7 @@ class Ganeti
     match(/ganeti (\w+ \w+ \w+)$/, method: :ganetiQuery)
 
     def config
-      YAML.load(File.read("config/ganeti.yml"))
+      YAML.safe_load(File.read("config/ganeti.yml"))
     end
 
     def connectHttp
@@ -62,7 +62,7 @@ class Ganeti
         if resp.code !~ /2[0-9][0-9]/
           m.reply("HTTP error #{resp.code}!")
         else
-          m.reply("#{property} for #{host}: #{parsed["#{property}"]}")
+          m.reply("#{property} for #{host}: #{parsed[property.to_s]}")
         end
       else
         m.reply("#{host} is not a valid host.")

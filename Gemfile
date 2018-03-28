@@ -2,12 +2,12 @@ source 'http://rubygems.org'
 
 ruby '~> 2.2'
 gem 'cinch', '2.2.4'
+gem 'cinch-test'
 gem 'ffi'
+gem 'rake'
 gem 'rspec'
 gem 'rspec-mocks'
-gem 'cinch-test'
-gem 'rake', '<11'
-gem 'rubocop', '~> 0.34.2', require: false
+gem 'rubocop', require: false
 
 # Required by plugins: UrbanDictionary, UrlTitle 
 gem 'nokogiri'
@@ -16,8 +16,7 @@ gem 'nokogiri'
 gem 'json_pure'
 
 # Required by plugins: CATLdap, OITLdap, USSCATLdap
-# net-ldap dropped support for Ruby 1.9.3 in their 0.13.0 release.
-gem 'net-ldap', '0.12.0'
+gem 'net-ldap'
 
 # Required by plugins: GoogleRSS
 gem 'sanitize'

@@ -9,7 +9,8 @@ class Fdr
 
     def execute(m, query)
         ldap = LdapHelper.load_from_yaml_file(
-          LdapHelper::DEFAULT_CONFIG_FILE, 'cecs')
+          LdapHelper::DEFAULT_CONFIG_FILE, 'cecs'
+        )
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
             m.reply("Invalid search query '#{query}'")
@@ -21,10 +22,10 @@ class Fdr
         result = ldap.search('sAMAccountName',query)
 
         # Check for errors.
-        if (!result)
+        if !result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (result.empty?)
+        elsif result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end

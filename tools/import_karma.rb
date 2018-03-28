@@ -26,7 +26,7 @@ source = ARGV[0]
 target = 'karma.sqlite3'
 
 # Check if input file exists.
-if !(File.exists?(source))
+if !File.exists?(source)
   abort("Source file #{source} not found. Aborting.\n")
 end
 
@@ -44,7 +44,7 @@ File.open(source, 'r:UTF-8') do |file|
       line.delete!("\r")
       line.delete!("\n")
       line =~ /(.+)#{delimiter}(.+)/i 
-    rescue => e
+    rescue StandardError => e
       warn("Failed to parse line. Error: #{e}\nLine: #{line}")
       next
     end
@@ -53,14 +53,14 @@ File.open(source, 'r:UTF-8') do |file|
     r = db.get_first_value("SELECT val FROM karma WHERE key=?", key)
     begin
       next if (val == '0')
-      if (r.nil?)
+      if r.nil?
         # Element does not yet exist in the db; insert it.
         db.execute("INSERT INTO karma (key,val) VALUES (?,?)", key, val)
       else
         # Element already exists in the db; update it.
         db.execute("UPDATE karma SET val=? WHERE key=?", val, key)
       end
-    rescue => e
+    rescue StandardError => e
       warn("Failed to insert data. Error: #{e}\nLine: #{line}")
       next
     end
