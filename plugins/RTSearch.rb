@@ -40,32 +40,30 @@ class RTSearch
 
             # Assemble a list of ticket numbers to search for.
             templist = m.message.scan(/(rt#|rt|#)?(\d{1,6})\b/i)
-            if (!templist.nil?)
+            if !templist.nil?
                 # Filter out entries that are probably not ticket numbers.
                 templist.each do |maybeticket|
-                    if (maybeticket[0].nil?)
+                    if maybeticket[0].nil?
                         # Did not have a 'rt' and/or '#' prefix to the number.
                         # Don't be verbose with these.
                         if (maybeticket[1].size() == 6)
-                            ticket_list["#{maybeticket[1]}"] = false
+                            ticket_list[(maybeticket[1]).to_s] = false
                         end
-                    else
+                    elsif (maybeticket[1].size() < 7)
                         # Explicitly marked as a ticket number with "#" or "RT#".
                         # Be verbose if not a valid ticket.
-                        if (maybeticket[1].size() < 7)
-                            ticket_list["#{maybeticket[1]}"] = true
-                        end
+                        ticket_list[(maybeticket[1]).to_s] = true
                     end
                 end
             end
-            if (ticket_list.size() > 0)
+            if !ticket_list.empty?
                 rt_search m,ticket_list
             end
             # --- REMINDER: COMMENT 3 THREE LINES BELOW WHEN TESTING.
         elsif (m.message =~ /rt#\d{1,6}\b/i)
             m.reply "[RT] Ticket searches not allowed here."
         end
-    end # End of execute function
+    end
 
     # Function: rt_search
     # 
@@ -97,9 +95,9 @@ class RTSearch
                 # Parse the data retrieved about the ticket into a Hash variable.
                     data = data.split(/\n+/)
                     data.each do |element|
-                        if element.match(/([^:]+): ?(.+)/)
+                        if element =~ /([^:]+): ?(.+)/
                             ticket[$1] = $2
-                        elsif element.match(/([^:]+):/)
+                        elsif element =~ /([^:]+):/
                         ticket[$1] = ''
                         end
                     end
@@ -111,15 +109,15 @@ class RTSearch
                 break
             end
         end
-    end # End of rt_search function
+    end
 
     # Function: quiet_load_config
     #
     # Description: Reloads configuration/authentication information used for
     #     interfacing with RT.
     def quiet_load_config(m)
-        @@config = YAML.load(File.read("config/rt.yml"))
-    end # End of quiet_load_config function
+        @@config = YAML.safe_load(File.read("config/rt.yml"))
+    end
 
     # Function: load_config
     #
@@ -128,7 +126,7 @@ class RTSearch
     def load_config(m)
         quiet_load_config(m)
         m.reply "RT config reloaded."
-    end # End of load_config function
+    end
 
     # Function: help
     #
@@ -138,7 +136,7 @@ class RTSearch
     def help(m)
         p = self.class.prefix.call(m)
         m.reply "See: #{p}help rtsearch"
-    end # End of help function
+    end
     
     # Function: rt_help
     #
@@ -151,5 +149,3 @@ class RTSearch
     end
 
 end
-# End of plugin: RTSearch
-# =============================================================================

@@ -2,7 +2,7 @@ require 'net/ldap'
 require 'yaml'
 
 class LdapHelper
-  DEFAULT_CONFIG_FILE = 'config/ldap.yml'
+  DEFAULT_CONFIG_FILE = 'config/ldap.yml'.freeze
 
   def initialize(config)
     @config = config.dup
@@ -11,7 +11,7 @@ class LdapHelper
   end
 
   def self.load_from_yaml_file(path, key)
-    LdapHelper.new(YAML.load(File.read(path))[key])
+    LdapHelper.new(YAML.safe_load(File.read(path))[key])
   end
 
   def search(attribute, query_string)
@@ -58,8 +58,8 @@ class LdapHelper
   end
 
   def validate_config
-    %w(server port).each do |key|
-      fail "Missing required LDAP config param: #{key}" if @config[key].nil?
+    %w[server port].each do |key|
+      raise "Missing required LDAP config param: #{key}" if @config[key].nil?
     end
   end
 end

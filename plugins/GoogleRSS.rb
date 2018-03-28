@@ -37,18 +37,18 @@ class GoogleRSS
     def start_ticker(m)
         quiet_start_ticker(m)
         m.reply "Google RSS: On"
-    end # End of start_ticker function.
+    end
 
     # Function: quiet_start_ticker
     #
     # Description:
     #     Start up the ticker silently.
     def quiet_start_ticker(m)
-        if (!@@active)
+        if !@@active
             @@active = true
             @@thread = Thread.new {run_ticker(m)}
         end
-    end # End of quiet_start_ticker function.
+    end
 
     # Function: stop_ticker
     #
@@ -57,7 +57,7 @@ class GoogleRSS
     def stop_ticker(m)
         quiet_stop_ticker(m)
         m.reply "Google RSS: Off"
-    end # End of stop_ticker function.
+    end
 
     # Function: quiet_stop_ticker
     #
@@ -66,7 +66,7 @@ class GoogleRSS
     def quiet_stop_ticker(m)
         @@active = false
         @@thread.kill
-    end # End of quiet_stop_ticker function.
+    end
 
     # Function: restart_ticker
     #
@@ -77,19 +77,19 @@ class GoogleRSS
         quiet_stop_ticker(m)
         quiet_start_ticker(m)
         m.reply "Google RSS: Restarted"
-    end # End of restart_ticker function.
+    end
 
     # Function: report_status
     #
     # Description: Notifies the user/channel of the current status of
     #     the Google RSS ticker.
     def report_status(m)
-        if (@@active)
+        if @@active
             m.reply "Google RSS: On"
         else
             m.reply "Google RSS: Off"
         end
-    end # End of report_status function.
+    end
 
     # Function: run_ticker
     #
@@ -97,7 +97,7 @@ class GoogleRSS
     #     Status tracker, then begins monitoring it for changes. Reports
     #     updates when they appear.
     def run_ticker(m)
-        config = YAML.load(File.read("config/google.yml"))
+        config = YAML.safe_load(File.read("config/google.yml"))
         source = "http://www.google.com/appsstatus/rss/en"
         current_msg = String.new
         
@@ -108,12 +108,12 @@ class GoogleRSS
         end
         rss = RSS::Parser.parse(raw, false)
 
-        if (rss.items.size > 0)
+        if !rss.items.empty?
             current_msg = rss.items[0].description
         end
 
         # Begin checking for new RSS messages.
-        while (@@active)
+        while @@active
             sleep(config['frequency'])
 
             raw = String.new
@@ -125,7 +125,7 @@ class GoogleRSS
             # If there are any entries in the RSS feed, check if they
             # are different from what we already have. If so, update, then
             # print them out.
-            if (rss.items.size > 0)
+            if !rss.items.empty?
                 if (rss.items[0].description != current_msg)
                     current_msg = rss.items[0].description
 
@@ -137,7 +137,7 @@ class GoogleRSS
                     msg_set.delete_if { |msg| msg.empty? }
     
                     reply = "[#{rss.items[0].title}] "
-                    reply << "#{msg_set[0]}"
+                    reply << (msg_set[0]).to_s
                     
                     # Report RSS results to each channel in the list.
                     config['channels'].each do |chname|
@@ -150,7 +150,7 @@ class GoogleRSS
             end
         end
 
-    end # End of run_ticker function.
+    end
     
     # Function: google_help
     #
@@ -166,7 +166,7 @@ class GoogleRSS
         reply << " #{p}rss off (to disable reporting)\n"
         reply << " #{p}rss restart (to restart reporting, or reload a new config)\n"
         m.reply reply
-    end # End of google_help function.
+    end
 
     # Function: help
     #
@@ -179,5 +179,3 @@ class GoogleRSS
     end
 
 end
-# End of plugin: Google RSS Feed
-# =============================================================================

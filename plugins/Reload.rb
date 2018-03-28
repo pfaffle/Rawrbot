@@ -13,7 +13,7 @@ class Reload
         plugindir = Dir.new("#{$pwd}/plugins")
         pname += '.rb' if !pname.end_with? '.rb'
         plugindir.each do |filename|
-            if pname.downcase == filename.downcase
+            if pname.casecmp(filename.downcase).zero?
                 return "#{plugindir.path}/#{filename}"
             end
         end
@@ -23,7 +23,7 @@ class Reload
     # Find plugin amongst loaded plugins, return the class object.
     def get_plugin_class(m, pname)
         m.bot.plugins.each do |plugin|
-            if pname.downcase == plugin.class.plugin_name.downcase
+            if pname.casecmp(plugin.class.plugin_name.downcase).zero?
                 return plugin
             end
         end

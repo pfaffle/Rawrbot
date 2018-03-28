@@ -38,6 +38,8 @@ environment:
   matrix:
     - RUBY_VERSION: 22
     - RUBY_VERSION: 22-x64
+    - RUBY_VERSION: 243
+    - RUBY_VERSION: 243-x64
 
 # scripts that run after cloning repository
 install:

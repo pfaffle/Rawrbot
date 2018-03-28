@@ -47,7 +47,7 @@ class Twitter
     # Description:
     #   Does what start_ticker does except without output.
     def quiet_start_ticker(m)
-        if (!@@active)
+        if !@@active
             @@active = true
             load "#{$pwd}/plugins/config/twitter_config.rb"
             twitter_config = return_twitter_config
@@ -90,7 +90,7 @@ class Twitter
     # Description:
     #   Does what stop_ticker does except without output.
     def quiet_stop_ticker(m)
-        if (@@active)
+        if @@active
             @@active = false
             @@threads.each do |thread|
                 thread.kill
@@ -117,7 +117,7 @@ class Twitter
     #   Reports the current status of the Twitter mod (i.e. on/off). If on, also reports
     #   what Twitter feeds are currently being monitored.
     def report_status(m)
-        if (@@active)
+        if @@active
             m.reply "Twitter Feed: On"
             reply = "Feeds subscribed to:"
             # Check if the current channel (or user) has subscribed to any feeds.
@@ -158,7 +158,7 @@ class Twitter
         wait_time = freq + offset
 
         # Begin checking and waiting for updates.
-        while (@@active)
+        while @@active
             sleep(wait_time)
                     
             resp, rawdata = http.get(query)
@@ -201,5 +201,3 @@ class Twitter
     end
 
 end
-# End of plugin: Twitter Feed
-# =============================================================================

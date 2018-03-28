@@ -21,7 +21,8 @@ class OITldap
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
     @@oitldap = LdapHelper.load_from_yaml_file(
-      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit'
+    )
 
     match(/help ldap$/i, method: :ldap_help)
     match(/help phone$/i, method: :phone_help)
@@ -64,10 +65,10 @@ class OITldap
         result = @@oitldap.search(attribute,query)
         
         # Check for errors.
-        if (!result)
+        if !result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (result.empty?)
+        elsif result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end
@@ -81,14 +82,14 @@ class OITldap
             
             # Determine if this is a sponsored account, and if so,
             # who the sponsor is.
-            if (oitEntry[:psusponsorpidm].empty?)
+            if oitEntry[:psusponsorpidm].empty?
                 reply << "Sponsored: no\n"
             else
                 # Look up sponsor's information.
                 reply << "Sponsored: yes\n"
                 sponsor_pidm = oitEntry[:psusponsorpidm][0]
                 # Fix some malformed psusponsorpidms.
-                if (!(sponsor_pidm =~ /^P/i))
+                if sponsor_pidm !~ /^P/i
                     sponsor_pidm = "P" + sponsor_pidm
                 end
                 
@@ -138,20 +139,20 @@ class OITldap
         query.downcase!
 
         # Determine what field to search and proceed to execute it.
-        if (query =~ /@pdx\.edu/)
-            attribute = 'mailLocalAddress'
-        else
-            attribute = 'uid'
-        end
+        attribute = if (query =~ /@pdx\.edu/)
+            'mailLocalAddress'
+                    else
+            'uid'
+                    end
         
         result = @@oitldap.search(attribute,query)
         reply = String.new()
         
         # Check for errors.
-        if (!result)
+        if !result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (result.empty?)
+        elsif result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end
@@ -159,17 +160,17 @@ class OITldap
         # Format output.
         result.each do |entry|
             reply << "Name: #{entry[:preferredcn][0]}"
-            if (entry[:telephonenumber].empty?)
-                phone = 'n/a'
-            else
-                phone = entry[:telephonenumber][0]
-            end
+            phone = if entry[:telephonenumber].empty?
+                'n/a'
+                    else
+                entry[:telephonenumber][0]
+                    end
             reply << "    Phone: #{phone}\n"
         end
 
         m.reply(reply)
         return
-    end # End of phone_search function.
+    end
 
     # Help that is specific to the LDAP search function.
     def ldap_help(m)
