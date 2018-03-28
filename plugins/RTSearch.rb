@@ -40,25 +40,25 @@ class RTSearch
 
             # Assemble a list of ticket numbers to search for.
             templist = m.message.scan(/(rt#|rt|#)?(\d{1,6})\b/i)
-            if (!templist.nil?)
+            if !templist.nil?
                 # Filter out entries that are probably not ticket numbers.
                 templist.each do |maybeticket|
-                    if (maybeticket[0].nil?)
+                    if maybeticket[0].nil?
                         # Did not have a 'rt' and/or '#' prefix to the number.
                         # Don't be verbose with these.
                         if (maybeticket[1].size() == 6)
-                            ticket_list["#{maybeticket[1]}"] = false
+                            ticket_list[(maybeticket[1]).to_s] = false
                         end
                     else
                         # Explicitly marked as a ticket number with "#" or "RT#".
                         # Be verbose if not a valid ticket.
                         if (maybeticket[1].size() < 7)
-                            ticket_list["#{maybeticket[1]}"] = true
+                            ticket_list[(maybeticket[1]).to_s] = true
                         end
                     end
                 end
             end
-            if (ticket_list.size() > 0)
+            if !ticket_list.empty?
                 rt_search m,ticket_list
             end
             # --- REMINDER: COMMENT 3 THREE LINES BELOW WHEN TESTING.
@@ -97,9 +97,9 @@ class RTSearch
                 # Parse the data retrieved about the ticket into a Hash variable.
                     data = data.split(/\n+/)
                     data.each do |element|
-                        if element.match(/([^:]+): ?(.+)/)
+                        if element =~ /([^:]+): ?(.+)/
                             ticket[$1] = $2
-                        elsif element.match(/([^:]+):/)
+                        elsif element =~ /([^:]+):/
                         ticket[$1] = ''
                         end
                     end
@@ -118,7 +118,7 @@ class RTSearch
     # Description: Reloads configuration/authentication information used for
     #     interfacing with RT.
     def quiet_load_config(m)
-        @@config = YAML.load(File.read("config/rt.yml"))
+        @@config = YAML.safe_load(File.read("config/rt.yml"))
     end # End of quiet_load_config function
 
     # Function: load_config

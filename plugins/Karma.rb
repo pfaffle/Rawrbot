@@ -110,9 +110,7 @@ EOS
   end
 
   def strip_parens(element)
-    if element.start_with?('(') && element.end_with?(')')
-      return element[1, element.length - 2]
-    end
+    return element[1, element.length - 2] if element.start_with?('(') && element.end_with?(')')
     element
   end
 

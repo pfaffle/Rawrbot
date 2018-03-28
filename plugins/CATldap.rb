@@ -21,9 +21,11 @@ class CATldap
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
     @@catldap = LdapHelper.load_from_yaml_file(
-      LdapHelper::DEFAULT_CONFIG_FILE, 'cat')
+      LdapHelper::DEFAULT_CONFIG_FILE, 'cat'
+    )
     @@oitldap = LdapHelper.load_from_yaml_file(
-      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit'
+    )
 
     match(/help ldap$/i, method: :ldap_help)
     match(/help phone$/i, method: :phone_help)
@@ -61,10 +63,10 @@ class CATldap
         cat_result = @@catldap.search(attribute,query)
 
         # Check for errors.
-        if (!cat_result)
+        if !cat_result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (cat_result.empty?)
+        elsif cat_result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end
@@ -74,16 +76,16 @@ class CATldap
         cat_result.each do |catEntry|
 	        reply << "Name: #{catEntry[:gecos][0]}\n"
 	        reply << "CAT uid: #{catEntry[:uid][0]}\n"
-	        if (catEntry[:uniqueidentifier].empty?)
+	        if catEntry[:uniqueidentifier].empty?
 	            reply << "OIT uid: n/a\n"
 	        else
 	            uniqueid = catEntry[:uniqueidentifier][0]
 	            # Fix malformed uniqueids.
-	            if (!(uniqueid =~ /^P/i))
+	            if uniqueid !~ /^P/i
 	                uniqueid = "P" + uniqueid
 	            end
 	            oit_result = @@oitldap.search('uniqueidentifier',uniqueid)
-	            if (!oit_result)
+	            if !oit_result
 	                reply << "OIT subquery failed.\n"
 	            else
                     oit_result.each do |oitEntry|
@@ -100,8 +102,6 @@ class CATldap
         # Send results via PM so as to not spam the channel.
         User(m.user.nick).send(reply)
     end # End of execute function.
-
-
 
     # Function: phone_search
     #
@@ -125,10 +125,10 @@ class CATldap
         reply = String.new()
 
         # Check for errors.
-        if (!cat_result)
+        if !cat_result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (cat_result.empty?)
+        elsif cat_result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end
@@ -139,28 +139,28 @@ class CATldap
             reply << "Name: #{catEntry[:gecos][0]}"
 	        uniqueid = catEntry[:uniqueidentifier][0]
 	        # Fix malformed uniqueids.
-	        if (!(uniqueid =~ /^P/i))
+	        if uniqueid !~ /^P/i
 	            uniqueid = "P" + uniqueid
 	        end
 	        oit_result = @@oitldap.search('uniqueidentifier',uniqueid)
-	        if (!oit_result)
+	        if !oit_result
 	            reply << "\nOIT subquery failed.\n"
-            elsif (oit_result.empty?)
+            elsif oit_result.empty?
                 reply << "\nNo corresponding OIT account found.\n"
 	        else
 	            oit_result.each do |oitEntry|
                     # Append phone number and office location if they
                     # exist in LDAP.
-		            if (oitEntry[:telephonenumber].empty?)
-		                phone = "n/a"
+		            phone = if oitEntry[:telephonenumber].empty?
+		                "n/a"
 		            else
-	                    phone = oitEntry[:telephonenumber][0]
-                    end
-                    if (oitEntry[:roomnumber].empty?)
-                        room = "n/a"
+	                    oitEntry[:telephonenumber][0]
+                            end
+                    room = if oitEntry[:roomnumber].empty?
+                        "n/a"
                     else
-	                    room = oitEntry[:roomnumber][0]
-                    end
+	                    oitEntry[:roomnumber][0]
+                           end
 	                reply << "    Phone: #{phone}    Office: #{room}\n"
 	            end
 	        end

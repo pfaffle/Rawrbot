@@ -40,17 +40,17 @@ class Learning
   # from the bot.
   def execute(m)
     if is_bot_addressed?(m) && is_not_prefixed_command?(m)
-      if message_without_bot_nick(m).match(/(.+?) is (also )?(.+)/i)
+      if message_without_bot_nick(m) =~ /(.+?) is (also )?(.+)/i
         learn(m, $1, $3)
-      elsif message_without_bot_nick(m).match(/(.+?) are (also )?(.+)/i)
+      elsif message_without_bot_nick(m) =~ /(.+?) are (also )?(.+)/i
         learn(m, $1, $3)
-      elsif message_without_bot_nick(m).match(/(.+) =~ s\/(.+)\/(.*)\//i)
+      elsif message_without_bot_nick(m) =~ /(.+) =~ s\/(.+)\/(.*)\//i
         edit(m, $1, $2, $3)
-      elsif message_without_bot_nick(m).match(/forget (.+)/i)
+      elsif message_without_bot_nick(m) =~ /forget (.+)/i
         forget(m, $1)
-      elsif message_without_bot_nick(m).match(/literal(ly)? (.+)/i)
+      elsif message_without_bot_nick(m) =~ /literal(ly)? (.+)/i
         literal(m, $2)
-      elsif message_without_bot_nick(m).match(/(.+)/i)
+      elsif message_without_bot_nick(m) =~ /(.+)/i
         teach(m, $1)
       else
         respond(m)
@@ -69,17 +69,17 @@ class Learning
     acknowledgement = responses[rand(responses.size)]
     topic.downcase!
     entry = @@learning_db[topic]
-    if entry.nil?
+    @@learning_db[topic] = if entry.nil?
       # entry does not yet exist in the db; insert it.
-      @@learning_db[topic] = factoid
-    else
+      factoid
+                           else
       # entry already exists in the db; update it.
-      if factoid.start_with? '|'
-        @@learning_db[topic] = "#{entry}#{factoid}"
-      else
-        @@learning_db[topic] = "#{entry} or #{factoid}"
-      end
-    end
+      @@learning_db[topic] = if factoid.start_with? '|'
+        "#{entry}#{factoid}"
+                             else
+        "#{entry} or #{factoid}"
+                             end
+                           end
     m.reply(acknowledgement)
   end
 
@@ -116,24 +116,24 @@ class Learning
       # If the entry contains pipe characters, split it into substrings
       # delimited by those pipe characters, then choose one randomly to spit
       # back out.
-      if entry.match(/\|/)
+      if entry =~ /\|/
         split_entries = entry.split('|')
         entry = split_entries[rand(split_entries.size)]
       end
 
       # If the entry contains '$who', substitute all occurrences of that string
       # with the nick of the person querying rawrbot.
-      while entry.match(/\$who/i)
+      while entry =~ /\$who/i
         entry.sub!(/\$who/i, usr)
       end
 
       # If the entry contains the prefix <reply>, reply by simply saying
       # anything following it, rather than saying 'x is y'.
-      if entry.match(/^<reply> ?(.+)/)
+      if entry =~ /^<reply> ?(.+)/
         m.reply($1)
         # If the entry contains the prefix <action>, send an action followed
         # by the entry
-      elsif entry.match(/^<action> ?(.+)/)
+      elsif entry =~ /^<action> ?(.+)/
         m.action_reply($1)
       else
         m.reply("#{topic} is #{entry}.")
@@ -211,9 +211,7 @@ EOS
   end
 
   def message_without_bot_nick(m)
-    if m.message.match(/^(#{m.bot.nick}[:,-]?)/i)
-      return m.message.partition($1)[2].lstrip
-    end
+    return m.message.partition($1)[2].lstrip if m.message =~ /^(#{m.bot.nick}[:,-]?)/i
     m.message
   end
 end

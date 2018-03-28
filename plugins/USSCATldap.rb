@@ -21,9 +21,11 @@ class USSCATldap
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
     @@catldap = LdapHelper.load_from_yaml_file(
-      LdapHelper::DEFAULT_CONFIG_FILE, 'cat')
+      LdapHelper::DEFAULT_CONFIG_FILE, 'cat'
+    )
     @@oitldap = LdapHelper.load_from_yaml_file(
-      LdapHelper::DEFAULT_CONFIG_FILE, 'oit')
+      LdapHelper::DEFAULT_CONFIG_FILE, 'oit'
+    )
 
     match(/help catldap$/i, method: :catldap_help)
     match("help", method: :help)
@@ -61,10 +63,10 @@ class USSCATldap
         oit_result = @@oitldap.search(attribute,query)
 
         # Check for errors and abort early if detected.
-        if (!oit_result)
+        if !oit_result
             m.reply "Error: LDAP query failed. Check configuration.\n"
             return
-        elsif (oit_result.empty?)
+        elsif oit_result.empty?
             User(m.user.nick).send("Error: No results.\n")
             return
         end
@@ -74,11 +76,11 @@ class USSCATldap
 	    reply << "ODIN uid: #{oit_result[0][:uid][0]}\n"
         oit_result.each do |oitEntry|
 	        # Use OIT LDAP info to search CAT LDAP
-	        if (!(oitEntry[:uniqueidentifier].empty?))
+	        if !oitEntry[:uniqueidentifier].empty?
 	            attribute = 'uniqueidentifier'
 	            query = oitEntry[:uniqueidentifier][0]
 	            # Fix malformed uniqueids.
-	            if (!(query =~ /^P/i))
+	            if query !~ /^P/i
 	                query = "P" + query
 	            end
 	        else
@@ -88,18 +90,18 @@ class USSCATldap
 	        cat_result = @@catldap.search(attribute,query)
 	
 	        # Check if we were able to find corresponding MCECS account.
-	        if (!cat_result)
+	        if !cat_result
 	            reply << "Error: LDAP subquery failed. Check configuration.\n"
-            elsif (cat_result.empty?)
+            elsif cat_result.empty?
                 reply << "No corresponding MCECS account found.\n"
 	        else
                 reply << "MCECS email forwards:\n"
                 cat_result.each do |catEntry|
-                    if (catEntry[:mailroutingaddress].empty?)
-                        fwd = 'n/a'
+                    fwd = if catEntry[:mailroutingaddress].empty?
+                        'n/a'
                     else
-		                fwd = catEntry[:mailroutingaddress][0]
-                    end
+		                catEntry[:mailroutingaddress][0]
+                          end
 		            catEntry[:maillocaladdress].each do |email|
                         reply << " #{email} -> #{fwd}\n"
                     end
@@ -110,7 +112,6 @@ class USSCATldap
         # Send results via PM so as to not spam the channel.
         User(m.user.nick).send(reply)
     end # End of execute function.
-
 
     # Help that is specific to the LDAP search function.
     def catldap_help(m)

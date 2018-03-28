@@ -20,7 +20,7 @@ class JoinPart
     #     Joins a given channel.
     def join(m, chan, key = nil)
         chan = "#" + chan if (!chan.start_with? "#")
-        key.lstrip! if (!key.nil?)
+        key.lstrip! if !key.nil?
         Channel(chan).join(key)
         m.reply "Joining #{chan}."
     end
@@ -31,7 +31,7 @@ class JoinPart
     #     Parts a given channel.
     def part(m, chan, msg = nil)
         chan = "#" + chan if (!chan.start_with? "#")
-        msg.lstrip! if (!msg.nil?)
+        msg.lstrip! if !msg.nil?
         m.reply "Leaving #{chan}."
         Channel(chan).part(msg)
     end

@@ -14,7 +14,7 @@ class SendSignal
 
     set :prefix, lambda { |m| m.bot.config.plugins.prefix }
 
-    ConfigFile = 'config/signal.yml'
+    ConfigFile = 'config/signal.yml'.freeze
 
     match("help", method: :help)
     match(/help signal/i, method: :signal_help)
@@ -27,12 +27,8 @@ class SendSignal
         userlist = Hash.new()
 
         # Enumerate signal targets.
-        if cfg.has_key? 'signals'
-            cfg['signals'].each { |k,v| userlist[k.downcase] = v }
-        end
-        if cfg.has_key? 'secret_signals'
-            cfg['secret_signals'].each { |k,v| userlist[k.downcase] = v }
-        end
+        cfg['signals'].each { |k,v| userlist[k.downcase] = v } if cfg.has_key? 'signals'
+        cfg['secret_signals'].each { |k,v| userlist[k.downcase] = v } if cfg.has_key? 'secret_signals'
         
         if userlist.has_key? tgt.downcase
             tgt_address = userlist[tgt.downcase]
@@ -58,7 +54,7 @@ class SendSignal
 
     # Read in and validate the structure of the config file.
     def read_config(cfg)
-        signals = YAML.load(File.read(cfg))
+        signals = YAML.safe_load(File.read(cfg))
         if !(signals.has_key?('signals') || signals.has_key?('secret_signals'))
             exc = "Please update SendSignal config file to the new format shown"
             exc << " in the samples directory."
