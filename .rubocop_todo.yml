@@ -99,3 +99,6 @@ Performance/UnfreezeString:
 
 Performance/RegexpMatch:
   Enabled: false
+
+Style/SafeNavigation:
+  Enabled: false
