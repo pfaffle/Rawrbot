@@ -8,6 +8,9 @@ inherit_from: .rubocop_todo.yml
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+Layout/EndOfLine:
+  Enabled: false
+
 # Offense count: 21
 Lint/AmbiguousRegexpLiteral:
   Exclude:
