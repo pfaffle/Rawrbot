@@ -1,35 +1,37 @@
+require 'uri'
+require 'lib/http_title'
+
 # Fetches URLs that it sees, grabs the title of the page, then displays it in
 # the IRC channel, so people know what to expect before clicking on links.
 class UrlTitle
   include Cinch::Plugin
 
-  require 'uri'
-  require 'open-uri'
-  require 'nokogiri'
+  set :prefix, lambda {|m| m.bot.config.plugins.prefix}
 
-  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  match /http|https/i, method: :tell_page_title, :use_prefix => false
 
-  match /http|https/i, method: :tellPageTitle, :use_prefix => false
-
-  def tellPageTitle(m)
-    title = getPageTitle(getUrl(m.message))
-    m.reply(title) if title
+  def initialize(m)
+    super
+    @http_title = HttpTitle.new
   end
 
-  def getUrl(msg)
-    msg =~ /(#{URI::regexp(%w[http https])})/i
-    url = URI::parse($1)
-    return url.is_a?(URI::HTTP) ? url : nil
+  # For testing
+  def use_http_title(http_title)
+    @http_title = http_title
   end
 
-  def getPageTitle(url)
-    if url
-      title = Nokogiri::HTML(url.open(:read_timeout => 5)).css('title')[0].text
-      return stripWhiteSpace(title)
+  def tell_page_title(m)
+    get_uris(m.message).each do |uri|
+      title = @http_title.get(uri)
+      m.reply(title) if title
     end
   end
 
-  def stripWhiteSpace(str)
-      return str.gsub(/\s+/,' ').strip
+  private
+
+  def get_uris(msg)
+    msg.scan(/(#{URI::regexp(%w[http https])})/i).collect do |match|
+      URI::parse(match.first)
+    end
   end
 end
