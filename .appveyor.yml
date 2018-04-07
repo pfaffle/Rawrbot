@@ -44,7 +44,9 @@ environment:
 # scripts that run after cloning repository
 install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+  - set SSL_CERT_FILE=%APPVEYOR_BUILD_FOLDER%\resources\cacert.pem
   - bundle install
+
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
