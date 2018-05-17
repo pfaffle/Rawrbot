@@ -5,41 +5,44 @@
 # https://github.com/cinchrb/cinch
 require 'cinch'
 require 'yaml'
+require_relative './lib/config_loader'
 
-config_hash = YAML.safe_load(File.read('config/config.yml'))
 $pwd = Dir.pwd
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-$admins = config_hash['admins']
+
+config_hash = ConfigLoader.new("#{$pwd}/config").load
 
 plugins = []
-config_hash['plugins'].each do |plugin|
+config_hash['Config']['plugins'].each do |plugin|
   file = "#{$pwd}/plugins/#{plugin}.rb"
   load file
   plugins.push(Object.const_get(plugin))
   puts "Loading #{file}."
 end
+bot_config = config_hash['Config']
 
 bot = Cinch::Bot.new do
   configure do |config|
-    config.server = config_hash['server']
-    config.port = config_hash['port']
-    config.channels = config_hash['channels']
-    config.ssl.use = config_hash['ssl']
-    config.nick = config_hash['nick']
-    config.realname = config_hash['realname']
-    config.user = config_hash['user']
+    config.server = bot_config['server']
+    config.port = bot_config['port']
+    config.channels = bot_config['channels']
+    config.ssl.use = bot_config['ssl']
+    config.nick = bot_config['nick']
+    config.realname = bot_config['realname']
+    config.user = bot_config['user']
     config.plugins.plugins = plugins
-    config.plugins.prefix = /^#{config_hash['prefix']}/
+    config.plugins.prefix = /^#{bot_config['prefix']}/
+    config.plugins.options = config_hash
   end
 
   # Authenticate with NickServ.
   # This is specifically designed for Charybdis IRCD.
   on :connect do
-    if config_hash.key?('nickpass')
-      if (bot.nick != config_hash['nick'])
-        User('NickServ').send "regain #{config_hash['nick']} #{config_hash['nickpass']}"
+    if bot_config.key?('nickpass')
+      if (bot.nick != bot_config['nick'])
+        User('NickServ').send "regain #{bot_config['nick']} #{bot_config['nickpass']}"
       end
-      User('NickServ').send "identify #{config_hash['nick']} #{config_hash['nickpass']}"
+      User('NickServ').send "identify #{bot_config['nick']} #{bot_config['nickpass']}"
     end
   end
 end
@@ -47,7 +50,7 @@ end
 # Make CTRL+C shut down the bot cleanly.
 quit_thread = nil
 Kernel.trap('INT') do
-  quit_thread = Thread.new { bot.quit(config_hash['quitmsg']) }
+  quit_thread = Thread.new { bot.quit(bot_config['quitmsg']) }
 end
 
 # Launch the bot.
