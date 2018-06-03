@@ -102,3 +102,12 @@ Performance/RegexpMatch:
 
 Style/SafeNavigation:
   Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+Layout/ClosingHeredocIndentation:
+  Enabled: false
+
+Style/UnneededCondition:
+  Enabled: false

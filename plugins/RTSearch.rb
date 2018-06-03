@@ -46,13 +46,13 @@ class RTSearch
                     if maybeticket[0].nil?
                         # Did not have a 'rt' and/or '#' prefix to the number.
                         # Don't be verbose with these.
-                        if (maybeticket[1].size() == 6)
+                        if (maybeticket[1].size == 6)
                             ticket_list[(maybeticket[1]).to_s] = false
                         end
                     else
                         # Explicitly marked as a ticket number with "#" or "RT#".
                         # Be verbose if not a valid ticket.
-                        if (maybeticket[1].size() < 7)
+                        if (maybeticket[1].size < 7)
                             ticket_list[(maybeticket[1]).to_s] = true
                         end
                     end

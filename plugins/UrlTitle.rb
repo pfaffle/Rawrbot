@@ -30,7 +30,7 @@ class UrlTitle
   private
 
   def get_uris(msg)
-    msg.scan(/(#{URI::regexp(%w[http https])})/i).collect do |match|
+    msg.scan(/(#{URI::regexp(%w(http https))})/i).collect do |match|
       URI::parse(match.first)
     end
   end

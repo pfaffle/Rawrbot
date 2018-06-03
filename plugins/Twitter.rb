@@ -122,7 +122,7 @@ class Twitter
             reply = "Feeds subscribed to:"
             # Check if the current channel (or user) has subscribed to any feeds.
             # If so, list them.
-            if (@@feeds.has_key? m.channel)
+            if (@@feeds.key? m.channel)
                 @@feeds[m.channel].each do |feed|
                     reply << " #{feed},"
                 end

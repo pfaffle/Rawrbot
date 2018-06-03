@@ -39,7 +39,7 @@ class USSCATldap
     # made the request.
     def execute(m, query)
 
-        reply = String.new()
+        reply = String.new
 
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
