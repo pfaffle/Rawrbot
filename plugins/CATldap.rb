@@ -46,7 +46,7 @@ class CATldap
     # made the request.
     def execute(m, query)
 
-        reply = String.new()
+        reply = String.new
 
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
@@ -122,7 +122,7 @@ class CATldap
         attribute = 'uid'
 
         cat_result = @@catldap.search(attribute,query)
-        reply = String.new()
+        reply = String.new
 
         # Check for errors.
         if !cat_result

@@ -24,13 +24,13 @@ class SendSignal
     
     def execute(m,tgt,msg)
         cfg = read_config(ConfigFile)
-        userlist = Hash.new()
+        userlist = Hash.new
 
         # Enumerate signal targets.
-        cfg['signals'].each { |k,v| userlist[k.downcase] = v } if cfg.has_key? 'signals'
-        cfg['secret_signals'].each { |k,v| userlist[k.downcase] = v } if cfg.has_key? 'secret_signals'
+        cfg['signals'].each { |k,v| userlist[k.downcase] = v } if cfg.key? 'signals'
+        cfg['secret_signals'].each { |k,v| userlist[k.downcase] = v } if cfg.key? 'secret_signals'
         
-        if userlist.has_key? tgt.downcase
+        if userlist.key? tgt.downcase
             tgt_address = userlist[tgt.downcase]
             m.reply "Signaling #{tgt}..."
             Net::SMTP.start('mailhost.cecs.pdx.edu', 25) do |smtp|
@@ -55,7 +55,7 @@ class SendSignal
     # Read in and validate the structure of the config file.
     def read_config(cfg)
         signals = YAML.safe_load(File.read(cfg))
-        if !(signals.has_key?('signals') || signals.has_key?('secret_signals'))
+        if !(signals.key?('signals') || signals.key?('secret_signals'))
             exc = "Please update SendSignal config file to the new format shown"
             exc << " in the samples directory."
             raise exc
@@ -90,7 +90,7 @@ class SendSignal
     # Description: Lists the people for whom signaling is available.
     def list_signals(m)
         cfg = read_config(ConfigFile)
-        if cfg.has_key? 'signals'
+        if cfg.key? 'signals'
             userlist = cfg['signals']
             reply = "Signaling is available for:"
             userlist.each_key do |k|

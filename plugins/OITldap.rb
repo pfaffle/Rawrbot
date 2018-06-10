@@ -43,7 +43,7 @@ class OITldap
     # results to the IRC user who made the request.
     def execute(m, query)
         
-        reply = String.new()
+        reply = String.new
         
         # Error-checking to sanitize input. i.e. no illegal symbols.
         if (query =~ /[^\w@._-]/)
@@ -146,7 +146,7 @@ class OITldap
                     end
         
         result = @@oitldap.search(attribute,query)
-        reply = String.new()
+        reply = String.new
         
         # Check for errors.
         if !result

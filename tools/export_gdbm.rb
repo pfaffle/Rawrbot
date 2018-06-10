@@ -36,7 +36,7 @@ end
 puts("Exporting...")
 GDBM.open(source) do |db|
   File.open(target, 'w:ASCII') do |file|
-    db.each_pair() do |key,val|
+    db.each_pair do |key,val|
       begin
         key.delete!("\r")
         key.delete!("\n")
