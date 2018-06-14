@@ -1,8 +1,0 @@
----
-# Configuration information for the Google RSS feed plugin.
-
-# List of channel names to report output to.
-channels: ['#testchan']
-
-# Time (in seconds) to wait before checking for an update on the RSS feed.
-frequency: 30

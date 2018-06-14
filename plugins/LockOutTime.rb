@@ -18,7 +18,6 @@ class LockOutTime
 	        m.reply("Invalid search query '#{query}'")
 	        return
 	    end
-	    reply = String.new
 	
 	    query.downcase!
 	    result = ldap.search('sAMAccountName',query)

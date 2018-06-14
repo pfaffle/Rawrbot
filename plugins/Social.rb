@@ -21,34 +21,29 @@ class Social
     # Description:
     #     Say hi!
     def greet(m)
-        if m.message =~ /\b(hellos?|hi(ya)?|howdy|hey|greetings|yo|sup|hai|hola),? #{m.bot.nick}\b/i
-            greetings = ['Hello','Hi','Hola','Ni hao','Hey','Yo','Howdy']
-            greeting = greetings[rand(greetings.size)]
-            m.reply "#{greeting}, #{m.user.nick}!"
-        end
-    end # End of greet function
+        return unless m.message =~ /\b(hellos?|hi(ya)?|howdy|hey|greetings|yo|sup|hai|hola),? #{m.bot.nick}\b/i
+        greetings = ['Hello','Hi','Hola','Ni hao','Hey','Yo','Howdy']
+        greeting = greetings[rand(greetings.size)]
+        m.reply "#{greeting}, #{m.user.nick}!"
+    end
     
     # Function: timeofday_greet
     #
     # Description:
     #     Gives a time of day-specific response to a greeting. i.e. 'good morning'.
     def timeofday_greet(m)
-        if m.message =~ /\b(good)? ?(morning|afternoon|evening|night),? #{m.bot.nick}\b/i
-            m.reply "Good #{$2.downcase}, #{m.user.nick}!"
-        end
-    end # End of timeofday_greet function
+        return unless m.message =~ /\b(good)? ?(morning|afternoon|evening|night),? #{m.bot.nick}\b/i
+        m.reply "Good #{$2.downcase}, #{m.user.nick}!"
+    end
 
     # Function: farewell
     #
     # Description:
     #     Says farewell.
     def farewell(m)
+        return unless m.message =~ /\b((good)?bye|adios|farewell|later|see ?(ya|you|u)|cya),? #{m.bot.nick}\b/i
         farewells = ['Bye','Adios','Farewell','Later','See ya','See you','Take care']
         farewell = farewells[rand(farewells.size)]
-        if m.message =~ /\b((good)?bye|adios|farewell|later|see ?(ya|you|u)|cya),? #{m.bot.nick}\b/i
-            m.reply "#{farewell}, #{m.user.nick}!"
-        end
+        m.reply "#{farewell}, #{m.user.nick}!"
     end
 end
-# End of plugin: Social
-# =============================================================================

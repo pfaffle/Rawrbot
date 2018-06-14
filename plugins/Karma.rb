@@ -9,7 +9,7 @@ class Karma
   include Cinch::Plugin
 
   require 'lib/key_value_db'
-  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  set :prefix, lambda {|m| m.bot.config.plugins.prefix}
 
   @@karma_db = nil
 
@@ -61,14 +61,14 @@ class Karma
   # Displays help information for how to use the Karma plugin.
   def karma_help(m)
     p = self.class.prefix.call(m)
-    msg = <<EOS
+    msg = <<HELP
 Karma tracker
 ===========
 Description: Tracks karma for things. Higher karma = liked more, lower karma = disliked more.
 Usage: #{p}karma foo (to see karma level of 'foo')
 foo++ (foo bar)++ increments karma for 'foo' and 'foo bar'
 foo-- (foo bar)-- decrements karma for 'foo' and 'foo bar'
-EOS
+HELP
     m.reply(msg)
   end
 
@@ -83,7 +83,7 @@ EOS
   private
 
   def increment(element)
-    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
+    karma_value = @@karma_db[element] || 0
     if karma_value == -1
       @@karma_db.delete(element)
     else
@@ -92,7 +92,7 @@ EOS
   end
 
   def decrement(element)
-    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
+    karma_value = @@karma_db[element] || 0
     if karma_value == 1
       @@karma_db.delete(element)
     else
@@ -101,11 +101,8 @@ EOS
   end
 
   def strip_operator(element)
-    if element.end_with?('++')
-      return element.chomp('++')
-    elsif element.end_with?('--')
-      return element.chomp('--')
-    end
+    return element.chomp('++') if element.end_with?('++')
+    return element.chomp('--') if element.end_with?('--')
     element
   end
 

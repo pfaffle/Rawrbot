@@ -58,7 +58,7 @@ class LdapHelper
   end
 
   def validate_config
-    %w(server port).each do |key|
+    %w[server port].each do |key|
       raise "Missing required LDAP config param: #{key}" if @config[key].nil?
     end
   end

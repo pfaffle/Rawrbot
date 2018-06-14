@@ -71,7 +71,7 @@ class SendSignal
     def help(m)
         p = self.class.prefix.call(m)
         m.reply "See: #{p}help signal"
-    end # End of help function
+    end
     
     # Function: signal_help
     #
@@ -106,7 +106,4 @@ class SendSignal
         end
         m.reply "Ask a bot admin to add/remove signals."
     end
-
 end
-# End of plugin: Signal
-# =============================================================================

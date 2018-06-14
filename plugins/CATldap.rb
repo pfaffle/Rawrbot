@@ -73,13 +73,13 @@ class CATldap
 
         # Iterate over each LDAP entry in the search result and print
         # relevant information.
-        cat_result.each do |catEntry|
-	        reply << "Name: #{catEntry[:gecos][0]}\n"
-	        reply << "CAT uid: #{catEntry[:uid][0]}\n"
-	        if catEntry[:uniqueidentifier].empty?
+        cat_result.each do |cat_entry|
+	        reply << "Name: #{cat_entry[:gecos][0]}\n"
+	        reply << "CAT uid: #{cat_entry[:uid][0]}\n"
+	        if cat_entry[:uniqueidentifier].empty?
 	            reply << "OIT uid: n/a\n"
 	        else
-	            uniqueid = catEntry[:uniqueidentifier][0]
+	            uniqueid = cat_entry[:uniqueidentifier][0]
 	            # Fix malformed uniqueids.
 	            if uniqueid !~ /^P/i
 	                uniqueid = "P" + uniqueid
@@ -88,12 +88,12 @@ class CATldap
 	            if !oit_result
 	                reply << "OIT subquery failed.\n"
 	            else
-                    oit_result.each do |oitEntry|
-		                reply << "OIT uid: #{oitEntry[:uid][0]}\n"
-		                reply << "Office: #{oitEntry[:roomnumber][0]}\n"
-		                reply << "Phone: #{oitEntry[:telephonenumber][0]}\n"
-		                reply << "Dept: #{oitEntry[:ou][0]}\n"
-		                reply << "Title: #{oitEntry[:title][0]}\n"
+                    oit_result.each do |oit_entry|
+		                reply << "OIT uid: #{oit_entry[:uid][0]}\n"
+		                reply << "Office: #{oit_entry[:roomnumber][0]}\n"
+		                reply << "Phone: #{oit_entry[:telephonenumber][0]}\n"
+		                reply << "Dept: #{oit_entry[:ou][0]}\n"
+		                reply << "Title: #{oit_entry[:title][0]}\n"
                     end
 	            end
 	        end
@@ -101,7 +101,7 @@ class CATldap
 
         # Send results via PM so as to not spam the channel.
         User(m.user.nick).send(reply)
-    end # End of execute function.
+    end
 
     # Function: phone_search
     #
@@ -135,9 +135,9 @@ class CATldap
 
         # Iterate over each LDAP entry in the search result and print
         # relevant information.
-        cat_result.each do |catEntry|
-            reply << "Name: #{catEntry[:gecos][0]}"
-	        uniqueid = catEntry[:uniqueidentifier][0]
+        cat_result.each do |cat_entry|
+            reply << "Name: #{cat_entry[:gecos][0]}"
+	        uniqueid = cat_entry[:uniqueidentifier][0]
 	        # Fix malformed uniqueids.
 	        if uniqueid !~ /^P/i
 	            uniqueid = "P" + uniqueid
@@ -148,18 +148,18 @@ class CATldap
             elsif oit_result.empty?
                 reply << "\nNo corresponding OIT account found.\n"
 	        else
-	            oit_result.each do |oitEntry|
+	            oit_result.each do |oit_entry|
                     # Append phone number and office location if they
                     # exist in LDAP.
-		            phone = if oitEntry[:telephonenumber].empty?
+		            phone = if oit_entry[:telephonenumber].empty?
 		                "n/a"
 		            else
-	                    oitEntry[:telephonenumber][0]
+	                    oit_entry[:telephonenumber][0]
                             end
-                    room = if oitEntry[:roomnumber].empty?
+                    room = if oit_entry[:roomnumber].empty?
                         "n/a"
                     else
-	                    oitEntry[:roomnumber][0]
+	                    oit_entry[:roomnumber][0]
                            end
 	                reply << "    Phone: #{phone}    Office: #{room}\n"
 	            end

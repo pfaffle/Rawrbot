@@ -39,22 +39,22 @@ class Learning
   # the bot something, make the bot forget something, or retrieve information
   # from the bot.
   def execute(m)
-    if is_bot_addressed?(m) && is_not_prefixed_command?(m)
-      if message_without_bot_nick(m) =~ /(.+?) is (also )?(.+)/i
-        learn(m, $1, $3)
-      elsif message_without_bot_nick(m) =~ /(.+?) are (also )?(.+)/i
-        learn(m, $1, $3)
-      elsif message_without_bot_nick(m) =~ /(.+) =~ s\/(.+)\/(.*)\//i
-        edit(m, $1, $2, $3)
-      elsif message_without_bot_nick(m) =~ /forget (.+)/i
-        forget(m, $1)
-      elsif message_without_bot_nick(m) =~ /literal(ly)? (.+)/i
-        literal(m, $2)
-      elsif message_without_bot_nick(m) =~ /(.+)/i
-        teach(m, $1)
-      else
-        respond(m)
-      end
+    return unless is_bot_addressed?(m) && is_not_prefixed_command?(m)
+
+    if message_without_bot_nick(m) =~ /(.+?) is (also )?(.+)/i
+      learn(m, $1, $3)
+    elsif message_without_bot_nick(m) =~ /(.+?) are (also )?(.+)/i
+      learn(m, $1, $3)
+    elsif message_without_bot_nick(m) =~ /(.+) =~ s\/(.+)\/(.*)\//i
+      edit(m, $1, $2, $3)
+    elsif message_without_bot_nick(m) =~ /forget (.+)/i
+      forget(m, $1)
+    elsif message_without_bot_nick(m) =~ /literal(ly)? (.+)/i
+      literal(m, $2)
+    elsif message_without_bot_nick(m) =~ /(.+)/i
+      teach(m, $1)
+    else
+      respond(m)
     end
   end
 
@@ -70,15 +70,15 @@ class Learning
     topic.downcase!
     entry = @@learning_db[topic]
     @@learning_db[topic] = if entry.nil?
-      # entry does not yet exist in the db; insert it.
-      factoid
+                             # entry does not yet exist in the db; insert it.
+                             factoid
                            else
-      # entry already exists in the db; update it.
-      @@learning_db[topic] = if factoid.start_with? '|'
-        "#{entry}#{factoid}"
-                             else
-        "#{entry} or #{factoid}"
-                             end
+                             # entry already exists in the db; update it.
+                             @@learning_db[topic] = if factoid.start_with? '|'
+                                                      "#{entry}#{factoid}"
+                                                    else
+                                                      "#{entry} or #{factoid}"
+                                                    end
                            end
     m.reply(acknowledgement)
   end
@@ -89,14 +89,14 @@ class Learning
     if entry.nil?
       # Thing does not exist in the db; abort.
       m.reply("I don't know anything about #{topic}.")
+      return
+    end
+    # Thing exists in the db; search for target string and update it.
+    if entry.sub!(/#{find}/, replace).nil?
+      m.reply("#{topic} doesn't contain '#{find}'.")
     else
-      # Thing exists in the db; search for target string and update it.
-      if entry.sub!(/#{find}/, replace).nil?
-        m.reply("#{topic} doesn't contain '#{find}'.")
-      else
-        @@learning_db[topic.downcase] = entry
-        m.reply("done, #{m.user.nick}.")
-      end
+      @@learning_db[topic.downcase] = entry
+      m.reply("done, #{m.user.nick}.")
     end
   end
 
@@ -181,13 +181,13 @@ class Learning
 
   # Displays help information for how to use the plugin.
   def learning_help(m)
-    reply = <<EOS
+    reply = <<HELP
 Learning module
 ===========
 Description: Teach the bot about things, and have it repeat that info back later.
 Usage: [botname] [thing] is [information] (to store additional [information]  under the keyword [thing].)
 [botname] [thing] (to get whatever the bot knows about [thing].)
-EOS
+HELP
     m.reply(reply)
   end
 

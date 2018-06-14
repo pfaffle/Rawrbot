@@ -19,7 +19,7 @@ class Reload
         end
         return nil
     end
-    
+
     # Find plugin amongst loaded plugins, return the class object.
     def get_plugin_class(m, pname)
         m.bot.plugins.each do |plugin|
@@ -38,9 +38,9 @@ class Reload
             return true
         end
         m.reply "Plugin is not loaded."
-        return false
+        false
     end
-    
+
     def load_plugin(m, pname, announce = true)
         filename = get_plugin_file(pname)
         if filename
@@ -51,13 +51,11 @@ class Reload
             return true
         end
         m.reply "Plugin not found."
-        return false
+        false
     end
-    
+
     def reload_plugin(m, pname)
-        if (unload_plugin(m,pname,false) && load_plugin(m,pname,false))
-            m.reply "Plugin reloaded."
-        end
+        m.reply "Plugin reloaded." if (unload_plugin(m, pname, false) && load_plugin(m, pname,false))
     end
 end
 
