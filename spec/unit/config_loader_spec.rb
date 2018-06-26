@@ -21,7 +21,7 @@ describe 'ConfigLoader' do
     File.open("#{@dir}/test.yml", 'w:UTF-8') do |stream|
       stream.puts("{{#!garbage\n")
     end
-    expect {ConfigLoader.new(@dir).load}.to raise_error(Psych::SyntaxError)
+    expect { ConfigLoader.new(@dir).load }.to raise_error(Psych::SyntaxError)
   end
 
   it 'should load a yaml file with a single word class name' do
@@ -29,7 +29,7 @@ describe 'ConfigLoader' do
       'key' => 'value',
       'key2' => 'value2'
     }
-    create_yaml_file("#{@dir}/test.yml") {config}
+    create_yaml_file("#{@dir}/test.yml") { config }
     expect(ConfigLoader.new(@dir).load).to eq('Test' => config)
   end
 
@@ -38,7 +38,7 @@ describe 'ConfigLoader' do
       'key' => 'value',
       'key2' => 'value2'
     }
-    create_yaml_file("#{@dir}/plugin_name.yml") {config}
+    create_yaml_file("#{@dir}/plugin_name.yml") { config }
     expect(ConfigLoader.new(@dir).load).to eq('PluginName' => config)
   end
 
@@ -50,8 +50,8 @@ describe 'ConfigLoader' do
     config2 = {
       'otherkey' => 'othervalue'
     }
-    create_yaml_file("#{@dir}/plugin_name.yml") {config1}
-    create_yaml_file("#{@dir}/test.yml") {config2}
+    create_yaml_file("#{@dir}/plugin_name.yml") { config1 }
+    create_yaml_file("#{@dir}/test.yml") { config2 }
     expect(ConfigLoader.new(@dir).load).to eq('PluginName' => config1, 'Test' => config2)
   end
 end

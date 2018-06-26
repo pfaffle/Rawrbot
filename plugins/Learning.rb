@@ -17,42 +17,41 @@ class Learning
 
   require 'sqlite3'
 
-  @@learning_db = nil
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
-  set :prefix, lambda {|m| m.bot.config.plugins.prefix}
-
-  match //, :use_prefix => false
-  match 'help', method: :help
-  match /help learning/i, method: :learning_help
+  match(//, use_prefix: false)
+  match('help', method: :help)
+  match(/help learning/i, method: :learning_help)
 
   def initialize(m)
     super(m)
+    @learning_db = nil
     init_db
   end
 
   # For testing
   def use_db(new_db)
-    @@learning_db = new_db if new_db
+    @learning_db = new_db if new_db
   end
 
   # Determines how to process the command, whether the user is trying to teach
   # the bot something, make the bot forget something, or retrieve information
   # from the bot.
   def execute(m)
-    return unless is_bot_addressed?(m) && is_not_prefixed_command?(m)
+    return unless bot_addressed?(m) && not_prefixed_command?(m)
 
     if message_without_bot_nick(m) =~ /(.+?) is (also )?(.+)/i
-      learn(m, $1, $3)
+      learn(m, Regexp.last_match(1), Regexp.last_match(3))
     elsif message_without_bot_nick(m) =~ /(.+?) are (also )?(.+)/i
-      learn(m, $1, $3)
-    elsif message_without_bot_nick(m) =~ /(.+) =~ s\/(.+)\/(.*)\//i
-      edit(m, $1, $2, $3)
+      learn(m, Regexp.last_match(1), Regexp.last_match(3))
+    elsif message_without_bot_nick(m) =~ %r{(.+) =~ s/(.+)/(.*)/}i
+      edit(m, Regexp.last_match(1), Regexp.last_match(2), Regexp.last_match(3))
     elsif message_without_bot_nick(m) =~ /forget (.+)/i
-      forget(m, $1)
+      forget(m, Regexp.last_match(1))
     elsif message_without_bot_nick(m) =~ /literal(ly)? (.+)/i
-      literal(m, $2)
+      literal(m, Regexp.last_match(2))
     elsif message_without_bot_nick(m) =~ /(.+)/i
-      teach(m, $1)
+      teach(m, Regexp.last_match(1))
     else
       respond(m)
     end
@@ -68,24 +67,24 @@ class Learning
     responses += ["I'll take your word for it, #{usr}."]
     acknowledgement = responses[rand(responses.size)]
     topic.downcase!
-    entry = @@learning_db[topic]
-    @@learning_db[topic] = if entry.nil?
-                             # entry does not yet exist in the db; insert it.
-                             factoid
-                           else
-                             # entry already exists in the db; update it.
-                             @@learning_db[topic] = if factoid.start_with? '|'
-                                                      "#{entry}#{factoid}"
-                                                    else
-                                                      "#{entry} or #{factoid}"
-                                                    end
-                           end
+    entry = @learning_db[topic]
+    @learning_db[topic] = if entry.nil?
+                            # entry does not yet exist in the db; insert it.
+                            factoid
+                          else
+                            # entry already exists in the db; update it.
+                            @learning_db[topic] = if factoid.start_with? '|'
+                                                    "#{entry}#{factoid}"
+                                                  else
+                                                    "#{entry} or #{factoid}"
+                                                  end
+                          end
     m.reply(acknowledgement)
   end
 
   # Edits an existing entry by using regex syntax.
   def edit(m, topic, find, replace)
-    entry = @@learning_db[topic.downcase]
+    entry = @learning_db[topic.downcase]
     if entry.nil?
       # Thing does not exist in the db; abort.
       m.reply("I don't know anything about #{topic}.")
@@ -95,7 +94,7 @@ class Learning
     if entry.sub!(/#{find}/, replace).nil?
       m.reply("#{topic} doesn't contain '#{find}'.")
     else
-      @@learning_db[topic.downcase] = entry
+      @learning_db[topic.downcase] = entry
       m.reply("done, #{m.user.nick}.")
     end
   end
@@ -108,7 +107,7 @@ class Learning
     give_ups += ['what?', "dunno, #{usr}."]
     give_up = give_ups[rand(give_ups.size)]
     topic.strip!
-    entry = @@learning_db[topic.downcase]
+    entry = @learning_db[topic.downcase]
     if entry.nil?
       # Thing does not exist in the db; abort.
       m.reply(give_up)
@@ -123,18 +122,16 @@ class Learning
 
       # If the entry contains '$who', substitute all occurrences of that string
       # with the nick of the person querying rawrbot.
-      while entry =~ /\$who/i
-        entry.sub!(/\$who/i, usr)
-      end
+      entry.sub!(/\$who/i, usr) while entry =~ /\$who/i
 
       # If the entry contains the prefix <reply>, reply by simply saying
       # anything following it, rather than saying 'x is y'.
       if entry =~ /^<reply> ?(.+)/
-        m.reply($1)
+        m.reply(Regexp.last_match(1))
         # If the entry contains the prefix <action>, send an action followed
         # by the entry
       elsif entry =~ /^<action> ?(.+)/
-        m.action_reply($1)
+        m.action_reply(Regexp.last_match(1))
       else
         m.reply("#{topic} is #{entry}.")
       end
@@ -144,11 +141,11 @@ class Learning
   # Makes the bot forget whatever it knows about the given topic.
   def forget(m, topic)
     topic.strip!
-    entry = @@learning_db[topic.downcase]
+    entry = @learning_db[topic.downcase]
     if entry.nil?
       m.reply("I don't know anything about #{topic}.")
     else
-      @@learning_db.delete(topic.downcase)
+      @learning_db.delete(topic.downcase)
       m.reply("I forgot #{topic}.")
     end
   end
@@ -156,7 +153,7 @@ class Learning
   # Displays the literal contents of the entry for the given topic,
   # without parsing special syntax like <reply>, <who>, and |.
   def literal(m, topic)
-    entry = @@learning_db[topic.downcase]
+    entry = @learning_db[topic.downcase]
     if entry.nil?
       m.reply("No entry for #{topic}")
     else
@@ -194,24 +191,24 @@ HELP
   private
 
   def init_db
-    return unless @@learning_db.nil?
-    @@learning_db = KeyValueDatabase::SQLite.new('learning.sqlite3') do |config|
+    return unless @learning_db.nil?
+    @learning_db = KeyValueDatabase::SQLite.new('learning.sqlite3') do |config|
       config.table = 'learning'
       config.key_type = String
       config.value_type = String
     end
   end
 
-  def is_bot_addressed?(m)
+  def bot_addressed?(m)
     !m.message.match(/^#{m.bot.nick}[:,-]?/i).nil? || m.channel.nil?
   end
 
-  def is_not_prefixed_command?(m)
+  def not_prefixed_command?(m)
     m.message.match(m.bot.config.plugins.prefix).nil?
   end
 
   def message_without_bot_nick(m)
-    return m.message.partition($1)[2].lstrip if m.message =~ /^(#{m.bot.nick}[:,-]?)/i
+    return m.message.partition(Regexp.last_match(1))[2].lstrip if m.message =~ /^(#{m.bot.nick}[:,-]?)/i
     m.message
   end
 end

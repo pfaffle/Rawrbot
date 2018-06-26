@@ -21,7 +21,7 @@ class HttpTitle
   end
 
   def get_page_title(uri)
-    title = Nokogiri::HTML(uri.open(:read_timeout => 5)).css('title').first.text
+    title = Nokogiri::HTML(uri.open(read_timeout: 5)).css('title').first.text
     strip_white_space(title)
   end
 

@@ -1,6 +1,7 @@
 require 'net/ldap'
 require 'yaml'
 
+# Provides a convenient interface to connect to and search an LDAP server
 class LdapHelper
   DEFAULT_CONFIG_FILE = 'config/ldap.yml'.freeze
 
@@ -15,7 +16,7 @@ class LdapHelper
   end
 
   def search(attribute, query_string)
-    server.search(:filter => Net::LDAP::Filter.eq(attribute, query_string))
+    server.search(filter: Net::LDAP::Filter.eq(attribute, query_string))
   end
 
   def bind
@@ -37,11 +38,11 @@ class LdapHelper
 
   def server
     Net::LDAP.new(
-      :host => @config['server'],
-      :port => @config['port'],
-      :auth => auth,
-      :encryption => encryption,
-      :base => @config['basedn']
+      host: @config['server'],
+      port: @config['port'],
+      auth: auth,
+      encryption: encryption,
+      base: @config['basedn']
     )
   end
 

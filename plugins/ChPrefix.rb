@@ -1,10 +1,12 @@
+# Plugin which allows you to dynamically change the prefix that the bot
+# uses to trigger commands
 class ChPrefix
   include Cinch::Plugin
 
-  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
-  match 'prefix'
-  match /chprefix (\S)/, :method => :chprefix
+  match('prefix')
+  match(/chprefix (\S)/, method: :chprefix)
 
   def execute(m)
     m.reply "prefix: #{self.class.prefix.call(m)}"
@@ -14,5 +16,4 @@ class ChPrefix
     m.reply "changing prefix to #{newprefix}"
     @bot.config.plugins.prefix = newprefix
   end
-
 end

@@ -279,7 +279,7 @@ RSpec.describe 'Karma' do
     end
   end
 
-  [-9999, -4, 32, 10601].each do |karma_value|
+  [-9999, -4, 32, 10_601].each do |karma_value|
     context "key has an existing karma value of #{karma_value}" do
       context 'with a single-word key' do
         let(:karma_key) { 'imatestkey' }

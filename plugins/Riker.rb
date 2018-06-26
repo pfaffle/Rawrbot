@@ -1,7 +1,8 @@
+# Plugin which prints random quotes by Commander Riker from Star Trek TNG
 class Riker
   include Cinch::Plugin
 
-  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
   match(/riker/, method: :quote)
 
@@ -12,9 +13,9 @@ class Riker
 
   def pick_random_line
     chosen_line = nil
-    File.foreach("data/rikerquotes.txt").each_with_index do |line, number|
-      chosen_line = line if rand < 1.0/(number+1)
+    File.foreach('data/rikerquotes.txt').each_with_index do |line, number|
+      chosen_line = line if rand < 1.0 / (number + 1)
     end
-    return chosen_line
+    chosen_line
   end
 end

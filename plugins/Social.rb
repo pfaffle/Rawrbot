@@ -8,42 +8,42 @@
 # Requirements:
 #     none
 class Social
-    include Cinch::Plugin
+  include Cinch::Plugin
 
-    set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
-    match(/hello|hi|howdy|hey|greetings|sup|hola/i, :use_prefix => false, method: :greet)
-    match(/(good)? ?(morning|afternoon|evening|night)/i, :use_prefix => false, method: :timeofday_greet)
-    match(/(good)?bye|adios|farewell|later|see ?(ya|you|u)|cya/i, :use_prefix => false, method: :farewell)
+  match(/hello|hi|howdy|hey|greetings|sup|hola/i, use_prefix: false, method: :greet)
+  match(/(good)? ?(morning|afternoon|evening|night)/i, use_prefix: false, method: :timeofday_greet)
+  match(/(good)?bye|adios|farewell|later|see ?(ya|you|u)|cya/i, use_prefix: false, method: :farewell)
 
-    # Function: greet
-    #
-    # Description:
-    #     Say hi!
-    def greet(m)
-        return unless m.message =~ /\b(hellos?|hi(ya)?|howdy|hey|greetings|yo|sup|hai|hola),? #{m.bot.nick}\b/i
-        greetings = ['Hello','Hi','Hola','Ni hao','Hey','Yo','Howdy']
-        greeting = greetings[rand(greetings.size)]
-        m.reply "#{greeting}, #{m.user.nick}!"
-    end
-    
-    # Function: timeofday_greet
-    #
-    # Description:
-    #     Gives a time of day-specific response to a greeting. i.e. 'good morning'.
-    def timeofday_greet(m)
-        return unless m.message =~ /\b(good)? ?(morning|afternoon|evening|night),? #{m.bot.nick}\b/i
-        m.reply "Good #{$2.downcase}, #{m.user.nick}!"
-    end
+  # Function: greet
+  #
+  # Description:
+  #     Say hi!
+  def greet(m)
+    return unless m.message =~ /\b(hellos?|hi(ya)?|howdy|hey|greetings|yo|sup|hai|hola),? #{m.bot.nick}\b/i
+    greetings = ['Hello', 'Hi', 'Hola', 'Ni hao', 'Hey', 'Yo', 'Howdy']
+    greeting = greetings[rand(greetings.size)]
+    m.reply "#{greeting}, #{m.user.nick}!"
+  end
 
-    # Function: farewell
-    #
-    # Description:
-    #     Says farewell.
-    def farewell(m)
-        return unless m.message =~ /\b((good)?bye|adios|farewell|later|see ?(ya|you|u)|cya),? #{m.bot.nick}\b/i
-        farewells = ['Bye','Adios','Farewell','Later','See ya','See you','Take care']
-        farewell = farewells[rand(farewells.size)]
-        m.reply "#{farewell}, #{m.user.nick}!"
-    end
+  # Function: timeofday_greet
+  #
+  # Description:
+  #     Gives a time of day-specific response to a greeting. i.e. 'good morning'.
+  def timeofday_greet(m)
+    return unless m.message =~ /\b(good)? ?(morning|afternoon|evening|night),? #{m.bot.nick}\b/i
+    m.reply "Good #{Regexp.last_match(2).downcase}, #{m.user.nick}!"
+  end
+
+  # Function: farewell
+  #
+  # Description:
+  #     Says farewell.
+  def farewell(m)
+    return unless m.message =~ /\b((good)?bye|adios|farewell|later|see ?(ya|you|u)|cya),? #{m.bot.nick}\b/i
+    farewells = ['Bye', 'Adios', 'Farewell', 'Later', 'See ya', 'See you', 'Take care']
+    farewell = farewells[rand(farewells.size)]
+    m.reply "#{farewell}, #{m.user.nick}!"
+  end
 end
