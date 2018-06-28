@@ -21,6 +21,6 @@ class ConfigLoader
 
   def to_class_name(file_name)
     base_name = File.basename(file_name).split('.').first
-    base_name.capitalize.gsub(/_([a-z])/) {|match| match.delete('_').capitalize}
+    base_name.capitalize.gsub(/_([a-z])/) { |match| match.delete('_').capitalize }
   end
 end

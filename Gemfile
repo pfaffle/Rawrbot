@@ -9,7 +9,7 @@ gem 'rspec'
 gem 'rspec-mocks'
 gem 'rubocop', require: false
 
-# Required by plugins: UrbanDictionary, UrlTitle 
+# Required by plugins: UrbanDictionary, UrlTitle
 gem 'nokogiri'
 
 # Required by plugins: Ganeti, Twitter

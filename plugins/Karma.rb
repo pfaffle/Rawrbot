@@ -9,24 +9,23 @@ class Karma
   include Cinch::Plugin
 
   require 'lib/key_value_db'
-  set :prefix, lambda { |m| m.bot.config.plugins.prefix }
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
-  @@karma_db = nil
-
-  match(/\S+\+\+/, method: :increment_all, :use_prefix => false)
-  match(/\S+--/, method: :decrement_all, :use_prefix => false)
+  match(/\S+\+\+/, method: :increment_all, use_prefix: false)
+  match(/\S+--/, method: :decrement_all, use_prefix: false)
   match(/karma (.+)/, method: :display_karma)
   match(/help karma/i, method: :karma_help)
   match('help', method: :help)
 
   def initialize(m)
     super
+    @karma_db = nil
     init_db
   end
 
   # For testing
   def use_db(new_db)
-    @@karma_db = new_db if new_db
+    @karma_db = new_db if new_db
   end
 
   # Increments karma by one point for each element that has a ++ after it. If
@@ -50,7 +49,7 @@ class Karma
   # Displays the current karma level of the requested element. If the element
   # does not exist in the DB, it has neutral (0) karma.
   def display_karma(m, element)
-    karma_value = @@karma_db[element.downcase.strip]
+    karma_value = @karma_db[element.downcase.strip]
     if karma_value.nil?
       m.reply("#{element.strip} has neutral karma.")
     else
@@ -61,14 +60,14 @@ class Karma
   # Displays help information for how to use the Karma plugin.
   def karma_help(m)
     p = self.class.prefix.call(m)
-    msg = <<EOS
+    msg = <<HELP
 Karma tracker
 ===========
 Description: Tracks karma for things. Higher karma = liked more, lower karma = disliked more.
 Usage: #{p}karma foo (to see karma level of 'foo')
 foo++ (foo bar)++ increments karma for 'foo' and 'foo bar'
 foo-- (foo bar)-- decrements karma for 'foo' and 'foo bar'
-EOS
+HELP
     m.reply(msg)
   end
 
@@ -83,29 +82,26 @@ EOS
   private
 
   def increment(element)
-    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
+    karma_value = @karma_db[element] || 0
     if karma_value == -1
-      @@karma_db.delete(element)
+      @karma_db.delete(element)
     else
-      @@karma_db[element] = karma_value + 1
+      @karma_db[element] = karma_value + 1
     end
   end
 
   def decrement(element)
-    karma_value = @@karma_db[element] ? @@karma_db[element] : 0
+    karma_value = @karma_db[element] || 0
     if karma_value == 1
-      @@karma_db.delete(element)
+      @karma_db.delete(element)
     else
-      @@karma_db[element] = karma_value - 1
+      @karma_db[element] = karma_value - 1
     end
   end
 
   def strip_operator(element)
-    if element.end_with?('++')
-      return element.chomp('++')
-    elsif element.end_with?('--')
-      return element.chomp('--')
-    end
+    return element.chomp('++') if element.end_with?('++')
+    return element.chomp('--') if element.end_with?('--')
     element
   end
 
@@ -115,8 +111,8 @@ EOS
   end
 
   def init_db
-    return unless @@karma_db.nil?
-    @@karma_db = KeyValueDatabase::SQLite.new('karma.sqlite3') do |config|
+    return unless @karma_db.nil?
+    @karma_db = KeyValueDatabase::SQLite.new('karma.sqlite3') do |config|
       config.table = 'karma'
       config.key_type = String
       config.value_type = Integer

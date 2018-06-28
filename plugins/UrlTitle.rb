@@ -6,9 +6,9 @@ require 'lib/http_title'
 class UrlTitle
   include Cinch::Plugin
 
-  set :prefix, lambda {|m| m.bot.config.plugins.prefix}
+  set(:prefix, ->(m) { m.bot.config.plugins.prefix })
 
-  match /http|https/i, method: :tell_page_title, :use_prefix => false
+  match(/http|https/i, method: :tell_page_title, use_prefix: false)
 
   def initialize(m)
     super
@@ -30,8 +30,8 @@ class UrlTitle
   private
 
   def get_uris(msg)
-    msg.scan(/(#{URI::regexp(%w(http https))})/i).collect do |match|
-      URI::parse(match.first)
+    msg.scan(/(#{URI.regexp(%w[http https])})/i).collect do |match|
+      URI.parse(match.first)
     end
   end
 end

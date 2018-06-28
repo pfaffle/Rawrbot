@@ -32,9 +32,9 @@ RSpec::Matchers.define :give_up do
 end
 
 describe 'Learning' do
-  let(:db_file) {'test_learning.sqlite3'}
-  let(:table) {'learning'}
-  let(:bot_nick) {'testbot'}
+  let(:db_file) { 'test_learning.sqlite3' }
+  let(:table) { 'learning' }
+  let(:bot_nick) { 'testbot' }
   let(:prefix) { /^!/ }
   before(:each) do
     @bot = new_bot_with_plugins(Learning)
@@ -51,9 +51,9 @@ describe 'Learning' do
   end
 
   context 'bot does not know of entry' do
-    let(:key) {'foo'}
-    let(:value) {'bar'}
-    let(:channel) {'#testchan'}
+    let(:key) { 'foo' }
+    let(:value) { 'bar' }
+    let(:channel) { '#testchan' }
 
     before(:each) do
       delete_key_from_db(@db, key)
@@ -103,9 +103,9 @@ describe 'Learning' do
   end
 
   context 'bot knows of an entry without special keywords' do
-    let(:key) {'foo'}
-    let(:value) {'bar'}
-    let(:channel) {'#testchan'}
+    let(:key) { 'foo' }
+    let(:value) { 'bar' }
+    let(:channel) { '#testchan' }
 
     before(:each) do
       set_db_key_value(@db, key, value)
@@ -152,9 +152,9 @@ describe 'Learning' do
   end
 
   context 'bot knows of an entry with the <reply> keyword' do
-    let(:key) {'foo'}
-    let(:value) {'<reply>bar'}
-    let(:channel) {'#testchan'}
+    let(:key) { 'foo' }
+    let(:value) { '<reply>bar' }
+    let(:channel) { '#testchan' }
 
     before(:each) do
       set_db_key_value(@db, key, value)
@@ -204,9 +204,9 @@ describe 'Learning' do
   end
 
   context 'bot knows of an entry with the $who keyword' do
-    let(:key) {'foo'}
-    let(:value) {'$who bar'}
-    let(:channel) {'#testchan'}
+    let(:key) { 'foo' }
+    let(:value) { '$who bar' }
+    let(:channel) { '#testchan' }
 
     before(:each) do
       set_db_key_value(@db, key, value)
@@ -216,7 +216,7 @@ describe 'Learning' do
       replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.length).to eq 1
       expect(replies.first.text)
-        .to eq("#{key} is #{value.gsub('$who','test')}.")
+        .to eq("#{key} is #{value.gsub('$who', 'test')}.")
     end
 
     it 'should literally teach it' do

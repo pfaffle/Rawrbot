@@ -3,7 +3,7 @@ require 'lib/http_title'
 # Note: This spec depends upon the ability to contact a public website (Google)
 # to run successfully
 describe 'HttpTitle' do
-  let(:http_title) {HttpTitle.new}
+  let(:http_title) { HttpTitle.new }
   context 'given a valid http uri' do
     it 'successfully gets the title from google.com' do
       expect(http_title.get('https://google.com')).to eq 'Google'
