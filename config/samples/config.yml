@@ -38,4 +38,4 @@ admins: ['mynick']
 
 # List of plugins (the names of Classes defined in the plugin files)
 # to load when the bot is started.
-plugins: [Social,Messenger,Karma,Learning,SendSignal,GoogleRSS]
+plugins: [Social,Messenger,Karma,Learning,SendSignal]
