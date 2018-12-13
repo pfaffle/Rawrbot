@@ -127,13 +127,13 @@ class Learning
       # If the entry contains the prefix <reply>, reply by simply saying
       # anything following it, rather than saying 'x is y'.
       if entry =~ /^<reply> ?(.+)/
-        m.reply(Regexp.last_match(1))
+        m.reply(max_reply_size(m, Regexp.last_match(1)))
         # If the entry contains the prefix <action>, send an action followed
         # by the entry
       elsif entry =~ /^<action> ?(.+)/
-        m.action_reply(Regexp.last_match(1))
+        m.action_reply(max_reply_size(m, Regexp.last_match(1)), 'ACTION')
       else
-        m.reply("#{topic} is #{entry}.")
+        m.reply(max_reply_size(m, "#{topic} is #{entry}."))
       end
     end
   end
@@ -210,5 +210,19 @@ HELP
   def message_without_bot_nick(m)
     return m.message.partition(Regexp.last_match(1))[2].lstrip if m.message =~ /^(#{m.bot.nick}[:,-]?)/i
     m.message
+  end
+
+  def max_reply_size(m, str, reply_type = 'PRIVMSG')
+    str.split(/\r\n|\r|\n/).each do |line|
+      maxlength = 510 - (':' + " #{reply_type} " + ' :').size
+      maxlength = maxlength - m.bot.nick.length - 3 # size of '...'
+
+      if line.bytesize > maxlength
+        pos = line.rindex(/\s/, maxlength)
+        r = pos || maxlength
+        return line.slice!(0, r) + '...'
+      end
+      return line
+    end
   end
 end

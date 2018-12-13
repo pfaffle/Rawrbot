@@ -53,3 +53,17 @@ Style/GlobalVars:
     - 'plugins/Pods.rb'
     - 'plugins/Reload.rb'
     - 'rawrbot.rb'
+
+# TODO: rename plugin files
+Naming/FileName:
+  Enabled: false
+
+# TODO: fix
+Layout/EmptyLineAfterGuardClause:
+  Exclude:
+    - 'lib/http_title.rb'
+    - 'lib/key_value_db.rb'
+    - 'lib/ldap_helper.rb'
+    - 'plugins/Karma.rb'
+    - 'plugins/Learning.rb'
+    - 'plugins/Social.rb'
