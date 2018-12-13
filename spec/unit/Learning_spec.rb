@@ -11,7 +11,7 @@ end
 def max_message_length(bot_nick)
   # this logic is copied, only partially modified from cinch source code, where it
   # determines how to split messages in target#send
-  maxlength = 510 - (":" + " PRIVMSG " + " :").size
+  maxlength = 510 - (':' + ' PRIVMSG ' + ' :').size
   maxlength - bot_nick.length
 end
 
@@ -268,7 +268,7 @@ describe 'Learning' do
     # cinch splits long messages in the underlying 'send' method, not in 'reply', so we have to actually
     # check the length of the string rather than the number of messages sent
     let(:key) { 'foo' }
-    let(:value) { 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ullamcorper velit sed ullamcorper morbi tincidunt ornare massa eget egestas. Fermentum posuere urna nec tincidunt praesent semper feugiat nibh sed. Quam nulla porttitor massa id neque aliquam vestibulum morbi blandit. Dui faucibus in ornare quam. Id porta nibh venenatis cras sed felis. Consequat nisl vel pretium lectus. Faucibus interdum posuere lorem ipsum dolor sit amet. Eget felis eget nunc lobortis mattis aliquam faucibus purus in. Risus feugiat in ante metus dictum at tempor. Eget aliquet nibh praesent tristique magna sit amet. Aliquam vestibulum morbi blandit cursus. Porta non pulvinar neque laoreet suspendisse interdum consectetur. Diam donec adipiscing tristique risus nec. Viverra vitae congue eu consequat ac felis donec et. Sagittis aliquam malesuada bibendum arcu vitae elementum. Amet purus gravida quis blandit turpis cursus in. Enim sit amet venenatis urna cursus eget nunc. Vel orci porta non pulvinar. Sapien et ligula ullamcorper malesuada proin libero nunc consequat. Id diam maecenas ultricies mi eget mauris pharetra et. Nam at lectus urna duis convallis. Viverra maecenas accumsan lacus vel facilisis volutpat est velit egestas. Placerat orci nulla pellentesque dignissim enim. Bibendum arcu vitae elementum curabitur. Duis ultricies lacus sed turpis tincidunt. Fermentum iaculis eu non diam phasellus vestibulum lorem sed. Montes nascetur ridiculus mus mauris. Commodo nulla facilisi nullam vehicula ipsum a. Quam quisque id diam vel quam. Magna ac placerat vestibulum lectus mauris ultrices eros. Vestibulum morbi blandit cursus risus at ultrices. Morbi tristique senectus et netus et. Praesent elementum facilisis leo vel fringilla. Id aliquet risus feugiat in ante metus dictum at. Vestibulum mattis ullamcorper velit sed ullamcorper morbi. Mattis pellentesque id nibh tortor id. Velit scelerisque in dictum non consectetur. Elementum nibh tellus molestie nunc non blandit. Arcu non sodales neque sodales ut etiam. Iaculis nunc sed augue lacus viverra vitae congue eu. Suscipit adipiscing bibendum est ultricies. Proin sed libero enim sed faucibus. Ullamcorper sit amet risus nullam eget felis eget nunc lobortis. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras. Dis parturient montes nascetur ridiculus mus. Fermentum et sollicitudin ac orci phasellus egestas tellus. Mattis rhoncus urna neque viverra justo nec. Nibh ipsum consequat nisl vel pretium lectus quam id. Eget sit amet tellus cras adipiscing enim eu turpis egestas' }
+    let(:value) { 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ullamcorper velit sed ullamcorper morbi tincidunt ornare massa eget egestas. Fermentum posuere urna nec tincidunt praesent semper feugiat nibh sed. Quam nulla porttitor massa id neque aliquam vestibulum morbi blandit. Dui faucibus in ornare quam. Id porta nibh venenatis cras sed felis. Consequat nisl vel pretium lectus. Faucibus interdum posuere lorem ipsum dolor sit amet. Eget felis eget nunc lobortis mattis aliquam faucibus purus in. Risus feugiat in ante metus dictum at tempor. Eget aliquet nibh praesent tristique magna sit amet. Aliquam vestibulum morbi blandit cursus. Porta non pulvinar neque laoreet suspendisse interdum consectetur. Diam donec adipiscing tristique risus nec. Viverra vitae congue eu consequat ac felis donec et. Sagittis aliquam malesuada bibendum arcu vitae elementum. Amet purus gravida quis blandit turpis cursus in. Enim sit amet venenatis urna cursus eget nunc. Vel orci porta non pulvinar. Sapien et ligula ullamcorper malesuada proin libero nunc consequat. Id diam maecenas ultricies mi eget mauris pharetra et. Nam at lectus urna duis convallis. Viverra maecenas accumsan lacus vel facilisis volutpat est velit egestas. Placerat orci nulla pellentesque dignissim enim. Bibendum arcu vitae elementum curabitur. Duis ultricies lacus sed turpis tincidunt. Fermentum iaculis eu non diam phasellus vestibulum lorem sed. Montes nascetur ridiculus mus mauris. Commodo nulla facilisi nullam vehicula ipsum a. Quam quisque id diam vel quam. Magna ac placerat vestibulum lectus mauris ultrices eros. Vestibulum morbi blandit cursus risus at ultrices. Morbi tristique senectus et netus et. Praesent elementum facilisis leo vel fringilla. Id aliquet risus feugiat in ante metus dictum at. Vestibulum mattis ullamcorper velit sed ullamcorper morbi. Mattis pellentesque id nibh tortor id. Velit scelerisque in dictum non consectetur. Elementum nibh tellus molestie nunc non blandit. Arcu non sodales neque sodales ut etiam. Iaculis nunc sed augue lacus viverra vitae congue eu. Suscipit adipiscing bibendum est ultricies. Proin sed libero enim sed faucibus. Ullamcorper sit amet risus nullam eget felis eget nunc lobortis. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras. Dis parturient montes nascetur ridiculus mus. Fermentum et sollicitudin ac orci phasellus egestas tellus. Mattis rhoncus urna neque viverra justo nec. Nibh ipsum consequat nisl vel pretium lectus quam id. Eget sit amet tellus cras adipiscing enim eu turpis egestas' } # rubocop:disable Metrics/LineLength
     let(:value_with_action) { "<action>#{value}" }
     let(:channel) { '#testchan' }
 
@@ -280,14 +280,14 @@ describe 'Learning' do
       replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.first.text.size).to be < max_message_length(bot_nick)
       expect(replies.first.text)
-        .to start_with("#{key} is").and include("#{value[0,20]}").and end_with('...')
+        .to start_with("#{key} is").and include(value[0, 20].to_s).and end_with('...')
     end
 
     it 'should cut off its response even if it is an action' do
       replies = get_replies_to("#{bot_nick}: #{key}")
       expect(replies.first.text.size).to be < max_message_length(bot_nick)
       expect(replies.first.text)
-        .to start_with("#{key} is").and include("#{value[0,20]}").and end_with('...')
+        .to start_with("#{key} is").and include(value[0, 20].to_s).and end_with('...')
     end
   end
   # TODO: add some tests around | special case

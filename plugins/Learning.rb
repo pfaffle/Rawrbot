@@ -214,7 +214,7 @@ HELP
 
   def max_reply_size(m, str, reply_type = 'PRIVMSG')
     str.split(/\r\n|\r|\n/).each do |line|
-      maxlength = 510 - (":" + " #{reply_type} " + " :").size
+      maxlength = 510 - (':' + " #{reply_type} " + ' :').size
       maxlength = maxlength - m.bot.nick.length - 3 # size of '...'
 
       if line.bytesize > maxlength
